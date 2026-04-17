@@ -2,11 +2,8 @@
 
 import { useState, useEffect } from "react";
 
-// ===============================
-// PREMIUM PIPUPATH (FIXED BUILD)
-// ===============================
-
-   8 UNIVERSAL BUILDER ARCHETYPES
+// ─────────────────────────────────────────────
+// 8 UNIVERSAL BUILDER ARCHETYPES
 // Same in Lagos. Same in Tokyo. Same in São Paulo.
 // ─────────────────────────────────────────────
 const ARCHETYPES = {
@@ -135,95 +132,94 @@ const QUESTIONS = [
   },
 ];
 
-
-// ===============================
+// ─────────────────────────────────────────────
 // HELPERS
-// ===============================
+// ─────────────────────────────────────────────
 function calcArchetype(answers) {
   const scores = {};
   Object.keys(ARCHETYPES).forEach((k) => (scores[k] = 0));
-
   answers.forEach((optIdx, qIdx) => {
     const w = QUESTIONS[qIdx].options[optIdx].w;
-    Object.entries(w).forEach(([t, s]) => {
-      scores[t] = (scores[t] || 0) + s;
-    });
+    Object.entries(w).forEach(([t, s]) => { scores[t] = (scores[t] || 0) + s; });
   });
-
   return Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
 }
 
-// FIXED: use your real route
+// NEW: Call our secure API route instead of calling Anthropic directly
 async function callAI(prompt) {
-  const res = await fetch("/api/path", {
+  const res = await fetch("/api/generate", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt }),
   });
-
+  
+  if (!res.ok) {
+    throw new Error('AI generation failed');
+  }
+  
   const data = await res.json();
-  return data;
+  return data.result;
 }
 
 async function generatePath(archetypeKey, answers) {
   const arch = ARCHETYPES[archetypeKey];
-
   const qa = answers.map((optIdx, qIdx) => ({
     q: QUESTIONS[qIdx].q,
     a: QUESTIONS[qIdx].options[optIdx].text,
   }));
 
-  return await callAI(`
-Builder Type: ${arch.name}
+  return callAI(`You are PipuPath — a clarity-to-action guide for builders worldwide.
 
-Answers:
-${qa.map((x, i) => `Q${i + 1}: ${x.q}\nA: ${x.a}`).join("\n\n")}
+Builder type detected: ${arch.name} — "${arch.tagline}"
+Core description: ${arch.description}
 
-Return ONLY JSON:
+Their discovery answers:
+${qa.map((x, i) => `Q${i + 1}: ${x.q}\nAnswer: ${x.a}`).join("\n\n")}
+
+Generate their personalized builder path. Return ONLY valid JSON, no markdown, no extra text:
+
 {
- "path_title":"Specific title",
- "revelation":"Powerful insight",
- "skill_one":"Key skill",
- "skill_why":"Why this matters",
- "first_move":"Concrete move in 48 hours",
- "first_offer":"How to create value in 7 days",
- "trap":"Main trap",
- "challenge":"30 day challenge"
+  "path_title": "A specific evocative title for their personal path (e.g. 'The Community Systems Builder' or 'The Pattern-Breaking Merchant')",
+  "revelation": "2 sentences of powerful insight about their natural wiring. Should feel like a mirror — something they've always known but never heard said clearly.",
+  "skill_one": "The single most important skill for them to develop first — be specific",
+  "skill_why": "One sentence explaining why this skill above all others right now",
+  "first_move": "One concrete action they can take in the next 48 hours. Name exact platforms, people types, or actions. No vague advice.",
+  "first_offer": "The simplest way they can create real value and potentially earn within 7 days. Be specific to their archetype.",
+  "trap": "The most dangerous trap this builder type falls into. Be brutally honest. This should sting a little.",
+  "challenge": "A specific 30-day challenge for their type that will prove something important to themselves"
 }
-`);
+
+Different answers must produce meaningfully different paths. Speak directly to who they actually are. No generic advice.`);
 }
 
 async function generateCheckin(archetypeKey, checkin, path) {
-  return await callAI(`
-Builder Path: ${path.path_title}
+  const arch = ARCHETYPES[archetypeKey];
+  return callAI(`You are PipuPath — a clarity-to-action builder guide.
 
-What they tried:
-${checkin.tried}
+Builder: ${arch.name} — ${path.path_title}
+Their original first move was: ${path.first_move}
+Their 30-day challenge was: ${path.challenge}
 
-What worked:
-${checkin.worked}
+Check-in report:
+- What they tried: ${checkin.tried}
+- What worked: ${checkin.worked}  
+- Where they got stuck: ${checkin.stuck}
 
-Where stuck:
-${checkin.stuck}
+Return ONLY valid JSON, no markdown:
 
-Return ONLY JSON:
 {
- "acknowledgment":"Specific acknowledgment",
- "insight":"What results reveal",
- "adjustment":"Specific weekly adjustment",
- "next_move":"Single next action",
- "momentum":8,
- "momentum_note":"Reason for score"
-}
-`);
+  "acknowledgment": "One sentence validating specifically what they did — not generic praise",
+  "insight": "One sharp insight about what their results actually reveal about them as a builder",
+  "adjustment": "One specific change to make this week based on what worked and what didn't",
+  "next_move": "Their single most important next action — concrete and specific",
+  "momentum": 7,
+  "momentum_note": "One sentence explaining the momentum score"
+}`);
 }
 
-// ===============================
-// YOUR EXISTING CSS
-// KEEP YOUR PREMIUM CSS EXACTLY
-// ===============================
+// ─────────────────────────────────────────────
+// STYLES
+// ─────────────────────────────────────────────
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=DM+Sans:wght@300;400;500&display=swap');
 
@@ -439,42 +435,29 @@ const CSS = `
   .pp-kaec a:hover { color: rgba(245,158,11,0.7); }
 `;
 
-// ===============================
+// ─────────────────────────────────────────────
 // APP
-// ===============================
+// ─────────────────────────────────────────────
 export default function PipuPath() {
   const [screen, setScreen] = useState("boot");
-  const [qIdx, setQIdx] = useState(0);
+  const [qIdx, setQIdx]     = useState(0);
   const [answers, setAnswers] = useState([]);
-  const [chosen, setChosen] = useState(null);
+  const [chosen, setChosen]   = useState(null);
   const [archKey, setArchKey] = useState(null);
   const [pathData, setPathData] = useState(null);
-
-  const [busy, setBusy] = useState(false);
-  const [animKey, setAnimKey] = useState(0);
-
-  const [checkin, setCheckin] = useState({
-    tried: "",
-    worked: "",
-    stuck: "",
-  });
-
+  const [checkin, setCheckin]   = useState({ tried: "", worked: "", stuck: "" });
   const [checkinRes, setCheckinRes] = useState(null);
-
-  // NEW lead capture
-  const [showSave, setShowSave] = useState(false);
-  const [leadName, setLeadName] = useState("");
-  const [leadEmail, setLeadEmail] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [busy, setBusy]   = useState(false);
+  const [animKey, setAnimKey] = useState(0);
 
   const arch = archKey ? ARCHETYPES[archKey] : null;
 
+  // Boot: check localStorage for returning user (simplified for now)
   useEffect(() => {
-    const savedProfile = localStorage.getItem("pp_profile");
-
-    if (savedProfile) {
+    const saved = localStorage.getItem("pp_profile");
+    if (saved) {
       try {
-        const p = JSON.parse(savedProfile);
+        const p = JSON.parse(saved);
         setArchKey(p.archKey);
         setPathData(p.pathData);
         setScreen("returning");
@@ -486,50 +469,36 @@ export default function PipuPath() {
     }
   }, []);
 
-  function go(s) {
-    setAnimKey((k) => k + 1);
-    setScreen(s);
-  }
+  function go(s) { setAnimKey(k => k + 1); setScreen(s); }
 
   function resetProfile() {
     localStorage.removeItem("pp_profile");
-    setAnswers([]);
-    setQIdx(0);
-    setChosen(null);
-    setArchKey(null);
-    setPathData(null);
+    setArchKey(null); setPathData(null);
+    setAnswers([]); setQIdx(0); setChosen(null);
     go("welcome");
   }
 
   function pickAnswer(optIdx) {
     setChosen(optIdx);
-
     setTimeout(async () => {
       const next = [...answers, optIdx];
       setAnswers(next);
       setChosen(null);
 
       if (qIdx < QUESTIONS.length - 1) {
-        setQIdx((q) => q + 1);
-        setAnimKey((k) => k + 1);
+        setQIdx(q => q + 1);
+        setAnimKey(k => k + 1);
       } else {
         const key = calcArchetype(next);
         setArchKey(key);
-
         go("generating");
-
-        const path = await generatePath(key, next);
-
-        setPathData(path);
-
-        localStorage.setItem(
-          "pp_profile",
-          JSON.stringify({
-            archKey: key,
-            pathData: path,
-          })
-        );
-
+        try {
+          const path = await generatePath(key, next);
+          setPathData(path);
+          localStorage.setItem("pp_profile", JSON.stringify({ archKey: key, pathData: path }));
+        } catch (err) {
+          console.error('Path generation failed:', err);
+        }
         go("result");
       }
     }, 280);
@@ -537,98 +506,76 @@ export default function PipuPath() {
 
   async function submitCheckin() {
     if (!checkin.tried || !checkin.worked || !checkin.stuck) return;
-
     setBusy(true);
-
-    const res = await generateCheckin(archKey, checkin, pathData);
-
-    setCheckinRes(res);
-    setBusy(false);
-
-    go("checkin_result");
-  }
-
-  async function saveLead() {
-    if (!leadName.trim() || !leadEmail.trim()) {
-      alert("Please enter name and email.");
-      return;
+    try {
+      const res = await generateCheckin(archKey, checkin, pathData);
+      setCheckinRes(res);
+      go("checkin_result");
+    } catch (err) {
+      console.error('Check-in failed:', err);
     }
-
-    // optional DB route later
-    setSaved(true);
+    setBusy(false);
   }
 
-  // ===============================
-  // SCREENS
-  // ===============================
+  // ── SCREENS ──────────────────────────────────
+
   const screens = {
 
-    boot: <div className="pp-spin-wrap"><div className="pp-spin" /></div>,
+    boot: (
+      <div className="pp-spin-wrap">
+        <div className="pp-spin" />
+      </div>
+    ),
 
     welcome: (
       <div className="pp-in" key={animKey}>
         <div className="pp-logo">PipuPath</div>
         <h1 className="pp-h1">Discover your<br /><em>builder path.</em></h1>
         <p className="pp-lead">
-          5 questions. Your natural archetype revealed.
+          5 questions. Your natural archetype revealed. A specific path forward — no matter where in the world you are.
         </p>
         <button className="pp-btn" onClick={() => go("questions")}>
           Begin Discovery →
         </button>
+        <div className="pp-kaec">
+          By <a href="https://www.kaec.com.ng" target="_blank" rel="noreferrer">KAEC Nigerian Schools</a> — Where Builders Are Raised
+        </div>
       </div>
     ),
 
     returning: (
       <div className="pp-in" key={animKey}>
         <div className="pp-logo">PipuPath</div>
-
         {arch && (
-          <div className="pp-badge"
-            style={{
-              background: arch.glow,
-              color: arch.color,
-              border: `1px solid ${arch.color}40`
-            }}>
+          <div className="pp-badge" style={{ background: arch.glow, color: arch.color, border: `1px solid ${arch.color}40` }}>
             {arch.emoji} {arch.name}
           </div>
         )}
-
         <h2 className="pp-h2">
-          Welcome back,<br />
-          <em>{pathData?.path_title || arch?.name}</em>
+          Welcome back,<br /><em>{pathData?.path_title || arch?.name}</em>
         </h2>
-
+        <p className="pp-lead">What have you built since we last spoke?</p>
         <div className="pp-btns">
-          <button className="pp-btn" onClick={() => go("checkin")}>
-            Check In Progress →
-          </button>
-
-          <button className="pp-btn-outline" onClick={() => go("result")}>
-            View My Path
-          </button>
-
-          <button className="pp-btn-outline" onClick={resetProfile}>
-            Start Fresh
-          </button>
+          <button className="pp-btn" onClick={() => go("checkin")}>Check In Progress →</button>
+          <button className="pp-btn-outline" onClick={() => go("result")}>View My Path</button>
+          <button className="pp-btn-outline" onClick={resetProfile}>Start Fresh</button>
         </div>
       </div>
     ),
 
     questions: (
-      <div className="pp-in" key={animKey}>
+      <div className="pp-in" key={`q${qIdx}-${animKey}`}>
         <div className="pp-logo">PipuPath</div>
-
-        <div className="pp-question">
-          {QUESTIONS[qIdx].q}
+        <div className="pp-bar">
+          {QUESTIONS.map((_, i) => (
+            <div key={i} className={`pp-bar-seg ${i < qIdx ? "done" : i === qIdx ? "active" : ""}`} />
+          ))}
         </div>
-
+        <div className="pp-qnum">Question {qIdx + 1} of {QUESTIONS.length}</div>
+        <div className="pp-question">{QUESTIONS[qIdx].q}</div>
         <div className="pp-opts">
           {QUESTIONS[qIdx].options.map((opt, i) => (
-            <button
-              key={i}
-              className={`pp-opt ${chosen === i ? "chosen" : ""}`}
-              onClick={() => pickAnswer(i)}
-            >
+            <button key={i} className={`pp-opt ${chosen === i ? "chosen" : ""}`} onClick={() => pickAnswer(i)}>
               {opt.text}
             </button>
           ))}
@@ -637,139 +584,183 @@ export default function PipuPath() {
     ),
 
     generating: (
-      <div className="pp-spin-wrap">
+      <div className="pp-spin-wrap pp-in" key={animKey}>
+        <div className="pp-logo">PipuPath</div>
         <div className="pp-spin" />
-        <p>Mapping your builder path...</p>
+        <p style={{ fontSize: "13px", color: "rgba(245,236,215,0.35)", letterSpacing: "0.05em" }}>
+          Mapping your builder path...
+        </p>
       </div>
     ),
 
     result: arch ? (
       <div className="pp-scroll pp-in" key={animKey}>
-        <div className="pp-logo">PipuPath</div>
+        <div className="pp-logo" style={{ marginBottom: "28px" }}>PipuPath</div>
 
-        <div className="pp-badge"
-          style={{
-            background: arch.glow,
-            color: arch.color,
-            border: `1px solid ${arch.color}40`
-          }}>
+        <div className="pp-badge" style={{ background: arch.glow, color: arch.color, border: `1px solid ${arch.color}40` }}>
           {arch.emoji} {arch.name}
         </div>
 
-        <h2 className="pp-h2">{pathData?.path_title}</h2>
+        <h2 className="pp-h2" style={{ marginBottom: "10px" }}>
+          {pathData?.path_title || arch.name}
+        </h2>
 
-        <div className="pp-card">
-          <div className="pp-card-label">Your Revelation</div>
-          <div className="pp-card-body">{pathData?.revelation}</div>
+        <div className="pp-traits">
+          {arch.traits.map(t => <span key={t} className="pp-trait">{t}</span>)}
         </div>
 
-        <div className="pp-card">
-          <div className="pp-card-label">Skill to Build First</div>
-          <div className="pp-card-body">
-            <strong>{pathData?.skill_one}</strong>
-            <small>{pathData?.skill_why}</small>
-          </div>
-        </div>
-
-        <div className="pp-card">
-          <div className="pp-card-label">First Move</div>
-          <div className="pp-card-body">{pathData?.first_move}</div>
-        </div>
-
-        <div className="pp-card">
-          <div className="pp-card-label">7 Day Offer</div>
-          <div className="pp-card-body">{pathData?.first_offer}</div>
-        </div>
-
-        <div className="pp-card">
-          <div className="pp-card-label">Trap</div>
-          <div className="pp-card-body">{pathData?.trap}</div>
-        </div>
-
-        <div className="pp-card">
-          <div className="pp-card-label">30 Day Challenge</div>
-          <div className="pp-card-body">{pathData?.challenge}</div>
-        </div>
-
-        {!showSave && !saved && (
-          <button className="pp-btn" style={{width:"100%"}} onClick={() => setShowSave(true)}>
-            Save My Path →
-          </button>
-        )}
-
-        {showSave && !saved && (
-          <div style={{marginTop:"14px"}}>
-            <input className="pp-textarea" placeholder="Full Name" value={leadName} onChange={(e)=>setLeadName(e.target.value)} />
-            <input className="pp-textarea" placeholder="Email Address" value={leadEmail} onChange={(e)=>setLeadEmail(e.target.value)} />
-            <button className="pp-btn" style={{width:"100%"}} onClick={saveLead}>
-              Save Progress →
-            </button>
+        {pathData?.revelation && (
+          <div className="pp-card accent" style={{ borderLeftColor: arch.color, marginBottom: "16px" }}>
+            <div className="pp-card-label">Your Revelation</div>
+            <div className="pp-card-body">{pathData.revelation}</div>
           </div>
         )}
 
-        {saved && (
-          <div className="pp-card">
-            <div className="pp-card-body">
-              Saved successfully. We’ll keep your path ready.
+        {pathData ? (
+          <>
+            <div className="pp-card">
+              <div className="pp-card-label">Skill to Build First</div>
+              <div className="pp-card-body">
+                <strong>{pathData.skill_one}</strong>
+                <small>{pathData.skill_why}</small>
+              </div>
             </div>
+
+            <div className="pp-card accent" style={{ borderLeftColor: arch.color }}>
+              <div className="pp-card-label">Your First Move — 48 Hours</div>
+              <div className="pp-card-body">{pathData.first_move}</div>
+            </div>
+
+            <div className="pp-card">
+              <div className="pp-card-label">First Earning Opportunity — 7 Days</div>
+              <div className="pp-card-body">{pathData.first_offer}</div>
+            </div>
+
+            <div className="pp-card" style={{ borderColor: "rgba(249,115,22,0.2)" }}>
+              <div className="pp-card-label">⚠ Your Trap</div>
+              <div className="pp-card-body" style={{ color: "rgba(245,236,215,0.65)" }}>{pathData.trap}</div>
+            </div>
+
+            <div className="pp-card">
+              <div className="pp-card-label">30-Day Challenge</div>
+              <div className="pp-card-body">{pathData.challenge}</div>
+            </div>
+          </>
+        ) : (
+          <div className="pp-card">
+            <div className="pp-card-body">{arch.description}</div>
           </div>
         )}
 
         <div className="pp-divider" />
-
-        <button className="pp-btn" style={{width:"100%"}} onClick={() => go("checkin")}>
+        <button className="pp-btn" style={{ width: "100%" }} onClick={() => go("checkin")}>
           Check In Progress →
         </button>
       </div>
     ) : null,
 
     checkin: (
-      <div className="pp-in">
+      <div className="pp-in" key={animKey}>
         <div className="pp-logo">PipuPath</div>
+        {arch && (
+          <div className="pp-badge" style={{ background: arch.glow, color: arch.color, border: `1px solid ${arch.color}40`, marginBottom: "20px" }}>
+            {arch.emoji} Builder Check-In
+          </div>
+        )}
+        <h2 className="pp-h2" style={{ marginBottom: "8px" }}>
+          Progress<br /><em>Check-In</em>
+        </h2>
+        <p className="pp-lead" style={{ marginBottom: "24px" }}>
+          No judgment. Just honesty. This is how growth compounds.
+        </p>
 
-        <h2 className="pp-h2">Progress<br /><em>Check-In</em></h2>
+        <label className="pp-label">What did you actually try?</label>
+        <textarea className="pp-textarea" rows={3}
+          placeholder="What specific action did you take? Be concrete."
+          value={checkin.tried}
+          onChange={e => setCheckin(p => ({ ...p, tried: e.target.value }))} />
 
-        <textarea className="pp-textarea" placeholder="What did you try?" value={checkin.tried} onChange={(e)=>setCheckin({...checkin,tried:e.target.value})} />
-        <textarea className="pp-textarea" placeholder="What worked?" value={checkin.worked} onChange={(e)=>setCheckin({...checkin,worked:e.target.value})} />
-        <textarea className="pp-textarea" placeholder="Where are you stuck?" value={checkin.stuck} onChange={(e)=>setCheckin({...checkin,stuck:e.target.value})} />
+        <label className="pp-label">What worked?</label>
+        <textarea className="pp-textarea" rows={3}
+          placeholder="What got a response, showed movement, or surprised you?"
+          value={checkin.worked}
+          onChange={e => setCheckin(p => ({ ...p, worked: e.target.value }))} />
 
-        <button className="pp-btn" onClick={submitCheckin}>
-          {busy ? "Analyzing..." : "Get My Adjustment →"}
-        </button>
+        <label className="pp-label">Where are you stuck?</label>
+        <textarea className="pp-textarea" rows={3}
+          placeholder="What blocked you or didn't work the way you expected?"
+          value={checkin.stuck}
+          onChange={e => setCheckin(p => ({ ...p, stuck: e.target.value }))} />
+
+        <div className="pp-btns">
+          <button className="pp-btn" onClick={submitCheckin} disabled={busy || !checkin.tried || !checkin.worked || !checkin.stuck}>
+            {busy ? "Analyzing..." : "Get My Adjustment →"}
+          </button>
+          <button className="pp-btn-outline" onClick={() => go(pathData ? "returning" : "result")}>Back</button>
+        </div>
       </div>
     ),
 
     checkin_result: (
-      <div className="pp-scroll pp-in">
-        <div className="pp-logo">PipuPath</div>
+      <div className="pp-scroll pp-in" key={animKey}>
+        <div className="pp-logo" style={{ marginBottom: "28px" }}>PipuPath</div>
 
-        <h2 className="pp-h2">Your<br /><em>Adjustment</em></h2>
+        <h2 className="pp-h2" style={{ marginBottom: "24px" }}>
+          Your<br /><em>Adjustment</em>
+        </h2>
 
-        <div className="pp-card"><div className="pp-card-body">{checkinRes?.acknowledgment}</div></div>
-        <div className="pp-card"><div className="pp-card-body">{checkinRes?.insight}</div></div>
-        <div className="pp-card"><div className="pp-card-body">{checkinRes?.adjustment}</div></div>
-        <div className="pp-card"><div className="pp-card-body">{checkinRes?.next_move}</div></div>
+        {checkinRes && (
+          <>
+            <div className="pp-card accent" style={{ borderLeftColor: arch?.color || "#F59E0B" }}>
+              <div className="pp-card-label">Acknowledgment</div>
+              <div className="pp-card-body">{checkinRes.acknowledgment}</div>
+            </div>
 
-        <div className="pp-card">
-          <div className="pp-card-body">
-            Momentum: {checkinRes?.momentum}/10
-          </div>
+            <div className="pp-card">
+              <div className="pp-card-label">What Your Results Reveal</div>
+              <div className="pp-card-body">{checkinRes.insight}</div>
+            </div>
+
+            <div className="pp-card">
+              <div className="pp-card-label">This Week — Make This Change</div>
+              <div className="pp-card-body">{checkinRes.adjustment}</div>
+            </div>
+
+            <div className="pp-card accent" style={{ borderLeftColor: arch?.color || "#F59E0B" }}>
+              <div className="pp-card-label">Next Move</div>
+              <div className="pp-card-body">{checkinRes.next_move}</div>
+            </div>
+
+            <div className="pp-card">
+              <div className="pp-card-label">Momentum</div>
+              <div className="pp-momentum">{checkinRes.momentum}<span style={{ fontSize: "20px", opacity: 0.4 }}>/10</span></div>
+              <div className="pp-card-body" style={{ marginTop: "8px", color: "rgba(245,236,215,0.55)", fontSize: "13px" }}>
+                {checkinRes.momentum_note}
+              </div>
+            </div>
+          </>
+        )}
+
+        <div className="pp-divider" />
+        <div className="pp-btns">
+          <button className="pp-btn" onClick={() => {
+            setCheckin({ tried: "", worked: "", stuck: "" });
+            setCheckinRes(null);
+            go("returning");
+          }}>Back to My Path →</button>
         </div>
-
-        <button className="pp-btn" style={{width:"100%"}} onClick={() => go("returning")}>
-          Back To My Path →
-        </button>
       </div>
-    )
+    ),
   };
 
   return (
     <>
       <style>{CSS}</style>
-
       <div className="pp">
+        <div className="pp-bg-glow pp-bg-glow-1" />
+        <div className="pp-bg-glow pp-bg-glow-2" />
         <div className="pp-wrap">
-          {screens[screen]}
+          {screens[screen] || screens.welcome}
         </div>
       </div>
     </>
