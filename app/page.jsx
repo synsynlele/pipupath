@@ -1,10 +1,7 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 
-// ─────────────────────────────────────────────
-// 8 UNIVERSAL BUILDER ARCHETYPES
-// ─────────────────────────────────────────────
 const ARCHETYPES = {
   SOLVER: {
     name: "The Solver",
@@ -12,7 +9,8 @@ const ARCHETYPES = {
     tagline: "You fix what others walk past.",
     color: "#F97316",
     glow: "rgba(249,115,22,0.15)",
-    description: "Problems don't frustrate you — they fuel you.",
+    description:
+      "Problems don't frustrate you — they fuel you. You cannot rest knowing something broken exists.",
     traits: ["Analytical", "Relentless", "Resourceful"],
   },
   CONNECTOR: {
@@ -21,7 +19,8 @@ const ARCHETYPES = {
     tagline: "People and ideas find their home through you.",
     color: "#10B981",
     glow: "rgba(16,185,129,0.15)",
-    description: "You build networks and trust.",
+    description:
+      "You build through trust, people, and networks.",
     traits: ["Empathetic", "Influential", "Magnetic"],
   },
   MAKER: {
@@ -30,7 +29,8 @@ const ARCHETYPES = {
     tagline: "Your hands and mind build what didn't exist.",
     color: "#A78BFA",
     glow: "rgba(167,139,250,0.15)",
-    description: "You create what wasn't there.",
+    description:
+      "Creation is your instinct. You turn ideas into reality.",
     traits: ["Skilled", "Precise", "Patient"],
   },
   VOICE: {
@@ -39,7 +39,8 @@ const ARCHETYPES = {
     tagline: "You make ideas move and people listen.",
     color: "#FBBF24",
     glow: "rgba(251,191,36,0.15)",
-    description: "Words are your leverage.",
+    description:
+      "Words are your leverage.",
     traits: ["Articulate", "Persuasive", "Curious"],
   },
   MERCHANT: {
@@ -48,7 +49,8 @@ const ARCHETYPES = {
     tagline: "You see value everywhere others see nothing.",
     color: "#F59E0B",
     glow: "rgba(245,158,11,0.15)",
-    description: "You understand opportunity.",
+    description:
+      "You understand value, trade, and opportunity.",
     traits: ["Sharp", "Bold", "Strategic"],
   },
   ARCHITECT: {
@@ -57,7 +59,8 @@ const ARCHETYPES = {
     tagline: "You design systems before others see the need.",
     color: "#38BDF8",
     glow: "rgba(56,189,248,0.15)",
-    description: "You think in systems.",
+    description:
+      "You think in scalable systems.",
     traits: ["Strategic", "Visionary", "Disciplined"],
   },
   HEALER: {
@@ -66,7 +69,8 @@ const ARCHETYPES = {
     tagline: "You build to reduce human pain.",
     color: "#4ADE80",
     glow: "rgba(74,222,128,0.15)",
-    description: "You help people thrive.",
+    description:
+      "You care deeply about helping people thrive.",
     traits: ["Compassionate", "Driven", "Grounded"],
   },
   PERFORMER: {
@@ -75,12 +79,12 @@ const ARCHETYPES = {
     tagline: "You create experiences that change people.",
     color: "#F472B6",
     glow: "rgba(244,114,182,0.15)",
-    description: "You move culture through expression.",
+    description:
+      "You move people emotionally and culturally.",
     traits: ["Creative", "Expressive", "Bold"],
   },
 };
 
-// QUESTIONS KEPT EXACTLY
 const QUESTIONS = [
   {
     q: "When you see something broken or missing in the world, your first instinct is:",
@@ -131,137 +135,260 @@ const QUESTIONS = [
 
 function calcArchetype(answers) {
   const scores = {};
-  Object.keys(ARCHETYPES).forEach(k => scores[k] = 0);
+  Object.keys(ARCHETYPES).forEach((k) => (scores[k] = 0));
 
   answers.forEach((optIdx, qIdx) => {
-    const weights = QUESTIONS[qIdx].options[optIdx].w;
-    Object.entries(weights).forEach(([k,v]) => scores[k]+=v);
+    const w = QUESTIONS[qIdx].options[optIdx].w;
+    Object.entries(w).forEach(([type, val]) => {
+      scores[type] += val;
+    });
   });
 
-  return Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
+  return Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
 }
 
-async function callAI(prompt){
-  const res = await fetch("/api/generate",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ prompt })
+async function askAI(prompt) {
+  const res = await fetch("/api/path", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt }),
   });
 
-  const data = await res.json();
-
-  if(!res.ok) throw new Error(data.error || "Failed");
-
-  return data.result;
+  return await res.json();
 }
 
-export default function Page(){
-  const [screen,setScreen]=useState("welcome");
-  const [qIdx,setQIdx]=useState(0);
-  const [answers,setAnswers]=useState([]);
-  const [archKey,setArchKey]=useState(null);
-  const [pathData,setPathData]=useState(null);
+const CSS = `
+*{box-sizing:border-box;margin:0;padding:0}
+body{margin:0}
+.pp{
+min-height:100vh;
+background:#080400;
+color:#F5ECD7;
+font-family:Arial,sans-serif;
+display:flex;
+justify-content:center;
+padding:30px 20px;
+}
+.pp-wrap{width:100%;max-width:620px}
+.pp-logo{font-size:12px;letter-spacing:.35em;color:rgba(245,158,11,.6);margin-bottom:30px}
+.pp-h1{font-size:54px;line-height:1.05;margin-bottom:14px}
+.pp-h2{font-size:38px;line-height:1.1;margin-bottom:16px}
+.pp-lead{opacity:.7;line-height:1.6;margin-bottom:28px}
+.pp-btn{
+width:100%;
+padding:15px;
+border:none;
+cursor:pointer;
+background:#F59E0B;
+color:#080400;
+font-weight:700;
+margin-top:12px;
+}
+.pp-btn-outline{
+width:100%;
+padding:15px;
+border:1px solid rgba(255,255,255,.12);
+background:transparent;
+color:#F5ECD7;
+margin-top:12px;
+cursor:pointer;
+}
+.pp-opt{
+width:100%;
+padding:16px;
+margin-top:10px;
+text-align:left;
+background:rgba(255,255,255,.03);
+color:#F5ECD7;
+border:1px solid rgba(255,255,255,.08);
+cursor:pointer;
+}
+.pp-card{
+padding:18px;
+margin-top:12px;
+background:rgba(255,255,255,.03);
+border:1px solid rgba(255,255,255,.08);
+}
+.pp-small{opacity:.6;font-size:13px;margin-bottom:6px}
+.pp-badge{margin-bottom:18px;font-weight:700}
+`;
 
-  useEffect(()=>{
+export default function Page() {
+  const [screen, setScreen] = useState("boot");
+  const [qIdx, setQIdx] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [archKey, setArchKey] = useState(null);
+  const [result, setResult] = useState(null);
+
+  useEffect(() => {
     const saved = localStorage.getItem("pp_profile");
-    if(saved){
-      try{
-        const parsed = JSON.parse(saved);
-        setArchKey(parsed.archKey);
-        setPathData(parsed.pathData);
-        setScreen("result");
-      }catch{}
+    if (saved) {
+      const data = JSON.parse(saved);
+      setArchKey(data.archKey);
+      setResult(data.result);
+      setScreen("result");
+    } else {
+      setScreen("welcome");
     }
-  },[]);
+  }, []);
 
-  async function pickAnswer(i){
-    const next=[...answers,i];
+  async function pickAnswer(i) {
+    const next = [...answers, i];
     setAnswers(next);
 
-    if(qIdx < QUESTIONS.length-1){
-      setQIdx(qIdx+1);
+    if (qIdx < QUESTIONS.length - 1) {
+      setQIdx(qIdx + 1);
       return;
     }
 
     const key = calcArchetype(next);
+    const arch = ARCHETYPES[key];
+
     setArchKey(key);
     setScreen("loading");
 
-    try{
-      const result = await callAI("Generate JSON builder report.");
-      setPathData(result);
-      localStorage.setItem("pp_profile", JSON.stringify({
-        archKey:key,
-        pathData:result
-      }));
-    }catch{
-      setPathData({
-        path_title:"Your Builder Path",
-        revelation:"You have clear potential that grows through action.",
-        skill_one:"Consistency",
-        skill_why:"Repeated action compounds.",
-        first_move:"Take one bold practical step in 48 hours.",
-        first_offer:"Help one person solve one problem.",
-        trap:"Waiting too long.",
-        challenge:"30 days of visible progress."
-      });
-    }
+    const prompt = `
+Builder Type: ${arch.name}
+Tagline: ${arch.tagline}
 
+Answers:
+${next.map((x, idx) => `${idx + 1}. ${QUESTIONS[idx].q} => ${QUESTIONS[idx].options[x].text}`).join("\n")}
+
+Return only JSON:
+
+{
+ "path_title":"Custom path title",
+ "revelation":"2 sentence insight",
+ "skill_one":"Best skill now",
+ "skill_why":"Why this skill",
+ "first_move":"Best next move in 48 hours",
+ "first_offer":"Simple value offer in 7 days",
+ "trap":"Biggest trap",
+ "challenge":"30 day challenge"
+}
+`;
+
+    const ai = await askAI(prompt);
+
+    localStorage.setItem(
+      "pp_profile",
+      JSON.stringify({
+        archKey: key,
+        result: ai,
+      })
+    );
+
+    setResult(ai);
     setScreen("result");
   }
 
-  function reset(){
+  function reset() {
     localStorage.removeItem("pp_profile");
     setAnswers([]);
     setQIdx(0);
+    setResult(null);
     setArchKey(null);
-    setPathData(null);
     setScreen("welcome");
   }
 
   const arch = archKey ? ARCHETYPES[archKey] : null;
 
   return (
-    <div style={{
-      minHeight:"100vh",
-      background:"#080400",
-      color:"#F5ECD7",
-      padding:"30px",
-      fontFamily:"Arial"
-    }}>
-      <div style={{maxWidth:"580px",margin:"0 auto"}}>
+    <>
+      <style>{CSS}</style>
 
-        {screen==="welcome" && <>
-          <h1>Discover your builder path.</h1>
-          <button onClick={()=>setScreen("questions")}>Begin Discovery</button>
-        </>}
+      <div className="pp">
+        <div className="pp-wrap">
 
-        {screen==="questions" && <>
-          <p>Question {qIdx+1} of {QUESTIONS.length}</p>
-          <h2>{QUESTIONS[qIdx].q}</h2>
-          {QUESTIONS[qIdx].options.map((opt,i)=>(
-            <button key={i} onClick={()=>pickAnswer(i)} style={{display:"block",marginTop:"10px"}}>
-              {opt.text}
-            </button>
-          ))}
-        </>}
+          {screen === "welcome" && (
+            <>
+              <div className="pp-logo">PIPUPATH</div>
+              <h1 className="pp-h1">Discover your builder path.</h1>
+              <p className="pp-lead">
+                5 questions. Your natural archetype revealed. A specific path forward.
+              </p>
+              <button className="pp-btn" onClick={() => setScreen("quiz")}>
+                Begin Discovery →
+              </button>
+            </>
+          )}
 
-        {screen==="loading" && <h2>Mapping your builder path...</h2>}
+          {screen === "quiz" && (
+            <>
+              <div className="pp-logo">PIPUPATH</div>
+              <div className="pp-small">
+                Question {qIdx + 1} of {QUESTIONS.length}
+              </div>
+              <h2 className="pp-h2">{QUESTIONS[qIdx].q}</h2>
 
-        {screen==="result" && arch && pathData && <>
-          <h2>{arch.emoji} {arch.name}</h2>
-          <h3>{pathData.path_title}</h3>
-          <p>{pathData.revelation}</p>
-          <p><strong>Skill:</strong> {pathData.skill_one}</p>
-          <p>{pathData.skill_why}</p>
-          <p><strong>Move:</strong> {pathData.first_move}</p>
-          <p><strong>Offer:</strong> {pathData.first_offer}</p>
-          <p><strong>Trap:</strong> {pathData.trap}</p>
-          <p><strong>Challenge:</strong> {pathData.challenge}</p>
-          <button onClick={reset}>Start Again</button>
-        </>}
+              {QUESTIONS[qIdx].options.map((opt, i) => (
+                <button
+                  key={i}
+                  className="pp-opt"
+                  onClick={() => pickAnswer(i)}
+                >
+                  {opt.text}
+                </button>
+              ))}
+            </>
+          )}
 
+          {screen === "loading" && (
+            <>
+              <div className="pp-logo">PIPUPATH</div>
+              <h2 className="pp-h2">Mapping your builder path...</h2>
+            </>
+          )}
+
+          {screen === "result" && result && arch && (
+            <>
+              <div className="pp-logo">PIPUPATH</div>
+
+              <div className="pp-badge">
+                {arch.emoji} {arch.name}
+              </div>
+
+              <h2 className="pp-h2">{result.path_title}</h2>
+
+              <div className="pp-card">
+                <div className="pp-small">Your Revelation</div>
+                {result.revelation}
+              </div>
+
+              <div className="pp-card">
+                <div className="pp-small">Skill To Build First</div>
+                <strong>{result.skill_one}</strong>
+                <div style={{ marginTop: 8 }}>{result.skill_why}</div>
+              </div>
+
+              <div className="pp-card">
+                <div className="pp-small">Your First Move</div>
+                {result.first_move}
+              </div>
+
+              <div className="pp-card">
+                <div className="pp-small">First Earning Opportunity</div>
+                {result.first_offer}
+              </div>
+
+              <div className="pp-card">
+                <div className="pp-small">Your Trap</div>
+                {result.trap}
+              </div>
+
+              <div className="pp-card">
+                <div className="pp-small">30 Day Challenge</div>
+                {result.challenge}
+              </div>
+
+              <button className="pp-btn" onClick={reset}>
+                Start Again
+              </button>
+            </>
+          )}
+
+        </div>
       </div>
-    </div>
+    </>
   );
 }
