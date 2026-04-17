@@ -1,46 +1,46 @@
-export async function POST(req) {
+// Save this as: app/api/generate/route.js
+
+import OpenAI from 'openai';
+import { NextResponse } from 'next/server';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // stored in Vercel, never exposed to browser
+});
+
+export async function POST(request) {
   try {
-    const { prompt } = await req.json();
+    const { prompt } = await request.json();
 
-    const response = await fetch(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini', // cheapest smart model: ~$0.15 per 1M tokens
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a helpful assistant that ALWAYS responds with valid JSON only. Never include markdown code blocks, backticks, or any text outside the JSON object.',
         },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          temperature: 0.8,
-          messages: [
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-        }),
-      }
-    );
-
-    const data = await response.json();
-    const text = data.choices[0].message.content
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    return Response.json(JSON.parse(text));
-  } catch (error) {
-    return Response.json({
-      path_title: "Your Builder Path",
-      revelation:
-        "You have real potential that grows through focused execution.",
-      skill_one: "Consistency",
-      skill_why: "Repeated action compounds faster than talent.",
-      first_move: "Take one practical public action in the next 48 hours.",
-      first_offer: "Help one real person solve one real problem.",
-      trap: "Waiting too long before acting.",
-      challenge: "30 days of visible action.",
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      temperature: 0.8,
+      max_tokens: 1200,
     });
+
+    const content = completion.choices[0].message.content;
+    
+    // Clean up any markdown artifacts
+    const cleaned = content.replace(/```json\s*|\s*```/g, '').trim();
+    
+    // Validate it's actual JSON
+    const parsed = JSON.parse(cleaned);
+
+    return NextResponse.json({ result: parsed });
+  } catch (error) {
+    console.error('OpenAI API Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate response' },
+      { status: 500 }
+    );
   }
 }
