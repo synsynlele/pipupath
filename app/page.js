@@ -1,66 +1,274 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import { useState } from "react";
+import { supabase } from "../lib/supabase";
+
+const QUESTIONS = [
+  {
+    q: "When you see something broken or missing in the world, your first instinct is:",
+    options: [
+      "Break it apart and fix it yourself",
+      "Find others who care about it too",
+      "Build something that solves it permanently",
+      "Talk or write about it until people pay attention"
+    ]
+  },
+  {
+    q: "What kind of work makes you lose track of time?",
+    options: [
+      "Creating or crafting something from nothing",
+      "Deep conversations and building relationships",
+      "Spotting an opportunity and making it real",
+      "Teaching, explaining, helping someone understand"
+    ]
+  },
+  {
+    q: "What frustrates you most about the world right now?",
+    options: [
+      "Things are broken and inefficient when they don't need to be",
+      "People are isolated with no support or community",
+      "Good talent and ideas die without direction",
+      "Important truths are not being told or heard"
+    ]
+  },
+  {
+    q: "In 10 years, what does your greatest impact look like?",
+    options: [
+      "A product or system millions of people depend on",
+      "A movement or community that changed lives together",
+      "A business that generates real wealth and employs people",
+      "Work — art, ideas, stories — that changed how people think"
+    ]
+  },
+  {
+    q: "When you imagine yourself at your absolute best, you are:",
+    options: [
+      "Deep in a hard problem, finally cracking it",
+      "In a room of people who trust and follow your lead",
+      "Creating something with total focus and flow",
+      "Sitting with someone who needs help — and actually helping"
+    ]
+  }
+];
 
 export default function Home() {
+  const [screen, setScreen] = useState("welcome");
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [result, setResult] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  function choose(option) {
+    const next = [...answers, option];
+    setAnswers(next);
+
+    if (step < QUESTIONS.length - 1) {
+      setStep(step + 1);
+    } else {
+      setScreen("capture");
+    }
+  }
+
+  async function submitLead() {
+    if (!name.trim() || !email.trim()) {
+      alert("Enter name and email.");
+      return;
+    }
+
+    setBusy(true);
+    setScreen("loading");
+
+    const prompt = `
+User answers:
+${answers.join(", ")}
+
+Return ONLY JSON:
+{
+ "path_title":"Title",
+ "revelation":"Insight",
+ "skill_one":"Skill",
+ "skill_why":"Why",
+ "first_move":"Move",
+ "first_offer":"Offer",
+ "trap":"Trap",
+ "challenge":"Challenge"
+}
+`;
+
+    const res = await fetch("/api/path", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await res.json();
+
+    await supabase.from("leads").insert([
+      {
+        name,
+        email,
+        archetype: "builder",
+        answers,
+        result: data
+      }
+    ]);
+
+    setResult(data);
+    setBusy(false);
+    setScreen("result");
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div style={{
+      minHeight: "100vh",
+      background: "#080400",
+      color: "#F5ECD7",
+      padding: "30px",
+      fontFamily: "Arial"
+    }}>
+      <div style={{ maxWidth: "720px", margin: "0 auto" }}>
+
+        <div style={{
+          color: "#F59E0B",
+          letterSpacing: ".35em",
+          fontSize: "12px",
+          marginBottom: "24px"
+        }}>
+          PIPUPATH
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        {screen === "welcome" && (
+          <>
+            <h1 style={{ fontSize: "56px", marginBottom: "18px" }}>
+              Discover your builder path.
+            </h1>
+            <p style={{ opacity: .75, marginBottom: "24px", lineHeight: 1.6 }}>
+              5 questions. Premium personalized path.
+            </p>
+            <button
+              onClick={() => setScreen("quiz")}
+              style={btn}
+            >
+              Begin Discovery →
+            </button>
+          </>
+        )}
+
+        {screen === "quiz" && (
+          <>
+            <div style={{ opacity: .6, marginBottom: "12px" }}>
+              Question {step + 1} of {QUESTIONS.length}
+            </div>
+
+            <h2 style={{ fontSize: "34px", marginBottom: "18px" }}>
+              {QUESTIONS[step].q}
+            </h2>
+
+            {QUESTIONS[step].options.map((o, i) => (
+              <button key={i} onClick={() => choose(o)} style={opt}>
+                {o}
+              </button>
+            ))}
+          </>
+        )}
+
+        {screen === "capture" && (
+          <>
+            <h2 style={{ fontSize: "42px", marginBottom: "14px" }}>
+              Unlock your result
+            </h2>
+
+            <input
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={input}
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+            <input
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={input}
+            />
+
+            <button onClick={submitLead} style={btn}>
+              {busy ? "Loading..." : "Get My Result →"}
+            </button>
+          </>
+        )}
+
+        {screen === "loading" && (
+          <h2>Generating your builder path...</h2>
+        )}
+
+        {screen === "result" && result && (
+          <>
+            <h2 style={{ fontSize: "42px", marginBottom: "14px" }}>
+              {result.path_title}
+            </h2>
+
+            {card("Revelation", result.revelation)}
+            {card("Skill", result.skill_one + " — " + result.skill_why)}
+            {card("First Move", result.first_move)}
+            {card("First Offer", result.first_offer)}
+            {card("Trap", result.trap)}
+            {card("30 Day Challenge", result.challenge)}
+          </>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+const btn = {
+  width: "100%",
+  padding: "16px",
+  background: "#F59E0B",
+  color: "#080400",
+  border: "none",
+  fontWeight: "bold",
+  cursor: "pointer",
+  marginTop: "14px"
+};
+
+const opt = {
+  width: "100%",
+  padding: "16px",
+  textAlign: "left",
+  background: "#ffffff08",
+  color: "#F5ECD7",
+  border: "1px solid #ffffff12",
+  marginBottom: "10px",
+  cursor: "pointer"
+};
+
+const input = {
+  width: "100%",
+  padding: "14px",
+  marginBottom: "10px",
+  background: "#ffffff08",
+  color: "#F5ECD7",
+  border: "1px solid #ffffff12"
+};
+
+function card(title, body) {
+  return (
+    <div style={{
+      padding: "16px",
+      marginBottom: "10px",
+      background: "#ffffff08",
+      border: "1px solid #ffffff12"
+    }}>
+      <div style={{ opacity: .55, fontSize: "12px", marginBottom: "8px" }}>
+        {title}
+      </div>
+      <div>{body}</div>
     </div>
   );
 }

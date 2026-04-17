@@ -10,18 +10,18 @@ export async function POST(req) {
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        temperature: 0.8,
+        temperature: 0.85,
         messages: [
           {
             role: "system",
-            content: "Return only valid JSON. No markdown.",
+            content: "Return only valid JSON. No markdown. No extra text."
           },
           {
             role: "user",
-            content: prompt,
-          },
-        ],
-      }),
+            content: prompt
+          }
+        ]
+      })
     });
 
     const data = await response.json();
@@ -34,16 +34,17 @@ export async function POST(req) {
       .trim();
 
     return Response.json(JSON.parse(cleaned));
+
   } catch (error) {
     return Response.json({
       path_title: "Your Builder Path",
-      revelation: "You have real potential that grows through focused execution.",
+      revelation: "You have strong potential that grows through disciplined action.",
       skill_one: "Consistency",
-      skill_why: "Repeated action compounds faster than talent.",
-      first_move: "Take one bold visible step in 48 hours.",
-      first_offer: "Help one person solve one problem.",
-      trap: "Waiting too long.",
-      challenge: "30 days of visible action.",
+      skill_why: "Repeated effort compounds faster than talent.",
+      first_move: "Take one visible bold step within 48 hours.",
+      first_offer: "Help one person solve one painful problem.",
+      trap: "Waiting too long before acting.",
+      challenge: "30 days of visible progress."
     });
   }
 }
