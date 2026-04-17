@@ -450,6 +450,20 @@ export default function PipuPath(){
     )
   };
 
+// ADD THIS FUNCTION inside your component (above return)
+
+function shareWhatsApp() {
+  const title = pathData?.path_title || "My Builder Path";
+
+  const text =
+    `I discovered my Builder Path on Pipupath: ${title}. ` +
+    `Try yours now → https://pipupath-p8we95ssf-synsynlele-3991s-projects.vercel.app`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+
+  window.open(url, "_blank");
+}
+
   return (
     <>
       <style>{CSS}</style>
