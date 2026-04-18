@@ -81,7 +81,7 @@ export async function POST(req) {
       trap:
         "Overthinking instead of shipping.",
       30 Day challenge:
-        "30 days of daily visible progress."
+        "30 days of daily visible progress.",
     });
   }
 }
