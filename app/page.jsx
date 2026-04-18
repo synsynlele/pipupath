@@ -281,33 +281,44 @@ export default function PipuPath(){
 }, []);
 
 async function checkUser() {
-  const {
-    data: { session }
-  } = await supabase.auth.getSession();
+  try {
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("timeout")), 5000)
+    );
 
-  if (!session) {
+    const sessionResult = await Promise.race([
+      supabase.auth.getSession(),
+      timeout
+    ]);
+
+    const session = sessionResult?.data?.session;
+
+    if (!session) {
+      setScreen("login");
+      return;
+    }
+
+    const authUser = session.user;
+
+    setUser({ email: authUser.email });
+
+    const { data } = await supabase
+      .from("leads")
+      .select("*")
+      .eq("email", authUser.email)
+      .maybeSingle();
+
+    if (data?.result) {
+      setArchKey(data.archetype);
+      setPathData(data.result);
+      setScreen("returning");
+    } else {
+      setScreen("questions");
+    }
+
+  } catch (error) {
+    console.log(error);
     setScreen("login");
-    return;
-  }
-
-  const authUser = session.user;
-
-  setUser({
-    email: authUser.email
-  });
-
-  const { data } = await supabase
-    .from("leads")
-    .select("*")
-    .eq("email", authUser.email)
-    .single();
-
-  if (data?.result) {
-    setArchKey(data.archetype);
-    setPathData(data.result);
-    setScreen("returning");
-  } else {
-    setScreen("questions");
   }
 }
 
