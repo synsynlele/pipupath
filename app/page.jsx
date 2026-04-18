@@ -218,18 +218,29 @@ export default function PipuPath(){
   }
 }, []);
 
-  function login(){
-    if(!email.trim()) return;
-    const u={email};
-    localStorage.setItem("pp_user",JSON.stringify(u));
-    setUser(u);
+  function login() {
+  if (!email.trim()) return;
+
+  const u = { email };
+  localStorage.setItem("pp_user", JSON.stringify(u));
+  setUser(u);
+
+  const p = localStorage.getItem("pp_profile");
+
+  if (p) {
+    const saved = JSON.parse(p);
+    setArchKey(saved.archKey);
+    setPathData(saved.pathData);
+    setScreen("returning");
+  } else {
     setScreen("questions");
   }
+}
 
-  function logout(){
-    localStorage.clear();
-    location.reload();
-  }
+  function logout() {
+  localStorage.removeItem("pp_user");
+  location.reload();
+}
 
   async function pickAnswer(i){
     const next=[...answers,i];
@@ -268,7 +279,14 @@ export default function PipuPath(){
     window.open(`https://wa.me/?text=${encodeURIComponent("I discovered my Builder Path on PipuPath: "+title)}`,"_blank");
   }
 
-  const screens={
+  function shareWhatsApp() {
+}
+
+function downloadPDF() {
+  window.print();
+}
+
+    const screens={
     boot:<div className="pp-spin"></div>,
 
     login:(
@@ -299,23 +317,43 @@ export default function PipuPath(){
       </div>
     ),
 
-    result:(
-      <div>
-        <div className="pp-logo">{user?.email}</div>
-        <h2 className="pp-h2">{pathData?.path_title}</h2>
+    result: (
+  <div>
+    <div className="pp-logo">{user?.email}</div>
 
-        <div className="pp-card"><div className="pp-card-label">Revelation</div>{pathData?.revelation}</div>
-        <div className="pp-card"><div className="pp-card-label">Skill</div>{pathData?.skill_one}</div>
-        <div className="pp-card"><div className="pp-card-label">First Move</div>{pathData?.first_move}</div>
-        <div className="pp-card"><div className="pp-card-label">Offer</div>{pathData?.first_offer}</div>
-        <div className="pp-card"><div className="pp-card-label">Trap</div>{pathData?.trap}</div>
-        <div className="pp-card"><div className="pp-card-label">Challenge</div>{pathData?.challenge}</div>
+    <h2 className="pp-h2">{pathData?.path_title}</h2>
 
-        <button className="pp-btn" onClick={()=>setScreen("checkin")}>Check In Progress →</button>
-        <button className="pp-btn-outline" onClick={shareWhatsApp}>Share My Builder Path</button>
-        <button className="pp-btn-outline" onClick={logout}>Logout</button>
-      </div>
-    ),
+    <div className="pp-card">
+      <div className="pp-card-label">Revelation</div>
+      {pathData?.revelation}
+    </div>
+
+    <div className="pp-card">
+      <div className="pp-card-label">First Move</div>
+      {pathData?.first_move}
+    </div>
+
+    <button className="pp-btn" onClick={() => setScreen("returning")}>
+      Dashboard →
+    </button>
+
+    <button className="pp-btn-outline" onClick={() => setScreen("checkin")}>
+      Weekly Check-In
+    </button>
+
+    <button className="pp-btn-outline" onClick={shareWhatsApp}>
+      Share
+    </button>
+
+    <button className="pp-btn-outline" onClick={downloadPDF}>
+      Download
+    </button>
+
+    <button className="pp-btn-outline" onClick={logout}>
+      Logout
+    </button>
+  </div>
+),
 
     checkin:(
       <div>
@@ -330,20 +368,39 @@ export default function PipuPath(){
       </div>
     ),
 
-    checkin_result:(
-      <div>
-        <div className="pp-logo">PIPUPATH</div>
-        <h2 className="pp-h2">Your <em>Adjustment</em></h2>
+    checkin_result: (
+  <div>
+    <div className="pp-logo">PIPUPATH</div>
 
-        <div className="pp-card"><div className="pp-card-label">Acknowledgment</div>{checkinRes?.acknowledgment}</div>
-        <div className="pp-card"><div className="pp-card-label">Insight</div>{checkinRes?.insight}</div>
-        <div className="pp-card"><div className="pp-card-label">Adjustment</div>{checkinRes?.adjustment}</div>
-        <div className="pp-card"><div className="pp-card-label">Next Move</div>{checkinRes?.next_move}</div>
-        <div className="pp-card"><div className="pp-card-label">Momentum</div>{checkinRes?.momentum}/10</div>
+    <h2 className="pp-h2">
+      Your <em>Adjustment</em>
+    </h2>
 
-        <button className="pp-btn" onClick={()=>setScreen("result")}>Back To My Path →</button>
-      </div>
-    ),
+    <div className="pp-card">
+      <div className="pp-card-label">Insight</div>
+      {checkinRes?.insight}
+    </div>
+
+    <div className="pp-card">
+      <div className="pp-card-label">Next Move</div>
+      {checkinRes?.next_move}
+    </div>
+
+    <button
+      className="pp-btn"
+      onClick={() => setScreen("returning")}
+    >
+      Dashboard →
+    </button>
+
+    <button
+      className="pp-btn-outline"
+      onClick={() => setScreen("result")}
+    >
+      My Path
+    </button>
+  </div>
+),
 
     returning:(
       <div>
