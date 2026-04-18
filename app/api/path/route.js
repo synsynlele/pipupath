@@ -80,7 +80,7 @@ export async function POST(req) {
         "Help one person solve one problem.",
       trap:
         "Overthinking instead of shipping.",
-      challenge:
+      30 Day challenge:
         "30 days of daily visible progress."
     });
   }

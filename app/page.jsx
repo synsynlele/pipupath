@@ -427,6 +427,16 @@ export default function PipuPath(){
    </div>
 
    <div className="pp-card">
+     <div className="pp-label">Wealth Path</div>
+     {pathData?.wealth_path}
+   </div>
+   
+   <div className="pp-card">
+     <div className="pp-label">Career Path</div>
+     {pathData?.career_path}
+   </div>
+
+   <div className="pp-card">
      <div className="pp-label">First Move</div>
      {pathData?.first_move}
    </div>
@@ -528,6 +538,11 @@ export default function PipuPath(){
  checkin_result:<div>
    <div className="pp-logo">PIPUPATH</div>
    <h2 className="pp-h2">Your <em>Adjustment</em></h2>
+   
+   <div className="pp-card">
+     <div className="pp-label">Acknowlegdment</div>
+     {checkinRes?.acknowledgement}
+   </div>
 
    <div className="pp-card">
      <div className="pp-label">Insight</div>
@@ -547,6 +562,11 @@ export default function PipuPath(){
    <div className="pp-card">
      <div className="pp-label">Momentum</div>
      {checkinRes?.momentum}/10
+   </div>
+
+   <div className="pp-card">
+     <div className="pp-label">Momentum Note</div>
+     {checkinRes?.momentum_note}
    </div>
 
    <button className="pp-btn" onClick={()=>setScreen("returning")}>
