@@ -461,7 +461,7 @@ export default function PipuPath(){
    </button>
 
    <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>
-     Weekly Check-In
+     Mission Check-In
    </button>
 
    <button className="pp-btn-outline" onClick={retake}>
@@ -489,7 +489,7 @@ export default function PipuPath(){
    </button>
 
    <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>
-     Weekly Check-In
+     Mission Check-In
    </button>
 
    <button className="pp-btn-outline" onClick={retake}>
@@ -507,7 +507,7 @@ export default function PipuPath(){
 
  checkin:<div>
    <div className="pp-logo">PIPUPATH</div>
-   <h2 className="pp-h2">Weekly <em>Adjustment</em></h2>
+   <h2 className="pp-h2">Mission <em>Adjustment</em></h2>
 
    <textarea
     className="pp-textarea"
