@@ -53,19 +53,19 @@ const QUESTIONS = [
 ];
 
 function calcArchetype(answers){
-  const scores={};
-  Object.keys(ARCHETYPES).forEach(k=>scores[k]=0);
+  const scores = {};
+  Object.keys(ARCHETYPES).forEach(k => scores[k]=0);
 
   answers.forEach((ans,qIdx)=>{
-    const weights=QUESTIONS[qIdx].options[ans].w;
-    Object.entries(weights).forEach(([k,v])=>scores[k]+=v);
+    const weights = QUESTIONS[qIdx].options[ans].w;
+    Object.entries(weights).forEach(([k,v]) => scores[k]+=v);
   });
 
   return Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
 }
 
 async function callAI(prompt){
-  const res=await fetch("/api/path",{
+  const res = await fetch("/api/path",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({prompt})
@@ -73,7 +73,7 @@ async function callAI(prompt){
   return await res.json();
 }
 
-async function generatePath(key) {
+async function generatePath(key){
   const arch = ARCHETYPES[key];
 
   return await callAI(`
@@ -95,37 +95,15 @@ Return ONLY valid JSON.
 
 You are a world-class strategist in human potential, wealth creation, career positioning and life direction.
 
-Analyze this builder type deeply.
-
 Builder Type: ${arch.name}
 Tagline: ${arch.tagline}
 Description: ${arch.description}
 
-Rules:
-- Be sharp, premium, accurate, modern
-- No clichés
-- No generic motivation
-- Make user feel seen
-- Give practical leverage
-- Focus on impact + income + usefulness
-
-Field meanings:
-
-path_title = identity title for their future  
-revelation = truth about how they naturally win  
-skill_one = highest leverage skill  
-skill_why = why it matters  
-wealth_path = realistic money path  
-career_path = strongest career fit  
-first_move = next 48hr move  
-first_offer = help someone this week  
-trap = what ruins this type  
-mindset_shift = belief to adopt now  
-challenge = 30 day upgrade mission
+Be premium, sharp, practical, powerful, modern.
 `);
 }
 
-async function generateCheckin(checkin, path) {
+async function generateCheckin(checkin,path){
   return await callAI(`
 Return ONLY valid JSON.
 
@@ -144,25 +122,15 @@ You are an elite performance coach.
 
 Builder Path: ${path.path_title}
 
-Tried:
-${checkin.tried}
+Tried: ${checkin.tried}
+Worked: ${checkin.worked}
+Stuck: ${checkin.stuck}
 
-Worked:
-${checkin.worked}
-
-Stuck:
-${checkin.stuck}
-
-Rules:
-- Diagnose patterns quickly
-- Be brutally useful
-- No empty praise
-- Push momentum
-- Give one high leverage move
+Be brutally useful and strategic.
 `);
 }
 
-const CSS=`
+const CSS = `
 body{margin:0}
 *{box-sizing:border-box}
 .pp{min-height:100vh;background:linear-gradient(180deg,#050300,#0c0903);color:#F7E8C5;font-family:Arial,sans-serif;padding:28px;display:flex;justify-content:center;align-items:center}
@@ -185,77 +153,85 @@ body{margin:0}
 `;
 
 export default function PipuPath(){
-  const [screen,setScreen]=useState("boot");
-  const [email,setEmail]=useState("");
-  const [user,setUser]=useState(null);
-  const [qIdx,setQIdx]=useState(0);
-  const [answers,setAnswers]=useState([]);
-  const [archKey,setArchKey]=useState(null);
-  const [pathData,setPathData]=useState(null);
-  const [busy,setBusy]=useState(false);
-  const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
-  const [checkinRes,setCheckinRes]=useState(null);
+  const [screen,setScreen] = useState("boot");
+  const [email,setEmail] = useState("");
+  const [user,setUser] = useState(null);
+  const [qIdx,setQIdx] = useState(0);
+  const [answers,setAnswers] = useState([]);
+  const [archKey,setArchKey] = useState(null);
+  const [pathData,setPathData] = useState(null);
+  const [busy,setBusy] = useState(false);
+  const [checkin,setCheckin] = useState({tried:"",worked:"",stuck:""});
+  const [checkinRes,setCheckinRes] = useState(null);
 
-  useEffect(() => {
-  const u = localStorage.getItem("pp_user");
-  const p = localStorage.getItem("pp_profile");
+  useEffect(()=>{
+    const u = localStorage.getItem("pp_user");
+    const p = localStorage.getItem("pp_profile");
 
-  if (u) {
-    setUser(JSON.parse(u));
+    if(u){
+      setUser(JSON.parse(u));
 
-    if (p) {
+      if(p){
+        const saved = JSON.parse(p);
+        setArchKey(saved.archKey);
+        setPathData(saved.pathData);
+        setScreen("returning");
+      } else {
+        setScreen("questions");
+      }
+    } else {
+      setScreen("login");
+    }
+  },[]);
+
+  function login(){
+    if(!email.trim()) return;
+
+    const u = {email};
+    localStorage.setItem("pp_user",JSON.stringify(u));
+    setUser(u);
+
+    const p = localStorage.getItem("pp_profile");
+
+    if(p){
       const saved = JSON.parse(p);
       setArchKey(saved.archKey);
       setPathData(saved.pathData);
-
-      // ALWAYS homepage
       setScreen("returning");
     } else {
       setScreen("questions");
     }
-  } else {
-    setScreen("login");
   }
-}, []);
 
-  function login() {
-  if (!email.trim()) return;
-
-  const u = { email };
-  localStorage.setItem("pp_user", JSON.stringify(u));
-  setUser(u);
-
-  const p = localStorage.getItem("pp_profile");
-
-  if (p) {
-    const saved = JSON.parse(p);
-    setArchKey(saved.archKey);
-    setPathData(saved.pathData);
-    setScreen("returning");
-  } else {
-    setScreen("questions");
+  function logout(){
+    localStorage.removeItem("pp_user");
+    location.reload();
   }
-}
 
-  function logout() {
-  localStorage.removeItem("pp_user");
-  location.reload();
-}
+  function downloadPDF(){
+    window.print();
+  }
+
+  function shareWhatsApp(){
+    const title = pathData?.path_title || "My Builder Path";
+    const text = `I discovered my Builder Path on PipuPath: ${title}. Try yours now`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank");
+  }
 
   async function pickAnswer(i){
-    const next=[...answers,i];
+    const next = [...answers,i];
     setAnswers(next);
 
-    if(qIdx<QUESTIONS.length-1){
+    if(qIdx < QUESTIONS.length-1){
       setQIdx(qIdx+1);
       return;
     }
 
-    const key=calcArchetype(next);
+    const key = calcArchetype(next);
     setArchKey(key);
     setScreen("generating");
 
-    const result=await generatePath(key);
+    const result = await generatePath(key);
     setPathData(result);
 
     localStorage.setItem("pp_profile",JSON.stringify({
@@ -263,30 +239,18 @@ export default function PipuPath(){
       pathData:result
     }));
 
-    setScreen("result");
+    setScreen("returning");
   }
 
   async function submitCheckin(){
     setBusy(true);
-    const res=await generateCheckin(checkin,pathData);
+    const res = await generateCheckin(checkin,pathData);
     setCheckinRes(res);
     setBusy(false);
     setScreen("checkin_result");
   }
 
-  function shareWhatsApp(){
-    const title=pathData?.path_title || "My Builder Path";
-    window.open(`https://wa.me/?text=${encodeURIComponent("I discovered my Builder Path on PipuPath: "+title)}`,"_blank");
-  }
-
-  function shareWhatsApp() {
-}
-
-function downloadPDF() {
-  window.print();
-}
-
-    const screens={
+  const screens = {
     boot:<div className="pp-spin"></div>,
 
     login:(
@@ -317,43 +281,42 @@ function downloadPDF() {
       </div>
     ),
 
-    result: (
-  <div>
-    <div className="pp-logo">{user?.email}</div>
+    returning:(
+      <div>
+        <div className="pp-logo">{user?.email}</div>
+        <h2 className="pp-h2">Welcome back,<br/><em>{pathData?.path_title}</em></h2>
 
-    <h2 className="pp-h2">{pathData?.path_title}</h2>
+        <div className="pp-card">
+          <div className="pp-card-label">Your Identity</div>
+          {ARCHETYPES[archKey]?.name}
+        </div>
 
-    <div className="pp-card">
-      <div className="pp-card-label">Revelation</div>
-      {pathData?.revelation}
-    </div>
+        <div className="pp-card">
+          <div className="pp-card-label">Next Focus</div>
+          {pathData?.first_move}
+        </div>
 
-    <div className="pp-card">
-      <div className="pp-card-label">First Move</div>
-      {pathData?.first_move}
-    </div>
+        <button className="pp-btn" onClick={()=>setScreen("result")}>Open Dashboard →</button>
+        <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>Weekly Check-In</button>
+        <button className="pp-btn-outline" onClick={shareWhatsApp}>Share My Path</button>
+        <button className="pp-btn-outline" onClick={logout}>Logout</button>
+      </div>
+    ),
 
-    <button className="pp-btn" onClick={() => setScreen("returning")}>
-      Dashboard →
-    </button>
+    result:(
+      <div>
+        <div className="pp-logo">{user?.email}</div>
+        <h2 className="pp-h2">{pathData?.path_title}</h2>
 
-    <button className="pp-btn-outline" onClick={() => setScreen("checkin")}>
-      Weekly Check-In
-    </button>
+        <div className="pp-card"><div className="pp-card-label">Revelation</div>{pathData?.revelation}</div>
+        <div className="pp-card"><div className="pp-card-label">Skill</div>{pathData?.skill_one}</div>
+        <div className="pp-card"><div className="pp-card-label">First Move</div>{pathData?.first_move}</div>
 
-    <button className="pp-btn-outline" onClick={shareWhatsApp}>
-      Share
-    </button>
-
-    <button className="pp-btn-outline" onClick={downloadPDF}>
-      Download
-    </button>
-
-    <button className="pp-btn-outline" onClick={logout}>
-      Logout
-    </button>
-  </div>
-),
+        <button className="pp-btn" onClick={()=>setScreen("returning")}>Dashboard →</button>
+        <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>Weekly Check-In</button>
+        <button className="pp-btn-outline" onClick={downloadPDF}>Download</button>
+      </div>
+    ),
 
     checkin:(
       <div>
@@ -364,56 +327,22 @@ function downloadPDF() {
         <textarea className="pp-textarea" placeholder="What worked?" value={checkin.worked} onChange={e=>setCheckin({...checkin,worked:e.target.value})}/>
         <textarea className="pp-textarea" placeholder="Where are you stuck?" value={checkin.stuck} onChange={e=>setCheckin({...checkin,stuck:e.target.value})}/>
 
-        <button className="pp-btn" onClick={submitCheckin}>{busy?"Analyzing...":"Get My Adjustment →"}</button>
+        <button className="pp-btn" onClick={submitCheckin}>
+          {busy ? "Analyzing..." : "Get My Adjustment →"}
+        </button>
       </div>
     ),
 
-    checkin_result: (
-  <div>
-    <div className="pp-logo">PIPUPATH</div>
-
-    <h2 className="pp-h2">
-      Your <em>Adjustment</em>
-    </h2>
-
-    <div className="pp-card">
-      <div className="pp-card-label">Insight</div>
-      {checkinRes?.insight}
-    </div>
-
-    <div className="pp-card">
-      <div className="pp-card-label">Next Move</div>
-      {checkinRes?.next_move}
-    </div>
-
-    <button
-      className="pp-btn"
-      onClick={() => setScreen("returning")}
-    >
-      Dashboard →
-    </button>
-
-    <button
-      className="pp-btn-outline"
-      onClick={() => setScreen("result")}
-    >
-      My Path
-    </button>
-  </div>
-),
-
-    returning:(
+    checkin_result:(
       <div>
-        <div className="pp-logo">{user?.email}</div>
-        <h2 className="pp-h2">Welcome back,<br/><em>{pathData?.path_title}</em></h2>
+        <div className="pp-logo">PIPUPATH</div>
+        <h2 className="pp-h2">Your <em>Adjustment</em></h2>
 
-        <div className="pp-card"><div className="pp-card-label">Your Identity</div>{ARCHETYPES[archKey]?.name}</div>
-        <div className="pp-card"><div className="pp-card-label">Next Focus</div>{pathData?.first_move}</div>
+        <div className="pp-card"><div className="pp-card-label">Insight</div>{checkinRes?.insight}</div>
+        <div className="pp-card"><div className="pp-card-label">Next Move</div>{checkinRes?.next_move}</div>
 
-        <button className="pp-btn" onClick={()=>setScreen("result")}>Continue Journey →</button>
-        <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>Weekly Check-In</button>
-        <button className="pp-btn-outline" onClick={shareWhatsApp}>Share My Path</button>
-        <button className="pp-btn-outline" onClick={logout}>Logout</button>
+        <button className="pp-btn" onClick={()=>setScreen("returning")}>Dashboard →</button>
+        <button className="pp-btn-outline" onClick={()=>setScreen("result")}>My Path</button>
       </div>
     )
   };
