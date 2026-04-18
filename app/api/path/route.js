@@ -58,7 +58,7 @@ export async function POST(req) {
           "Choose one priority and finish it fast.",
         momentum: 7,
         momentum_note:
-          "Progress exists, but consistency decides."
+          "Progress exists, but consistency decides.",
       });
     }
 
