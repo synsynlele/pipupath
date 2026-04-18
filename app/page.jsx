@@ -604,36 +604,68 @@ export default function PipuPath() {
     ),
 
     returning: (
-      <div>
-        <div className="pp-logo">{user?.email}</div>
+  <div>
+    <div className="pp-logo">{user?.email}</div>
 
-        <h2 className="pp-h2">
-          Welcome back,<br />
-          <em>{pathData?.path_title}</em>
-        </h2>
+    <h2 className="pp-h2">
+      Welcome back,<br />
+      <em>{pathData?.path_title}</em>
+    </h2>
 
-        <button
-          className="pp-btn"
-          onClick={() => setScreen("result")}
-        >
-          View My Path
-        </button>
+    <div className="pp-card">
+      <div className="pp-card-label">Your Identity</div>
+      {ARCHETYPES[archKey]?.name}
+    </div>
 
-        <button
-          className="pp-btn-outline"
-          onClick={() => setScreen("checkin")}
-        >
-          Weekly Check-In
-        </button>
+    <div className="pp-card">
+      <div className="pp-card-label">Next Focus</div>
+      {pathData?.first_move}
+    </div>
 
-        <button
-          className="pp-btn-outline"
-          onClick={logout}
-        >
-          Logout
-        </button>
-      </div>
-    )
+    <div className="pp-card">
+      <div className="pp-card-label">Reminder</div>
+      Progress compounds when you keep moving.
+    </div>
+
+    <button
+      className="pp-btn"
+      onClick={() => setScreen("result")}
+    >
+      Continue Journey →
+    </button>
+
+    <button
+      className="pp-btn-outline"
+      onClick={() => setScreen("checkin")}
+    >
+      Weekly Check-In
+    </button>
+
+    <button
+      className="pp-btn-outline"
+      onClick={shareWhatsApp}
+    >
+      Share My Path
+    </button>
+
+    <button
+      className="pp-btn-outline"
+      onClick={() => {
+        localStorage.removeItem("pp_profile");
+        location.reload();
+      }}
+    >
+      Start Fresh
+    </button>
+
+    <button
+      className="pp-btn-outline"
+      onClick={logout}
+    >
+      Logout
+    </button>
+  </div>
+)
   };
 
   return (
