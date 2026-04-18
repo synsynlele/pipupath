@@ -276,6 +276,7 @@ export default function PipuPath(){
  const [busy,setBusy]=useState(false);
  const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
  const [checkinRes,setCheckinRes]=useState(null);
+ const [authMode,setAuthMode]=useState("login");
 
  useEffect(() => {
   checkUser();
