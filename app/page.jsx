@@ -73,40 +73,92 @@ async function callAI(prompt){
   return await res.json();
 }
 
-async function generatePath(key){
-  const arch=ARCHETYPES[key];
+async function generatePath(key) {
+  const arch = ARCHETYPES[key];
+
   return await callAI(`
 Return ONLY valid JSON.
+
 {
 "path_title":"",
 "revelation":"",
 "skill_one":"",
+"skill_why":"",
+"wealth_path":"",
+"career_path":"",
 "first_move":"",
 "first_offer":"",
 "trap":"",
+"mindset_shift":"",
 "challenge":""
 }
-Builder Type:${arch.name}
-Tagline:${arch.tagline}
-Description:${arch.description}
-Make it premium, practical and powerful.
+
+You are a world-class strategist in human potential, wealth creation, career positioning and life direction.
+
+Analyze this builder type deeply.
+
+Builder Type: ${arch.name}
+Tagline: ${arch.tagline}
+Description: ${arch.description}
+
+Rules:
+- Be sharp, premium, accurate, modern
+- No clichés
+- No generic motivation
+- Make user feel seen
+- Give practical leverage
+- Focus on impact + income + usefulness
+
+Field meanings:
+
+path_title = identity title for their future  
+revelation = truth about how they naturally win  
+skill_one = highest leverage skill  
+skill_why = why it matters  
+wealth_path = realistic money path  
+career_path = strongest career fit  
+first_move = next 48hr move  
+first_offer = help someone this week  
+trap = what ruins this type  
+mindset_shift = belief to adopt now  
+challenge = 30 day upgrade mission
 `);
 }
 
-async function generateCheckin(checkin,path){
+async function generateCheckin(checkin, path) {
   return await callAI(`
 Return ONLY valid JSON.
+
 {
 "acknowledgment":"",
 "insight":"",
 "adjustment":"",
+"remove_now":"",
 "next_move":"",
-"momentum":8
+"momentum":8,
+"momentum_note":"",
+"focus_week":""
 }
-Builder Path:${path.path_title}
-Tried:${checkin.tried}
-Worked:${checkin.worked}
-Stuck:${checkin.stuck}
+
+You are an elite performance coach.
+
+Builder Path: ${path.path_title}
+
+Tried:
+${checkin.tried}
+
+Worked:
+${checkin.worked}
+
+Stuck:
+${checkin.stuck}
+
+Rules:
+- Diagnose patterns quickly
+- Be brutally useful
+- No empty praise
+- Push momentum
+- Give one high leverage move
 `);
 }
 
@@ -144,24 +196,27 @@ export default function PipuPath(){
   const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
   const [checkinRes,setCheckinRes]=useState(null);
 
-  useEffect(()=>{
-    const u=localStorage.getItem("pp_user");
-    const p=localStorage.getItem("pp_profile");
+  useEffect(() => {
+  const u = localStorage.getItem("pp_user");
+  const p = localStorage.getItem("pp_profile");
 
-    if(u){
-      setUser(JSON.parse(u));
-      if(p){
-        const saved=JSON.parse(p);
-        setArchKey(saved.archKey);
-        setPathData(saved.pathData);
-        setScreen("returning");
-      }else{
-        setScreen("questions");
-      }
-    }else{
-      setScreen("login");
+  if (u) {
+    setUser(JSON.parse(u));
+
+    if (p) {
+      const saved = JSON.parse(p);
+      setArchKey(saved.archKey);
+      setPathData(saved.pathData);
+
+      // ALWAYS homepage
+      setScreen("returning");
+    } else {
+      setScreen("questions");
     }
-  },[]);
+  } else {
+    setScreen("login");
+  }
+}, []);
 
   function login(){
     if(!email.trim()) return;
