@@ -64,24 +64,24 @@ export async function POST(req) {
 
     // Builder Path fallback
     return Response.json({
-      path_title: "The Builder Path",
-      revelation:
-        "You grow fastest when action becomes consistent.",
-      skill_one: "Execution",
-      skill_why:
-        "Ideas only matter when turned into outcomes.",
-      wealth_path:
-        "Solve painful problems repeatedly.",
-      career_path:
-        "Roles where ownership matters.",
-      first_move:
-        "Take one visible bold step in 48 hours.",
-      first_offer:
-        "Help one person solve one problem.",
-      trap:
-        "Overthinking instead of shipping.",
-      30 Day challenge:
-        "30 days of daily visible progress.",
-    });
+  path_title: "The Builder Path",
+  revelation:
+    "You grow fastest when action becomes consistent.",
+  skill_one: "Execution",
+  skill_why:
+    "Ideas only matter when turned into outcomes.",
+  wealth_path:
+    "Solve painful problems repeatedly.",
+  career_path:
+    "Roles where ownership matters.",
+  first_move:
+    "Take one visible bold step in 48 hours.",
+  first_offer:
+    "Help one person solve one problem.",
+  trap:
+    "Overthinking instead of shipping.",
+  challenge:
+    "30 days of daily visible progress."
+});
   }
 }
