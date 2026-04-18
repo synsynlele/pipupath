@@ -266,6 +266,7 @@ animation:spin 1s linear infinite
 export default function PipuPath(){
  const [screen,setScreen]=useState("boot");
  const [email,setEmail]=useState("");
+ const [password,setPassword]=useState("");
  const [user,setUser]=useState(null);
  const [qIdx,setQIdx]=useState(0);
  const [answers,setAnswers]=useState([]);
@@ -275,46 +276,79 @@ export default function PipuPath(){
  const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
  const [checkinRes,setCheckinRes]=useState(null);
 
- useEffect(()=>{
-   const u=localStorage.getItem("pp_user");
-   const p=localStorage.getItem("pp_profile");
+ useEffect(() => {
+  checkUser();
+}, []);
 
-   if(u){
-     setUser(JSON.parse(u));
-     if(p){
-       const saved=JSON.parse(p);
-       setArchKey(saved.archKey);
-       setPathData(saved.pathData);
-       setScreen("returning");
-     }else{
-       setScreen("questions");
-     }
-   }else{
-     setScreen("login");
-   }
- },[]);
+async function checkUser() {
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
 
- function login(){
-   if(!email.trim()) return;
-   const u={email};
-   localStorage.setItem("pp_user",JSON.stringify(u));
-   setUser(u);
+  if (!session) {
+    setScreen("login");
+    return;
+  }
 
-   const p=localStorage.getItem("pp_profile");
-   if(p){
-     const saved=JSON.parse(p);
-     setArchKey(saved.archKey);
-     setPathData(saved.pathData);
-     setScreen("returning");
-   }else{
-     setScreen("questions");
-   }
- }
+  const authUser = session.user;
 
- function logout(){
-   localStorage.removeItem("pp_user");
-   location.reload();
- }
+  setUser({
+    email: authUser.email
+  });
+
+  const { data } = await supabase
+    .from("leads")
+    .select("*")
+    .eq("email", authUser.email)
+    .single();
+
+  if (data?.result) {
+    setArchKey(data.archetype);
+    setPathData(data.result);
+    setScreen("returning");
+  } else {
+    setScreen("questions");
+  }
+}
+
+ async function login() {
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  checkUser();
+}
+
+ async function signup() {
+  const { error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Account created. Now log in.");
+}
+
+ async function googleLogin() {
+  await supabase.auth.signInWithOAuth({
+    provider: "google"
+  });
+}
+
+ async function logout(){
+  await supabase.auth.signOut();
+  location.reload();
+}
 
  function retake(){
    setAnswers([]);
@@ -348,10 +382,13 @@ export default function PipuPath(){
    const result=await generatePath(key,next);
    setPathData(result);
 
-   localStorage.setItem("pp_profile",JSON.stringify({
-     archKey:key,
-     pathData:result
-   }));
+   await supabase.from("leads").upsert({
+  email: user.email,
+  archetype: key,
+  answers: next,
+  result: result,
+  source: "pipupath"
+});
 
    setScreen("result");
  }
@@ -371,16 +408,39 @@ export default function PipuPath(){
  boot:<div className="pp-spin"></div>,
 
  login:<div>
-   <div className="pp-logo">PIPUPATH</div>
-   <h1 className="pp-h1">Discover your<br/><em>builder path.</em></h1>
-   <input
+  <div className="pp-logo">PIPUPATH</div>
+
+  <h1 className="pp-h1">
+    Discover your<br/><em>builder path.</em>
+  </h1>
+
+  <input
     className="pp-input"
+    placeholder="Email"
     value={email}
     onChange={e=>setEmail(e.target.value)}
-    placeholder="you@email.com"
-   />
-   <button className="pp-btn" onClick={login}>Continue →</button>
- </div>,
+  />
+
+  <input
+    className="pp-input"
+    type="password"
+    placeholder="Password"
+    value={password}
+    onChange={e=>setPassword(e.target.value)}
+  />
+
+  <button className="pp-btn" onClick={login}>
+    Login →
+  </button>
+
+  <button className="pp-btn-outline" onClick={signup}>
+    Create Account
+  </button>
+
+  <button className="pp-btn-outline" onClick={googleLogin}>
+    Continue with Google
+  </button>
+</div>,
 
  questions:<div>
    <div className="pp-logo">PIPUPATH</div>
