@@ -541,7 +541,7 @@ export default function PipuPath(){
    
    <div className="pp-card">
      <div className="pp-label">Acknowlegdment</div>
-     {checkinRes?.acknowledgement}
+     {checkinRes?.acknowledgment}
    </div>
 
    <div className="pp-card">
