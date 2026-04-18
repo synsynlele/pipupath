@@ -82,24 +82,30 @@ Return ONLY valid JSON.
 {
 "path_title":"",
 "revelation":"",
+"hidden_advantage":"",
 "skill_one":"",
-"skill_why":"",
 "wealth_path":"",
 "career_path":"",
 "first_move":"",
 "first_offer":"",
-"trap":"",
+"enemy_pattern":"",
 "mindset_shift":"",
 "challenge":""
 }
 
-You are a world-class strategist in human potential, wealth creation, career positioning and life direction.
+You are the greatest human potential coach and strategist in the world.
 
 Builder Type: ${arch.name}
 Tagline: ${arch.tagline}
 Description: ${arch.description}
 
-Be premium, sharp, practical, powerful, modern.
+Rules:
+- No generic advice
+- No clichés
+- Be sharp, elite, modern
+- Make user feel deeply understood
+- Give realistic leverage
+- Powerful enough to screenshot
 `);
 }
 
@@ -109,16 +115,15 @@ Return ONLY valid JSON.
 
 {
 "acknowledgment":"",
-"insight":"",
+"diagnosis":"",
+"blindspot":"",
 "adjustment":"",
-"remove_now":"",
 "next_move":"",
 "momentum":8,
-"momentum_note":"",
 "focus_week":""
 }
 
-You are an elite performance coach.
+You are the greatest elite performance coach.
 
 Builder Path: ${path.path_title}
 
@@ -126,7 +131,10 @@ Tried: ${checkin.tried}
 Worked: ${checkin.worked}
 Stuck: ${checkin.stuck}
 
-Be brutally useful and strategic.
+Rules:
+- Diagnose fast
+- No vague motivation
+- Be brutally useful
 `);
 }
 
@@ -153,54 +161,45 @@ body{margin:0}
 `;
 
 export default function PipuPath(){
-  const [screen,setScreen] = useState("boot");
-  const [email,setEmail] = useState("");
-  const [user,setUser] = useState(null);
-  const [qIdx,setQIdx] = useState(0);
-  const [answers,setAnswers] = useState([]);
-  const [archKey,setArchKey] = useState(null);
-  const [pathData,setPathData] = useState(null);
-  const [busy,setBusy] = useState(false);
-  const [checkin,setCheckin] = useState({tried:"",worked:"",stuck:""});
-  const [checkinRes,setCheckinRes] = useState(null);
+  const [screen,setScreen]=useState("boot");
+  const [email,setEmail]=useState("");
+  const [user,setUser]=useState(null);
+  const [qIdx,setQIdx]=useState(0);
+  const [answers,setAnswers]=useState([]);
+  const [archKey,setArchKey]=useState(null);
+  const [pathData,setPathData]=useState(null);
+  const [busy,setBusy]=useState(false);
+  const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
+  const [checkinRes,setCheckinRes]=useState(null);
 
   useEffect(()=>{
-    const u = localStorage.getItem("pp_user");
-    const p = localStorage.getItem("pp_profile");
+    const u=localStorage.getItem("pp_user");
+    const p=localStorage.getItem("pp_profile");
 
     if(u){
       setUser(JSON.parse(u));
-
       if(p){
-        const saved = JSON.parse(p);
+        const saved=JSON.parse(p);
         setArchKey(saved.archKey);
         setPathData(saved.pathData);
         setScreen("returning");
-      } else {
-        setScreen("questions");
-      }
-    } else {
-      setScreen("login");
-    }
+      } else setScreen("questions");
+    } else setScreen("login");
   },[]);
 
   function login(){
     if(!email.trim()) return;
-
-    const u = {email};
+    const u={email};
     localStorage.setItem("pp_user",JSON.stringify(u));
     setUser(u);
 
-    const p = localStorage.getItem("pp_profile");
-
+    const p=localStorage.getItem("pp_profile");
     if(p){
-      const saved = JSON.parse(p);
+      const saved=JSON.parse(p);
       setArchKey(saved.archKey);
       setPathData(saved.pathData);
       setScreen("returning");
-    } else {
-      setScreen("questions");
-    }
+    } else setScreen("questions");
   }
 
   function logout(){
@@ -208,30 +207,30 @@ export default function PipuPath(){
     location.reload();
   }
 
+  function retake(){
+    setAnswers([]);
+    setQIdx(0);
+    setScreen("questions");
+  }
+
   function downloadPDF(){
     window.print();
   }
 
-  function shareWhatsApp(){
-    const title = pathData?.path_title || "My Builder Path";
-    const text = `I discovered my Builder Path on PipuPath: ${title}. Try yours now`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank");
-  }
-
   async function pickAnswer(i){
-    const next = [...answers,i];
+    const next=[...answers,i];
     setAnswers(next);
 
-    if(qIdx < QUESTIONS.length-1){
+    if(qIdx<QUESTIONS.length-1){
       setQIdx(qIdx+1);
       return;
     }
 
-    const key = calcArchetype(next);
+    const key=calcArchetype(next);
     setArchKey(key);
     setScreen("generating");
 
-    const result = await generatePath(key);
+    const result=await generatePath(key);
     setPathData(result);
 
     localStorage.setItem("pp_profile",JSON.stringify({
@@ -244,7 +243,7 @@ export default function PipuPath(){
 
   async function submitCheckin(){
     setBusy(true);
-    const res = await generateCheckin(checkin,pathData);
+    const res=await generateCheckin(checkin,pathData);
     setCheckinRes(res);
     setBusy(false);
     setScreen("checkin_result");
@@ -253,107 +252,70 @@ export default function PipuPath(){
   const screens = {
     boot:<div className="pp-spin"></div>,
 
-    login:(
-      <div>
-        <div className="pp-logo">PIPUPATH</div>
-        <h1 className="pp-h1">Start your<br/><em>builder journey.</em></h1>
-        <p className="pp-lead">Enter your email to begin.</p>
-        <input className="pp-input" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@email.com"/>
-        <button className="pp-btn" onClick={login}>Continue →</button>
-      </div>
-    ),
+    login:(<div>
+      <div className="pp-logo">PIPUPATH</div>
+      <h1 className="pp-h1">Start your<br/><em>builder journey.</em></h1>
+      <input className="pp-input" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@email.com"/>
+      <button className="pp-btn" onClick={login}>Continue →</button>
+    </div>),
 
-    questions:(
-      <div>
-        <div className="pp-logo">PIPUPATH</div>
-        <div style={{opacity:.6,marginBottom:14}}>Question {qIdx+1} of {QUESTIONS.length}</div>
-        <h2 className="pp-h2">{QUESTIONS[qIdx].q}</h2>
-        {QUESTIONS[qIdx].options.map((o,i)=>(
-          <button key={i} className="pp-opt" onClick={()=>pickAnswer(i)}>{o.text}</button>
-        ))}
-      </div>
-    ),
+    questions:(<div>
+      <div className="pp-logo">PIPUPATH</div>
+      <div style={{opacity:.6,marginBottom:14}}>Question {qIdx+1} of {QUESTIONS.length}</div>
+      <h2 className="pp-h2">{QUESTIONS[qIdx].q}</h2>
+      {QUESTIONS[qIdx].options.map((o,i)=>(
+        <button key={i} className="pp-opt" onClick={()=>pickAnswer(i)}>{o.text}</button>
+      ))}
+    </div>),
 
-    generating:(
-      <div style={{textAlign:"center"}}>
-        <div className="pp-spin"></div>
-        <p style={{marginTop:18}}>Mapping your premium builder path...</p>
-      </div>
-    ),
+    generating:(<div style={{textAlign:"center"}}>
+      <div className="pp-spin"></div>
+      <p style={{marginTop:18}}>Mapping your premium builder path...</p>
+    </div>),
 
-    returning:(
-      <div>
-        <div className="pp-logo">{user?.email}</div>
-        <h2 className="pp-h2">Welcome back,<br/><em>{pathData?.path_title}</em></h2>
+    returning:(<div>
+      <div className="pp-logo">{user?.email}</div>
+      <h2 className="pp-h2">Welcome back,<br/><em>{pathData?.path_title}</em></h2>
+      <button className="pp-btn" onClick={()=>setScreen("result")}>Open Dashboard →</button>
+      <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>Weekly Check-In</button>
+      <button className="pp-btn-outline" onClick={retake}>Retake Questions</button>
+      <button className="pp-btn-outline" onClick={logout}>Logout</button>
+    </div>),
 
-        <div className="pp-card">
-          <div className="pp-card-label">Your Identity</div>
-          {ARCHETYPES[archKey]?.name}
-        </div>
+    result:(<div>
+      <div className="pp-logo">{user?.email}</div>
+      <h2 className="pp-h2">{pathData?.path_title}</h2>
+      <div className="pp-card">{pathData?.revelation}</div>
+      <div className="pp-card">{pathData?.first_move}</div>
+      <button className="pp-btn" onClick={()=>setScreen("returning")}>Dashboard →</button>
+      <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>Weekly Check-In</button>
+      <button className="pp-btn-outline" onClick={retake}>Retake Questions</button>
+      <button className="pp-btn-outline" onClick={downloadPDF}>Download</button>
+    </div>),
 
-        <div className="pp-card">
-          <div className="pp-card-label">Next Focus</div>
-          {pathData?.first_move}
-        </div>
+    checkin:(<div>
+      <div className="pp-logo">PIPUPATH</div>
+      <h2 className="pp-h2">Weekly <em>Adjustment</em></h2>
+      <textarea className="pp-textarea" placeholder="What did you try?" value={checkin.tried} onChange={e=>setCheckin({...checkin,tried:e.target.value})}/>
+      <textarea className="pp-textarea" placeholder="What worked?" value={checkin.worked} onChange={e=>setCheckin({...checkin,worked:e.target.value})}/>
+      <textarea className="pp-textarea" placeholder="Where are you stuck?" value={checkin.stuck} onChange={e=>setCheckin({...checkin,stuck:e.target.value})}/>
+      <button className="pp-btn" onClick={submitCheckin}>{busy?"Analyzing...":"Get My Adjustment →"}</button>
+    </div>),
 
-        <button className="pp-btn" onClick={()=>setScreen("result")}>Open Dashboard →</button>
-        <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>Weekly Check-In</button>
-        <button className="pp-btn-outline" onClick={shareWhatsApp}>Share My Path</button>
-        <button className="pp-btn-outline" onClick={logout}>Logout</button>
-      </div>
-    ),
-
-    result:(
-      <div>
-        <div className="pp-logo">{user?.email}</div>
-        <h2 className="pp-h2">{pathData?.path_title}</h2>
-
-        <div className="pp-card"><div className="pp-card-label">Revelation</div>{pathData?.revelation}</div>
-        <div className="pp-card"><div className="pp-card-label">Skill</div>{pathData?.skill_one}</div>
-        <div className="pp-card"><div className="pp-card-label">First Move</div>{pathData?.first_move}</div>
-
-        <button className="pp-btn" onClick={()=>setScreen("returning")}>Dashboard →</button>
-        <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>Weekly Check-In</button>
-        <button className="pp-btn-outline" onClick={downloadPDF}>Download</button>
-      </div>
-    ),
-
-    checkin:(
-      <div>
-        <div className="pp-logo">PIPUPATH</div>
-        <h2 className="pp-h2">Weekly <em>Adjustment</em></h2>
-
-        <textarea className="pp-textarea" placeholder="What did you try?" value={checkin.tried} onChange={e=>setCheckin({...checkin,tried:e.target.value})}/>
-        <textarea className="pp-textarea" placeholder="What worked?" value={checkin.worked} onChange={e=>setCheckin({...checkin,worked:e.target.value})}/>
-        <textarea className="pp-textarea" placeholder="Where are you stuck?" value={checkin.stuck} onChange={e=>setCheckin({...checkin,stuck:e.target.value})}/>
-
-        <button className="pp-btn" onClick={submitCheckin}>
-          {busy ? "Analyzing..." : "Get My Adjustment →"}
-        </button>
-      </div>
-    ),
-
-    checkin_result:(
-      <div>
-        <div className="pp-logo">PIPUPATH</div>
-        <h2 className="pp-h2">Your <em>Adjustment</em></h2>
-
-        <div className="pp-card"><div className="pp-card-label">Insight</div>{checkinRes?.insight}</div>
-        <div className="pp-card"><div className="pp-card-label">Next Move</div>{checkinRes?.next_move}</div>
-
-        <button className="pp-btn" onClick={()=>setScreen("returning")}>Dashboard →</button>
-        <button className="pp-btn-outline" onClick={()=>setScreen("result")}>My Path</button>
-      </div>
-    )
+    checkin_result:(<div>
+      <div className="pp-logo">PIPUPATH</div>
+      <h2 className="pp-h2">Your <em>Adjustment</em></h2>
+      <div className="pp-card">{checkinRes?.diagnosis}</div>
+      <div className="pp-card">{checkinRes?.next_move}</div>
+      <button className="pp-btn" onClick={()=>setScreen("returning")}>Dashboard →</button>
+    </div>)
   };
 
   return(
     <>
       <style>{CSS}</style>
       <div className="pp">
-        <div className="pp-wrap">
-          {screens[screen]}
-        </div>
+        <div className="pp-wrap">{screens[screen]}</div>
       </div>
     </>
   );
