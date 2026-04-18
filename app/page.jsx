@@ -155,10 +155,12 @@ User answers:
 ${summary}
 
 Rules:
+- Answer like you are speeaking to a youth
 - No clichés
 - No generic advice
 - Be specific
 - Be very detailed
+- Use simple language
 - High leverage
 - Modern
 - Premium
@@ -192,6 +194,8 @@ Rules:
 - No fluff
 - Practical
 - Be very detailed
+- Answer like you are speeaking to a youth
+- Use simple language
 - High leverage
 `);
 }
