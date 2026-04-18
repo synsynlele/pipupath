@@ -452,8 +452,8 @@ export default function PipuPath(){
    </div>
 
    <div className="pp-card">
-     <div className="pp-label">Challenge</div>
-     {pathData?.challenge}
+     <div className="pp-label">30 Day challenge</div>
+     {pathData?.30_Day_challenge}
    </div>
 
    <button className="pp-btn" onClick={()=>setScreen("returning")}>
