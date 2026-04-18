@@ -485,7 +485,7 @@ export default function PipuPath(){
    </h2>
 
    <button className="pp-btn" onClick={()=>setScreen("result")}>
-     Open Path→
+     My Builder Path→
    </button>
 
    <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>
