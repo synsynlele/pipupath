@@ -371,12 +371,6 @@ async function checkUser() {
   }
 }
 
-  } catch (error) {
-    console.log(error);
-    setScreen("login");
-  }
-}
-
  async function login() {
   const { error } = await supabase.auth.signInWithPassword({
     email,
