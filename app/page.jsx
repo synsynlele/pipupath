@@ -876,7 +876,7 @@ marginBottom:"18px"
  <button className="pp-btn-outline" onClick={logout}>
    Logout
  </button>
-</div>
+</div>,
 
  checkin:<div>
    <div className="pp-brand">
