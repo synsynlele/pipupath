@@ -219,6 +219,24 @@ align-items:center
 }
 .pp-wrap{max-width:680px;width:100%}
 .pp-logo{font-size:12px;letter-spacing:.42em;color:#D4A43B;margin-bottom:24px}
+.pp-brand{
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:24px;
+font-size:12px;
+letter-spacing:.42em;
+color:#D4A43B;
+font-weight:700;
+}
+
+.pp-brand-logo{
+width:38px;
+height:38px;
+object-fit:contain;
+border-radius:10px;
+box-shadow:0 8px 24px rgba(212,164,59,.18);
+}
 .pp-h1{font-size:56px;line-height:1.02;margin:0 0 16px}
 .pp-h2{font-size:40px;line-height:1.08;margin:0 0 16px}
 .pp-h1 em,.pp-h2 em{font-style:italic;color:#D4A43B}
@@ -436,7 +454,10 @@ async function checkUser() {
  boot:<div className="pp-spin"></div>,
 
  login:<div>
-  <div className="pp-logo">PIPUPATH</div>
+  <div className="pp-brand">
+  <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+  <span>PIPUPATH</span>
+</div>
   <div style={{
 display:"flex",
 gap:"10px",
@@ -499,7 +520,10 @@ marginBottom:"18px"
 </div>,
 
  questions:<div>
-   <div className="pp-logo">PIPUPATH</div>
+   <div className="pp-brand">
+  <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+  <span>PIPUPATH</span>
+</div>
    <div style={{opacity:.65}}>Question {qIdx+1} of {QUESTIONS.length}</div>
    <div style={{height:"8px",
    background:"rgba(255,255,255,.08)",
@@ -538,7 +562,10 @@ marginBottom:"18px"
 </div>,
 
  result:<div>
-   <div className="pp-logo">{user?.email}</div>
+   <div className="pp-brand">
+  <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+  <span>{user?.email?.split("@")[0]}</span>
+</div>
 
    <h2 className="pp-h2">
      {arch.emoji} {arch.name}
@@ -625,7 +652,10 @@ marginBottom:"18px"
  </div>,
 
  returning:<div>
-   <div className="pp-logo">{user?.email}</div>
+   <div className="pp-brand">
+  <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+  <span>{user?.email}</span>
+</div>
 
    <h2 className="pp-h2">
       Welcome back.<br/><em>{pathData?.path_title}</em>
@@ -692,7 +722,10 @@ marginBottom:"18px"
  </div>,
 
  checkin_result:<div>
-   <div className="pp-logo">PIPUPATH</div>
+   <div className="pp-brand">
+  <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+  <span>PIPUPATH</span>
+</div>
    <h2 className="pp-h2">Your <em>Adjustment</em></h2>
    
    <div className="pp-card">
