@@ -337,36 +337,39 @@ async function checkUser() {
 
     setUser({ email: authUser.email });
 
-  let { data } = await supabase
-  .from("leads")
-  .select("*")
-  .eq("user_id", authUser.id)
-  .order("created_at", { ascending: false })
-  .limit(1);
+    let { data } = await supabase
+      .from("leads")
+      .select("*")
+      .eq("user_id", authUser.id)
+      .order("created_at", { ascending: false })
+      .limit(1);
 
-if (!data || data.length === 0) {
-  const fallback = await supabase
-    .from("leads")
-    .select("*")
-    .eq("email", authUser.email)
-    .order("created_at", { ascending: false })
-    .limit(1);
+    if (!data || data.length === 0) {
+      const fallback = await supabase
+        .from("leads")
+        .select("*")
+        .eq("email", authUser.email)
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-  data = fallback.data;
-}
+      data = fallback.data;
+    }
 
-const row = data && data.length ? data[0] : null;
-}
-   console.log("USER ID:", authUser.id);
-   console.log("DB DATA:", data);
+    const row = data && data.length ? data[0] : null;
 
     if (row) {
-   setArchKey(row.archetype);
-   setPathData(row.result);
-   setScreen("returning");
- } else {
-   setScreen("questions");
- }
+      setArchKey(row.archetype);
+      setPathData(row.result);
+      setScreen("returning");
+    } else {
+      setScreen("questions");
+    }
+
+  } catch (error) {
+    console.log(error);
+    setScreen("login");
+  }
+}
 
   } catch (error) {
     console.log(error);
