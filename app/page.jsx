@@ -337,9 +337,6 @@ const [busy,setBusy]=useState(false);
 const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
 const [checkinRes,setCheckinRes]=useState(null);
 const [authMode,setAuthMode]=useState("login");
-const [xp,setXp] = useState(0);
-const [level,setLevel] = useState("Explorer");
-const [streak,setStreak] = useState(0);
 
  useEffect(() => {
   checkUser();
