@@ -343,7 +343,7 @@ async function checkUser() {
       .eq("id", authUser.id)
       .maybeSingle();
 
-    if (data?.result) {
+    if (data) {
       setArchKey(data.archetype);
       setPathData(data.result);
       setScreen("returning");
@@ -428,16 +428,21 @@ async function checkUser() {
    const result=await generatePath(key,next);
    setPathData(result);
 
-   const currentUser = await supabase.auth.getUser();
+   const { data: authData } = await supabase.auth.getUser();
 
-await supabase.from("leads").upsert({
-  id: currentUser.data.user.id,
-  email: currentUser.data.user.email,
-  archetype: key,
-  answers: next,
-  result: result,
-  source: "pipupath"
-});
+   const uid = authData?.user?.id;
+   const uemail = authData?.user?.email;
+
+   console.log("Saving user:", uid, uemail);
+
+   await supabase.from("leads").upsert({
+     id: uid,
+     email: uemail,
+     archetype: key,
+     answers: next,
+     result: result,
+     source: "pipupath"
+   });
 
    setScreen("result");
  }
