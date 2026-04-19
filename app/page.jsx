@@ -340,7 +340,7 @@ async function checkUser() {
     const { data } = await supabase
       .from("leads")
       .select("*")
-      .eq("id", authUser.id)
+      .eq("user_id", authUser.id)
       .maybeSingle();
 
     if (data) {
@@ -436,7 +436,7 @@ async function checkUser() {
    console.log("Saving user:", uid, uemail);
 
    await supabase.from("leads").upsert({
-     id: uid,
+     user_id: uid,
      email: uemail,
      archetype: key,
      answers: next,
