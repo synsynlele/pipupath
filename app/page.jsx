@@ -995,16 +995,15 @@ if(row?.last_proof_date === today){
     setStreak(newStreak);
 
     await supabase
-      .from("leads")
-      .update({
-      .update({
-      xp:newXP,
-      level:newLevel,
-      streak:newStreak,
-      last_proof_date: today,
-      weekly_mission: ""
-     })
-      .eq("email", user.email);
+  .from("leads")
+  .update({
+    xp:newXP,
+    level:newLevel,
+    streak:newStreak,
+    last_proof_date: today,
+    weekly_mission: ""
+  })
+  .eq("email", user.email);
 
     alert("✅ Mission Progress Submitted! +80 XP");
 
