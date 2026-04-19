@@ -333,6 +333,7 @@ const [pathData,setPathData]=useState(null);
 const [xp,setXp] = useState(0);
 const [level,setLevel] = useState("Explorer");
 const [streak,setStreak] = useState(0);
+const [weeklyMission,setWeeklyMission] = useState("");
 const [busy,setBusy]=useState(false);
 const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
 const [checkinRes,setCheckinRes]=useState(null);
@@ -391,6 +392,7 @@ async function checkUser() {
   setXp(row.xp || 0);
   setLevel(row.level || "Explorer");
   setStreak(row.streak || 0);
+  setWeeklyMission(row.weekly_mission || "");
 
   setScreen("returning");
 } else {
@@ -520,6 +522,7 @@ if (existing) {
 
   const res = await generateCheckin(checkin, pathData);
   setCheckinRes(res);
+  setWeeklyMission(res.next_move || "");
 
   const newXP = xp + 50;
   const newLevel = getLevelFromXP(newXP);
@@ -533,10 +536,11 @@ if (existing) {
   await supabase
   .from("leads")
   .update({
-    xp: newXP,
-    level: newLevel,
-    streak: newStreak
-  })
+  xp:newXP,
+  level:newLevel,
+  streak:newStreak,
+  weekly_mission: res.next_move || ""
+})
   .eq("email", user.email);
 
   setBusy(false);
@@ -788,46 +792,17 @@ marginBottom:"18px"
  </div>
 
  <div className="pp-card">
-  <div className="pp-label">Weekly Challenge 🚀</div>
+  <div className="pp-label">Your Weekly Mission 🚀</div>
 
-  <strong>Teach One Person</strong><br/>
-  Teach someone one useful thing today.
-
-  <div style={{marginTop:"10px"}}>
-    Reward: +30 XP
-  </div>
+  <strong>
+    {weeklyMission || "Complete Mission Adjustment to unlock your next mission."}
+  </strong>
 
   <button
-    className="pp-btn"
-    onClick={async()=>{
-
-      const newXP = xp + 30;
-      const oldLevel = level;
-      const newLevel = getLevelFromXP(newXP);
-      const newStreak = streak + 1;
-
-      setXp(newXP);
-      setLevel(newLevel);
-      setStreak(newStreak);
-
-      await supabase
-        .from("leads")
-        .update({
-          xp:newXP,
-          level:newLevel,
-          streak:newStreak
-        })
-        .eq("email", user.email);
-
-      alert("✅ Challenge Complete! +30 XP");
-
-      if(oldLevel !== newLevel){
-        alert(`🎉 Level Up!\nYou are now a ${newLevel}`);
-      }
-
-    }}
+    className="pp-btn-outline"
+    onClick={()=>setScreen("checkin")}
   >
-    Complete Challenge
+    Update Mission
   </button>
 </div>
 
