@@ -343,6 +343,9 @@ async function checkUser() {
       .eq("user_id", authUser.id)
       .maybeSingle();
 
+   console.log("USER ID:", authUser.id);
+   console.log("DB DATA:", data);
+
     if (data) {
    setArchKey(data.archetype);
    setPathData(data.result);
