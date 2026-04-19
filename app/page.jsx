@@ -340,7 +340,7 @@ async function checkUser() {
     const { data } = await supabase
       .from("leads")
       .select("*")
-      .eq("email", authUser.email)
+      .eq("id", authUser.id)
       .maybeSingle();
 
     if (data?.result) {
@@ -428,8 +428,11 @@ async function checkUser() {
    const result=await generatePath(key,next);
    setPathData(result);
 
-   await supabase.from("leads").upsert({
-  email: user.email,
+   const currentUser = await supabase.auth.getUser();
+
+await supabase.from("leads").upsert({
+  id: currentUser.data.user.id,
+  email: currentUser.data.user.email,
   archetype: key,
   answers: next,
   result: result,
@@ -692,7 +695,10 @@ marginBottom:"18px"
  </div>,
 
  checkin:<div>
-   <div className="pp-logo">PIPUPATH</div>
+   <div className="pp-brand">
+  <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+  <span>{user?.email}</span>
+</div>
    <h2 className="pp-h2">Mission <em>Adjustment</em></h2>
 
    <textarea
