@@ -223,8 +223,15 @@ align-items:center
 .pp-h2{font-size:40px;line-height:1.08;margin:0 0 16px}
 .pp-h1 em,.pp-h2 em{font-style:italic;color:#D4A43B}
 .pp-btn,.pp-btn-outline{
-width:100%;padding:16px;margin-top:12px;border-radius:16px;
-font-weight:700;cursor:pointer;font-size:15px
+width:100%;
+padding:16px;
+margin-top:12px;
+border-radius:16px;
+font-weight:700;
+cursor:pointer;
+font-size:15px;
+transition:all .25s ease;
+transform:translateY(0);
 }
 .pp-btn{background:#D4A43B;color:#111;border:none}
 .pp-btn-outline{
@@ -238,12 +245,20 @@ background:rgba(255,255,255,.03);
 border:1px solid rgba(255,255,255,.08);
 color:#F7E8C5;font-size:15px
 }
+.pp-btn:hover,
+.pp-btn-outline:hover,
+.pp-opt:hover,
+.pp-card:hover{
+transform:translateY(-2px);
+}
 .pp-opt{text-align:left;cursor:pointer}
 .pp-card{
-padding:18px;border-radius:18px;
+padding:18px;
+border-radius:18px;
 background:rgba(255,255,255,.03);
 border:1px solid rgba(255,255,255,.08);
-margin-top:12px
+margin-top:12px;
+transition:all .25s ease;
 }
 .pp-label{
 font-size:11px;opacity:.6;letter-spacing:.14em;
@@ -422,6 +437,35 @@ async function checkUser() {
 
  login:<div>
   <div className="pp-logo">PIPUPATH</div>
+  <div style={{
+display:"flex",
+gap:"10px",
+marginBottom:"18px"
+}}>
+  <button
+    className="pp-btn-outline"
+    style={{
+      marginTop:"0",
+      background: authMode==="login" ? "#D4A43B" : "",
+      color: authMode==="login" ? "#111" : ""
+    }}
+    onClick={()=>setAuthMode("login")}
+  >
+    Sign In
+  </button>
+
+  <button
+    className="pp-btn-outline"
+    style={{
+      marginTop:"0",
+      background: authMode==="signup" ? "#D4A43B" : "",
+      color: authMode==="signup" ? "#111" : ""
+    }}
+    onClick={()=>setAuthMode("signup")}
+  >
+    Create Account
+  </button>
+</div>
 
   <h1 className="pp-h1">
     Discover your<br/><em>builder path.</em>
@@ -442,13 +486,12 @@ async function checkUser() {
     onChange={e=>setPassword(e.target.value)}
   />
 
-  <button className="pp-btn" onClick={login}>
-    Login →
-  </button>
-
-  <button className="pp-btn-outline" onClick={signup}>
-    Create Account
-  </button>
+  <button
+  className="pp-btn"
+  onClick={authMode==="login" ? login : signup}
+>
+  {authMode==="login" ? "Login →" : "Create Account →"}
+</button>
 
   <button className="pp-btn-outline" onClick={googleLogin}>
     Continue with Google
@@ -458,6 +501,19 @@ async function checkUser() {
  questions:<div>
    <div className="pp-logo">PIPUPATH</div>
    <div style={{opacity:.65}}>Question {qIdx+1} of {QUESTIONS.length}</div>
+   <div style={{height:"8px",
+   background:"rgba(255,255,255,.08)",
+   borderRadius:"999px",
+   margin:"12px 0 18px"
+   }}>
+     <div style={{
+       height:"100%",
+       width:`${((qIdx+1)/QUESTIONS.length)*100}%`,
+       background:"#D4A43B",
+       borderRadius:"999px",
+       transition:"0.4s ease"
+    }}></div>
+  </div>
    <h2 className="pp-h2">{QUESTIONS[qIdx].q}</h2>
 
    {QUESTIONS[qIdx].options.map((o,i)=>(
@@ -469,8 +525,17 @@ async function checkUser() {
 
  generating:<div style={{textAlign:"center"}}>
    <div className="pp-spin"></div>
-   <p style={{marginTop:18}}>Mapping your elite path...</p>
- </div>,
+
+   <h2 className="pp-h2" style={{fontSize:"32px",marginTop:"18px"}}>
+     Mapping your <em>path</em>
+   </h2>
+
+   <p style={{opacity:.75,lineHeight:"1.6"}}>
+     Analyzing strengths...<br/>
+     Detecting patterns...<br/>
+     Designing your next move...
+   </p>
+</div>,
 
  result:<div>
    <div className="pp-logo">{user?.email}</div>
@@ -478,6 +543,15 @@ async function checkUser() {
    <h2 className="pp-h2">
      {arch.emoji} {arch.name}
    </h2>
+   <div style={{
+    opacity:.82,
+    marginBottom:"16px",
+    lineHeight:"1.6",
+    fontSize:"16px"
+  }}>
+    You are not confused.<br/>
+    You are built for a lane that needs to be activated.
+  </div>
 
    <div className="pp-traits">
      {arch.traits?.map(t=><span key={t} className="pp-trait">{t}</span>)}
@@ -554,8 +628,17 @@ async function checkUser() {
    <div className="pp-logo">{user?.email}</div>
 
    <h2 className="pp-h2">
-     Welcome back,<br/><em>{pathData?.path_title}</em>
+      Welcome back.<br/><em>{pathData?.path_title}</em>
    </h2>
+
+   <div style={{
+   opacity:.8,
+   marginBottom:"16px",
+   lineHeight:"1.6"
+   }}>
+     Your path is still active.<br/>
+     Keep building momentum.
+   </div>
 
    <button className="pp-btn" onClick={()=>setScreen("result")}>
      My Builder Path→
