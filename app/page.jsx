@@ -323,14 +323,6 @@ function getNextXP(level){
 
 export default function PipuPath(){
  const [screen,setScreen]=useState("boot");
- const [email,setEmail]=useState("");
- const [password,setPassword]=useState("");
- const [user,setUser]=useState(null);
- const [qIdx,setQIdx]=useState(0);
- const [answers,setAnswers]=useState([]);
- const [archKey,setArchKey]=useState(null);
- const [pathData,setPathData]=useState(null);
- const [screen,setScreen]=useState("boot");
 const [email,setEmail]=useState("");
 const [password,setPassword]=useState("");
 const [user,setUser]=useState(null);
@@ -341,10 +333,10 @@ const [pathData,setPathData]=useState(null);
 const [xp,setXp] = useState(0);
 const [level,setLevel] = useState("Explorer");
 const [streak,setStreak] = useState(0);
- const [busy,setBusy]=useState(false);
- const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
- const [checkinRes,setCheckinRes]=useState(null);
- const [authMode,setAuthMode]=useState("login");
+const [busy,setBusy]=useState(false);
+const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
+const [checkinRes,setCheckinRes]=useState(null);
+const [authMode,setAuthMode]=useState("login");
 const [xp,setXp] = useState(0);
 const [level,setLevel] = useState("Explorer");
 const [streak,setStreak] = useState(0);
@@ -557,8 +549,9 @@ if(oldLevel !== newLevel){
 }
 
 setScreen("checkin_result");
+}
 
- const arch=ARCHETYPES[archKey] || {};
+const arch=ARCHETYPES[archKey] || {};
 
  const screens={
 
