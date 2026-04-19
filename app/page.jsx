@@ -344,12 +344,12 @@ async function checkUser() {
       .maybeSingle();
 
     if (data) {
-      setArchKey(data.archetype);
-      setPathData(data.result);
-      setScreen("returning");
-    } else {
-      setScreen("questions");
-    }
+   setArchKey(data.archetype);
+   setPathData(data.result);
+   setScreen("returning");
+ } else {
+   setScreen("questions");
+ }
 
   } catch (error) {
     console.log(error);
