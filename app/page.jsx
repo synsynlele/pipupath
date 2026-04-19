@@ -297,6 +297,30 @@ animation:spin 1s linear infinite
 @keyframes spin{to{transform:rotate(360deg)}}
 `;
 
+ function getLevelFromXP(xp){
+  if (xp >= 1000) return "Founder Ready";
+  if (xp >= 700) return "Builder";
+  if (xp >= 300) return "Problem Solver";
+  if (xp >= 100) return "Learner";
+  return "Explorer";
+}
+
+function getNextLevel(level){
+  if(level === "Explorer") return "Learner";
+  if(level === "Learner") return "Problem Solver";
+  if(level === "Problem Solver") return "Builder";
+  if(level === "Builder") return "Founder Ready";
+  return "Max Level";
+}
+
+function getNextXP(level){
+  if(level === "Explorer") return 100;
+  if(level === "Learner") return 300;
+  if(level === "Problem Solver") return 700;
+  if(level === "Builder") return 1000;
+  return 1000;
+}
+
 export default function PipuPath(){
  const [screen,setScreen]=useState("boot");
  const [email,setEmail]=useState("");
@@ -306,10 +330,24 @@ export default function PipuPath(){
  const [answers,setAnswers]=useState([]);
  const [archKey,setArchKey]=useState(null);
  const [pathData,setPathData]=useState(null);
+ const [screen,setScreen]=useState("boot");
+const [email,setEmail]=useState("");
+const [password,setPassword]=useState("");
+const [user,setUser]=useState(null);
+const [qIdx,setQIdx]=useState(0);
+const [answers,setAnswers]=useState([]);
+const [archKey,setArchKey]=useState(null);
+const [pathData,setPathData]=useState(null);
+const [xp,setXp] = useState(0);
+const [level,setLevel] = useState("Explorer");
+const [streak,setStreak] = useState(0);
  const [busy,setBusy]=useState(false);
  const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
  const [checkinRes,setCheckinRes]=useState(null);
  const [authMode,setAuthMode]=useState("login");
+const [xp,setXp] = useState(0);
+const [level,setLevel] = useState("Explorer");
+const [streak,setStreak] = useState(0);
 
  useEffect(() => {
   checkUser();
@@ -358,12 +396,17 @@ async function checkUser() {
     const row = data && data.length ? data[0] : null;
 
     if (row) {
-      setArchKey(row.archetype);
-      setPathData(row.result);
-      setScreen("returning");
-    } else {
-      setScreen("questions");
-    }
+  setArchKey(row.archetype);
+  setPathData(row.result);
+
+  setXp(row.xp || 0);
+  setLevel(row.level || "Explorer");
+  setStreak(row.streak || 0);
+
+  setScreen("returning");
+} else {
+  setScreen("questions");
+}
 
   } catch (error) {
     console.log(error);
@@ -483,12 +526,37 @@ if (existing) {
  }
 
  async function submitCheckin(){
-   setBusy(true);
-   const res=await generateCheckin(checkin,pathData);
-   setCheckinRes(res);
-   setBusy(false);
-   setScreen("checkin_result");
- }
+
+  setBusy(true);
+
+  const res = await generateCheckin(checkin, pathData);
+  setCheckinRes(res);
+
+  const newXP = xp + 50;
+  const newLevel = getLevelFromXP(newXP);
+  const oldLevel = level;
+  const newStreak = streak + 1;
+
+  setXp(newXP);
+  setLevel(newLevel);
+  setStreak(newStreak);
+
+  await supabase
+  .from("leads")
+  .update({
+    xp: newXP,
+    level: newLevel,
+    streak: newStreak
+  })
+  .eq("email", user.email);
+
+  setBusy(false);
+
+if(oldLevel !== newLevel){
+  alert(`🎉 Level Up!\nYou are now a ${newLevel}`);
+}
+
+setScreen("checkin_result");
 
  const arch=ARCHETYPES[archKey] || {};
 
@@ -695,44 +763,120 @@ marginBottom:"18px"
  </div>,
 
  returning:<div>
-   <div className="pp-brand">
+ <div className="pp-brand">
   <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
   <span>{user?.email}</span>
-</div>
+ </div>
 
-   <h2 className="pp-h2">
-      Welcome back.<br/><em>{pathData?.path_title}</em>
-   </h2>
+ <h2 className="pp-h2">
+   Welcome back.<br/><em>{pathData?.path_title}</em>
+ </h2>
+
+ <div className="pp-card">
+   <div className="pp-label">Builder Level</div>
+   {level} 🚀
+ </div>
+
+ <div className="pp-card">
+   <div className="pp-label">XP Progress</div>
+   {xp} XP <br/>
+   <small>{getNextXP(level) - xp} XP to {getNextLevel(level)}</small>
 
    <div style={{
-   opacity:.8,
-   marginBottom:"16px",
-   lineHeight:"1.6"
+     height:"8px",
+     background:"rgba(255,255,255,.08)",
+     borderRadius:"999px",
+     marginTop:"12px"
    }}>
-     Your path is still active.<br/>
-     Keep building momentum.
+     <div style={{
+       height:"100%",
+       width:`${Math.min((xp / getNextXP(level)) * 100, 100)}%`,
+       background:"#D4A43B",
+       borderRadius:"999px"
+     }}></div>
    </div>
+ </div>
 
-   <button className="pp-btn" onClick={()=>setScreen("result")}>
-     My Builder Path→
-   </button>
+ <div className="pp-card">
+  <div className="pp-label">Weekly Challenge 🚀</div>
 
-   <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>
-     Mission Check-In
-   </button>
+  <strong>Teach One Person</strong><br/>
+  Teach someone one useful thing today.
 
-   <button className="pp-btn-outline" onClick={retake}>
-     Retake Questions
-   </button>
+  <div style={{marginTop:"10px"}}>
+    Reward: +30 XP
+  </div>
 
-   <button className="pp-btn-outline" onClick={share}>
-     Share
-   </button>
+  <button
+    className="pp-btn"
+    onClick={async()=>{
 
-   <button className="pp-btn-outline" onClick={logout}>
-     Logout
-   </button>
- </div>,
+      const newXP = xp + 30;
+      const oldLevel = level;
+      const newLevel = getLevelFromXP(newXP);
+      const newStreak = streak + 1;
+
+      setXp(newXP);
+      setLevel(newLevel);
+      setStreak(newStreak);
+
+      await supabase
+        .from("leads")
+        .update({
+          xp:newXP,
+          level:newLevel,
+          streak:newStreak
+        })
+        .eq("email", user.email);
+
+      alert("✅ Challenge Complete! +30 XP");
+
+      if(oldLevel !== newLevel){
+        alert(`🎉 Level Up!\nYou are now a ${newLevel}`);
+      }
+
+    }}
+  >
+    Complete Challenge
+  </button>
+</div>
+
+ <div className="pp-card">
+   <div className="pp-label">This Week’s Challenge</div>
+   <strong>Problem Hunter</strong><br/>
+   Find one real problem around you and suggest one solution.
+ </div>
+
+ <div className="pp-card">
+   <div className="pp-label">Momentum</div>
+   🔥 {streak} Week Streak
+ </div>
+
+ <div className="pp-card">
+   <div className="pp-label">Founder Pathway</div>
+   Explorer → Learner → Problem Solver → Builder → Founder Ready
+ </div>
+
+ <button className="pp-btn" onClick={()=>setScreen("result")}>
+   My Builder Path →
+ </button>
+
+ <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>
+   Complete Weekly Action
+ </button>
+
+ <button className="pp-btn-outline" onClick={share}>
+   Share Progress
+ </button>
+
+ <button className="pp-btn-outline" onClick={retake}>
+   Retake Questions
+ </button>
+
+ <button className="pp-btn-outline" onClick={logout}>
+   Logout
+ </button>
+</div>
 
  checkin:<div>
    <div className="pp-brand">
