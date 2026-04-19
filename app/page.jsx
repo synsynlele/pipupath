@@ -169,7 +169,7 @@ Rules:
 `);
 }
 
-async function generateCheckin(checkin,path){
+async function generateCheckin(checkin,path,level){
  return await callAI(`
 Return ONLY valid JSON.
 
@@ -185,6 +185,7 @@ Return ONLY valid JSON.
 You are the greatest elite execution coach in the world.
 
 Builder Path: ${path.path_title}
+Current Level: ${level}
 
 Tried:${checkin.tried}
 Worked:${checkin.worked}
@@ -198,6 +199,9 @@ Rules:
 - Answer like you are speeaking to a youth
 - Use simple language
 - High leverage
+- If level is Explorer or Learner: simple mission user can finish this week
+- If level is Problem Solver: mission with real output or feedback
+- If level is Builder or Founder Ready: mission involving money, users, leadership, or systems
 `);
 }
 
@@ -338,6 +342,11 @@ const [busy,setBusy]=useState(false);
 const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
 const [checkinRes,setCheckinRes]=useState(null);
 const [authMode,setAuthMode]=useState("login");
+const [missionProof,setMissionProof] = useState({
+  did:"",
+  happened:"",
+  learned:""
+});
 
  useEffect(() => {
   checkUser();
@@ -520,7 +529,7 @@ if (existing) {
 
   setBusy(true);
 
-  const res = await generateCheckin(checkin, pathData);
+  const res = await generateCheckin(checkin, pathData, level);
   setCheckinRes(res);
   setWeeklyMission(res.next_move || "");
 
@@ -799,18 +808,19 @@ marginBottom:"18px"
   </strong>
 
   <button
-    className="pp-btn-outline"
-    onClick={()=>setScreen("checkin")}
-  >
-    Update Mission
-  </button>
-</div>
+  className="pp-btn-outline"
+  onClick={()=>setScreen("mission_proof")}
+>
+  Claim Growth
+</button>
 
- <div className="pp-card">
-   <div className="pp-label">This Week’s Challenge</div>
-   <strong>Problem Hunter</strong><br/>
-   Find one real problem around you and suggest one solution.
- </div>
+<button
+  className="pp-btn-outline"
+  onClick={()=>setScreen("checkin")}
+>
+  Get New Mission
+</button>
+</div>
 
  <div className="pp-card">
    <div className="pp-label">Momentum</div>
@@ -916,7 +926,100 @@ marginBottom:"18px"
    <button className="pp-btn" onClick={()=>setScreen("returning")}>
      Dashboard →
    </button>
- </div>
+ </div>,
+
+mission_proof:<div>
+  <div className="pp-brand">
+    <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+    <span>{user?.email}</span>
+  </div>
+
+  <h2 className="pp-h2">
+    Mission <em>Proof</em>
+  </h2>
+
+  <textarea
+    className="pp-textarea"
+    placeholder="What did you do?"
+    value={missionProof.did}
+    onChange={e=>setMissionProof({...missionProof,did:e.target.value})}
+  />
+
+  <textarea
+    className="pp-textarea"
+    placeholder="What happened?"
+    value={missionProof.happened}
+    onChange={e=>setMissionProof({...missionProof,happened:e.target.value})}
+  />
+
+  <textarea
+    className="pp-textarea"
+    placeholder="What did you learn?"
+    value={missionProof.learned}
+    onChange={e=>setMissionProof({...missionProof,learned:e.target.value})}
+  />
+
+  <button
+  className="pp-btn"
+  onClick={async()=>{
+
+if(
+ !missionProof.did.trim() ||
+ !missionProof.happened.trim() ||
+ !missionProof.learned.trim()
+){
+ alert("Please complete all fields first.");
+ return;
+}
+
+   const today = new Date().toISOString().split("T")[0];
+
+const { data: row } = await supabase
+  .from("leads")
+  .select("last_proof_date")
+  .eq("email", user.email)
+  .single();
+
+if(row?.last_proof_date === today){
+  alert("You already claimed mission proof reward today.");
+  return;
+}
+
+    const newXP = xp + 80;
+    const oldLevel = level;
+    const newLevel = getLevelFromXP(newXP);
+    const newStreak = streak + 1;
+
+    setXp(newXP);
+    setLevel(newLevel);
+    setStreak(newStreak);
+
+    await supabase
+      .from("leads")
+      .update({
+      .update({
+      xp:newXP,
+      level:newLevel,
+      streak:newStreak,
+      last_proof_date: today,
+      weekly_mission: ""
+     })
+      .eq("email", user.email);
+
+    alert("✅ Mission Progress Submitted! +80 XP");
+
+    if(oldLevel !== newLevel){
+      alert(`🎉 Level Up!\nYou are now a ${newLevel}`);
+    }
+
+    setScreen("returning");
+    setWeeklyMission("");
+
+  }}
+>
+  Submit Proof
+</button>
+</div>,
 
  };
 
