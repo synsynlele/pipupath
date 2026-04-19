@@ -337,12 +337,21 @@ async function checkUser() {
 
     setUser({ email: authUser.email });
 
-    const { data } = await supabase
-      .from("leads")
-      .select("*")
-      .eq("user_id", authUser.id)
-      .maybeSingle();
+    let { data } = await supabase
+  .from("leads")
+  .select("*")
+  .eq("user_id", authUser.id)
+  .maybeSingle();
 
+ if (!data) {
+    const fallback = await supabase
+    .from("leads")
+    .select("*")
+    .eq("email", authUser.email)
+    .maybeSingle();
+
+  data = fallback.data;
+}
    console.log("USER ID:", authUser.id);
    console.log("DB DATA:", data);
 
