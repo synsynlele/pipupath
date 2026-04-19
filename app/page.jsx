@@ -435,14 +435,16 @@ async function checkUser() {
 
    console.log("Saving user:", uid, uemail);
 
-   await supabase.from("leads").upsert({
-     user_id: uid,
-     email: uemail,
-     archetype: key,
-     answers: next,
-     result: result,
-     source: "pipupath"
-   });
+   await supabase
+  .from("leads")
+  .update({
+    user_id: uid,
+    archetype: key,
+    answers: next,
+    result: result,
+    source: "pipupath"
+  })
+  .eq("email", uemail);
 
    setScreen("result");
  }
