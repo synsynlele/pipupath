@@ -435,16 +435,35 @@ async function checkUser() {
 
    console.log("Saving user:", uid, uemail);
 
-   await supabase
+   const { data: existing } = await supabase
   .from("leads")
-  .update({
-    user_id: uid,
-    archetype: key,
-    answers: next,
-    result: result,
-    source: "pipupath"
-  })
-  .eq("email", uemail);
+  .select("email")
+  .eq("email", uemail)
+  .maybeSingle();
+
+if (existing) {
+  await supabase
+    .from("leads")
+    .update({
+      user_id: uid,
+      archetype: key,
+      answers: next,
+      result: result,
+      source: "pipupath"
+    })
+    .eq("email", uemail);
+} else {
+  await supabase
+    .from("leads")
+    .insert({
+      user_id: uid,
+      email: uemail,
+      archetype: key,
+      answers: next,
+      result: result,
+      source: "pipupath"
+    });
+}
 
    setScreen("result");
  }
