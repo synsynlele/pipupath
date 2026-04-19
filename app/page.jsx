@@ -337,27 +337,32 @@ async function checkUser() {
 
     setUser({ email: authUser.email });
 
-    let { data } = await supabase
+  let { data } = await supabase
   .from("leads")
   .select("*")
   .eq("user_id", authUser.id)
-  .maybeSingle();
+  .order("created_at", { ascending: false })
+  .limit(1);
 
- if (!data) {
-    const fallback = await supabase
+if (!data || data.length === 0) {
+  const fallback = await supabase
     .from("leads")
     .select("*")
     .eq("email", authUser.email)
-    .maybeSingle();
+    .order("created_at", { ascending: false })
+    .limit(1);
 
   data = fallback.data;
+}
+
+const row = data && data.length ? data[0] : null;
 }
    console.log("USER ID:", authUser.id);
    console.log("DB DATA:", data);
 
-    if (data) {
-   setArchKey(data.archetype);
-   setPathData(data.result);
+    if (row) {
+   setArchKey(row.archetype);
+   setPathData(row.result);
    setScreen("returning");
  } else {
    setScreen("questions");
