@@ -812,9 +812,18 @@ marginBottom:"18px"
      Dashboard →
    </button>
 
-   <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>
-     Mission Check-In
-   </button>
+   <button
+  className="pp-btn-outline"
+  onClick={()=>{
+    if(weeklyMission && weeklyMission.trim() !== ""){
+      alert("Complete your current mission first.");
+      return;
+    }
+    setScreen("checkin");
+  }}
+>
+  Get New Mission
+</button>
 
    <button className="pp-btn-outline" onClick={retake}>
      Retake Questions
@@ -910,13 +919,13 @@ marginBottom:"18px"
  <button className="pp-btn" onClick={()=>setScreen("result")}>
    My Builder Path →
  </button>
+ 
+ <button className="pp-btn-outline" onClick={retake}>
+   Retake Questions
+ </button>
 
  <button className="pp-btn-outline" onClick={share}>
    Share Progress
- </button>
-
- <button className="pp-btn-outline" onClick={retake}>
-   Retake Questions
  </button>
 
  <button className="pp-btn-outline" onClick={logout}>
