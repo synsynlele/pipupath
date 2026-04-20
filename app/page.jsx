@@ -887,7 +887,7 @@ marginBottom:"18px"
   className="pp-btn-outline"
   onClick={()=>{
     if(weeklyMission && weeklyMission.trim() !== ""){
-      alert("Complete your current mission first.");
+      alert("Mission active. Finish it to unlock the next one.");
       return;
     }
     setScreen("checkin");
@@ -909,10 +909,6 @@ marginBottom:"18px"
 
  <button className="pp-btn" onClick={()=>setScreen("result")}>
    My Builder Path →
- </button>
-
- <button className="pp-btn-outline" onClick={()=>setScreen("checkin")}>
-   Complete Weekly Action
  </button>
 
  <button className="pp-btn-outline" onClick={share}>
