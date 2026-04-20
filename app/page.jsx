@@ -618,8 +618,8 @@ if (existing) {
 
   } catch(err){
     console.log(err);
-    alert("Could not generate adjustment. Try again.");
-  } finally{
+    alert(err?.message || "Could not generate adjustment.");
+  } finally {
     setBusy(false);
   }
 }

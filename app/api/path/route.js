@@ -15,7 +15,7 @@ export async function POST(req) {
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "gpt-5.4-mini",
+          model: "gpt-4o-mini",
           temperature: 0.9,
           messages: [
             {
@@ -47,6 +47,7 @@ export async function POST(req) {
     return Response.json(JSON.parse(cleaned));
 
   } catch (error) {
+  console.log("API ROUTE ERROR:", error);
 
     if (
       prompt.includes("momentum") ||
