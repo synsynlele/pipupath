@@ -117,12 +117,30 @@ function calcArchetype(answers){
    AI
 ========================= */
 async function callAI(prompt){
- const res=await fetch("/api/path",{
-   method:"POST",
-   headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({prompt})
- });
- return await res.json();
+
+  const controller = new AbortController();
+
+  const timer = setTimeout(() => controller.abort(), 25000);
+
+  try{
+    const res = await fetch("/api/path",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({prompt}),
+      signal: controller.signal
+    });
+
+    clearTimeout(timer);
+
+    if(!res.ok){
+      throw new Error("API request failed");
+    }
+
+    return await res.json();
+
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function generatePath(key,answers){
@@ -337,6 +355,15 @@ function getNextXP(level){
   return 1000;
 }
 
+function getLevelFloor(level){
+  if(level === "Explorer") return 0;
+  if(level === "Learner") return 100;
+  if(level === "Problem Solver") return 300;
+  if(level === "Builder") return 700;
+  if(level === "Founder Ready") return 1000;
+  return 0;
+}
+
 export default function PipuPath(){
  const [screen,setScreen]=useState("boot");
 const [email,setEmail]=useState("");
@@ -508,8 +535,8 @@ async function checkUser() {
 
    const { data: existing } = await supabase
   .from("leads")
-  .select("email")
-  .eq("email", uemail)
+  .select("user_id")
+  .eq("user_id", uid)
   .maybeSingle();
 
 if (existing) {
@@ -522,7 +549,7 @@ if (existing) {
       result: result,
       source: "pipupath"
     })
-    .eq("email", uemail);
+    .eq("user_id", uid);
 } else {
   await supabase
     .from("leads")
@@ -541,36 +568,60 @@ if (existing) {
 
  async function submitCheckin(){
 
-  setBusy(true);
+  try{
+    setBusy(true);
 
-  const res = await generateCheckin(checkin, pathData, level);
-  setCheckinRes(res);
-  setWeeklyMission(res.next_move || "");
+    if(
+      !checkin.tried.trim() ||
+      !checkin.worked.trim() ||
+      !checkin.stuck.trim()
+    ){
+      alert("Please complete all fields.");
+      return;
+    }
 
-  const newXP = xp + 50;
-  const newLevel = getLevelFromXP(newXP);
-  const oldLevel = level;
+    const res = await generateCheckin(checkin, pathData, level);
 
-  setXp(newXP);
-  setLevel(newLevel);
-  setStreak(newStreak);
+    if(!res || res.error){
+      throw new Error("No response received.");
+    }
 
-  await supabase
-  .from("leads")
-  .update({
-  xp:newXP,
-  level:newLevel,
-  weekly_mission: res.next_move || ""
-})
-  .eq("user_id", authUser.id);
+    setCheckinRes(res);
+    setWeeklyMission(res.next_move || "");
 
-  setBusy(false);
+    const newXP = xp + 50;
+    const newLevel = getLevelFromXP(newXP);
+    const oldLevel = level;
 
-if(oldLevel !== newLevel){
-  alert(`🎉 Level Up!\nYou are now a ${newLevel}`);
-}
+    setXp(newXP);
+    setLevel(newLevel);
 
-setScreen("checkin_result");
+    const uid = (await supabase.auth.getUser())?.data?.user?.id;
+
+    const { error } = await supabase
+      .from("leads")
+      .update({
+        xp:newXP,
+        weekly_mission: res.next_move || ""
+      })
+      .eq("user_id", uid);
+
+    if(error){
+      throw new Error("Database save failed.");
+    }
+
+    if(oldLevel !== newLevel){
+      alert(`🎉 Level Up! You are now a ${newLevel}`);
+    }
+
+    setScreen("checkin_result");
+
+  } catch(err){
+    console.log(err);
+    alert("Could not generate adjustment. Try again.");
+  } finally{
+    setBusy(false);
+  }
 }
 
 const arch=ARCHETYPES[archKey] || {};
@@ -805,7 +856,12 @@ marginBottom:"18px"
    }}>
      <div style={{
        height:"100%",
-       width:`${Math.min((xp / getNextXP(level)) * 100, 100)}%`,
+       width:`${
+       Math.min(
+       ((xp - getLevelFloor(level)) /
+       (getNextXP(level) - getLevelFloor(level))) * 100,
+       100
+    )}%`,
        background:"#D4A43B",
        borderRadius:"999px"
      }}></div>
@@ -828,7 +884,13 @@ marginBottom:"18px"
 
 <button
   className="pp-btn-outline"
-  onClick={()=>setScreen("checkin")}
+  onClick={()=>{
+    if(weeklyMission && weeklyMission.trim() !== ""){
+      alert("Complete your current mission first.");
+      return;
+    }
+    setScreen("checkin");
+  }}
 >
   Get New Mission
 </button>
@@ -906,7 +968,7 @@ marginBottom:"18px"
    <h2 className="pp-h2">Your <em>Adjustment</em></h2>
    
    <div className="pp-card">
-     <div className="pp-label">Acknowlegdment</div>
+     <div className="pp-label">Acknowledgment</div>
      {checkinRes?.acknowledgment}
    </div>
 
