@@ -1,6 +1,10 @@
 export async function POST(req) {
+
+  let prompt = "";
+
   try {
-    const { prompt } = await req.json();
+    const body = await req.json();
+    prompt = body?.prompt || "";
 
     const response = await fetch(
       "https://api.openai.com/v1/chat/completions",
@@ -16,8 +20,7 @@ export async function POST(req) {
           messages: [
             {
               role: "system",
-              content:
-                "Return only valid JSON. No markdown. No commentary."
+              content: "Return only valid JSON. No markdown. No commentary."
             },
             {
               role: "user",
@@ -27,7 +30,10 @@ export async function POST(req) {
         })
       }
     );
-
+    
+    if (!response.ok) {
+  throw new Error("OpenAI request failed");
+}
     const data = await response.json();
 
     const raw =
@@ -42,46 +48,31 @@ export async function POST(req) {
 
   } catch (error) {
 
-    // Weekly Check-In fallback
     if (
-      prompt?.includes("momentum") ||
-      prompt?.includes("Adjustment")
+      prompt.includes("momentum") ||
+      prompt.includes("Adjustment")
     ) {
       return Response.json({
-        acknowledgment:
-          "You are still in motion. That matters.",
-        insight:
-          "Your effort is real, but focus needs tightening.",
-        adjustment:
-          "Remove low-value distractions this week.",
-        next_move:
-          "Choose one priority and finish it fast.",
+        acknowledgment: "You are still in motion. That matters.",
+        insight: "Your effort is real, but focus needs tightening.",
+        adjustment: "Remove low-value distractions this week.",
+        next_move: "Choose one priority and finish it fast.",
         momentum: 7,
-        momentum_note:
-          "Progress exists, but consistency decides.",
+        momentum_note: "Progress exists, but consistency decides."
       });
     }
 
-    // Builder Path fallback
     return Response.json({
-  path_title: "The Builder Path",
-  revelation:
-    "You grow fastest when action becomes consistent.",
-  skill_one: "Execution",
-  skill_why:
-    "Ideas only matter when turned into outcomes.",
-  wealth_path:
-    "Solve painful problems repeatedly.",
-  career_path:
-    "Roles where ownership matters.",
-  first_move:
-    "Take one visible bold step in 48 hours.",
-  first_offer:
-    "Help one person solve one problem.",
-  trap:
-    "Overthinking instead of shipping.",
-  challenge:
-    "30 days of daily visible progress."
-});
+      path_title: "The Builder Path",
+      revelation: "You grow fastest when action becomes consistent.",
+      skill_one: "Execution",
+      skill_why: "Ideas only matter when turned into outcomes.",
+      wealth_path: "Solve painful problems repeatedly.",
+      career_path: "Roles where ownership matters.",
+      first_move: "Take one visible bold step in 48 hours.",
+      first_offer: "Help one person solve one problem.",
+      trap: "Overthinking instead of shipping.",
+      challenge: "30 days of daily visible progress."
+    });
   }
 }
