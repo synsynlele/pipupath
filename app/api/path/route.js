@@ -15,7 +15,7 @@ export async function POST(req) {
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o-mini",
+          model: "gpt-5.4-mini",
           temperature: 0.9,
           messages: [
             {
