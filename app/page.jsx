@@ -301,6 +301,18 @@ animation:spin 1s linear infinite
 @keyframes spin{to{transform:rotate(360deg)}}
 `;
 
+ function getWeekKey() {
+  const d = new Date();
+  const year = d.getFullYear();
+
+  const firstDay = new Date(year, 0, 1);
+  const days = Math.floor((d - firstDay) / 86400000);
+
+  const week = Math.ceil((days + firstDay.getDay() + 1) / 7);
+
+  return `${year}-W${week}`;
+}
+
  function getLevelFromXP(xp){
   if (xp >= 1000) return "Founder Ready";
   if (xp >= 700) return "Builder";
@@ -398,8 +410,10 @@ async function checkUser() {
   setArchKey(row.archetype);
   setPathData(row.result);
 
-  setXp(row.xp || 0);
-  setLevel(row.level || "Explorer");
+  const realXP = row.xp || 0;
+
+  setXp(realXP);
+  setLevel(getLevelFromXP(realXP));
   setStreak(row.streak || 0);
   setWeeklyMission(row.weekly_mission || "");
 
@@ -536,7 +550,6 @@ if (existing) {
   const newXP = xp + 50;
   const newLevel = getLevelFromXP(newXP);
   const oldLevel = level;
-  const newStreak = streak + 1;
 
   setXp(newXP);
   setLevel(newLevel);
@@ -547,10 +560,9 @@ if (existing) {
   .update({
   xp:newXP,
   level:newLevel,
-  streak:newStreak,
   weekly_mission: res.next_move || ""
 })
-  .eq("email", user.email);
+  .eq("user_id", authUser.id);
 
   setBusy(false);
 
@@ -961,6 +973,7 @@ mission_proof:<div>
 
   <button
   className="pp-btn"
+  
   onClick={async()=>{
 
 if(
@@ -968,53 +981,69 @@ if(
  !missionProof.happened.trim() ||
  !missionProof.learned.trim()
 ){
- alert("Please complete all fields first.");
- return;
-}
-
-   const today = new Date().toISOString().split("T")[0];
-
-const { data: row } = await supabase
-  .from("leads")
-  .select("last_proof_date")
-  .eq("email", user.email)
-  .single();
-
-if(row?.last_proof_date === today){
-  alert("You already claimed mission proof reward today.");
+  alert("Please complete all fields first.");
   return;
 }
 
-    const newXP = xp + 80;
-    const oldLevel = level;
-    const newLevel = getLevelFromXP(newXP);
-    const newStreak = streak + 1;
+if(!weeklyMission || weeklyMission.trim() === ""){
+  alert("No active mission to claim.");
+  return;
+}
 
-    setXp(newXP);
-    setLevel(newLevel);
-    setStreak(newStreak);
+const uid = (await supabase.auth.getUser())?.data?.user?.id;
 
-    await supabase
+const weekKey = getWeekKey();
+
+const { data: row } = await supabase
+  .from("leads")
+  .select("xp,streak,last_claim_week")
+  .eq("user_id", uid)
+  .single();
+
+if(row?.last_claim_week === weekKey){
+  alert("You already claimed this week's mission.");
+  return;
+}
+
+const currentXP = row?.xp || 0;
+const currentStreak = row?.streak || 0;
+
+const newXP = currentXP + 80;
+const newStreak = currentStreak + 1;
+
+const oldLevel = getLevelFromXP(currentXP);
+const newLevel = getLevelFromXP(newXP);
+
+const { error } = await supabase
   .from("leads")
   .update({
     xp:newXP,
-    level:newLevel,
     streak:newStreak,
-    last_proof_date: today,
-    weekly_mission: ""
+    last_claim_week:weekKey,
+    weekly_mission:""
   })
-  .eq("email", user.email);
+  .eq("user_id", uid);
 
-    alert("✅ Mission Progress Submitted! +80 XP");
+if(error){
+  alert("Could not save progress.");
+  return;
+}
 
-    if(oldLevel !== newLevel){
-      alert(`🎉 Level Up!\nYou are now a ${newLevel}`);
-    }
+setXp(newXP);
+setStreak(newStreak);
+setLevel(newLevel);
+setWeeklyMission("");
 
-    setScreen("returning");
-    setWeeklyMission("");
+alert("✅ Mission Progress Submitted! +80 XP");
 
-  }}
+if(oldLevel !== newLevel){
+  alert(`🎉 Level Up!\nYou are now a ${newLevel}`);
+}
+
+setScreen("returning");
+
+}}
+
 >
   Submit Proof
 </button>
