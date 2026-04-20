@@ -387,6 +387,8 @@ const [missionProof,setMissionProof] = useState({
   learned:""
 });
 
+const [vault,setVault] = useState([]);
+
  useEffect(() => {
   checkUser();
 }, []);
@@ -492,6 +494,19 @@ async function checkUser() {
  async function logout(){
   await supabase.auth.signOut();
   location.reload();
+}
+
+async function loadVault(){
+
+ const uid = (await supabase.auth.getUser())?.data?.user?.id;
+
+ const { data } = await supabase
+ .from("mission_vault")
+ .select("*")
+ .eq("user_id", uid)
+ .order("created_at", { ascending:false });
+
+ setVault(data || []);
 }
 
  function retake(){
@@ -605,6 +620,7 @@ if (existing) {
         weekly_mission: res.next_move || ""
       })
       .eq("user_id", uid);
+
 
     if(error){
   console.log("SUPABASE UPDATE ERROR:", error);
@@ -924,6 +940,16 @@ marginBottom:"18px"
    Retake Questions
  </button>
 
+<button
+ className="pp-btn-outline"
+ onClick={async()=>{
+   await loadVault();
+   setScreen("mission_vault");
+ }}
+>
+ Mission Vault →
+</button>
+
  <button className="pp-btn-outline" onClick={share}>
    Share Progress
  </button>
@@ -1006,7 +1032,15 @@ marginBottom:"18px"
    <button className="pp-btn" onClick={()=>setScreen("returning")}>
      Dashboard →
    </button>
- </div>,
+
+<button className="pp-btn-outline" onClick={share}>
+  Share Adjustment
+</button>
+
+<button className="pp-btn-outline" onClick={downloadPDF}>
+  Download Adjustment
+</button>
+</div>,
 
 mission_proof:<div>
   <div className="pp-brand">
@@ -1097,6 +1131,14 @@ if(error){
   return;
 }
 
+await supabase
+.from("mission_vault")
+.insert({
+  user_id: uid,
+  mission: weeklyMission,
+  xp_earned: 80
+});
+
 setXp(newXP);
 setStreak(newStreak);
 setLevel(newLevel);
@@ -1115,6 +1157,54 @@ setScreen("returning");
 >
   Submit Proof
 </button>
+</div>,
+
+mission_vault:<div>
+
+<div className="pp-brand">
+  <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+  <span>PIPUPATH</span>
+</div>
+
+<h2 className="pp-h2">
+ Mission <em>Vault</em>
+</h2>
+
+<p style={{opacity:.75}}>
+ Your proof of progress.
+</p>
+
+{vault.length === 0 ? (
+
+<div className="pp-card">
+ No completed missions yet.
+</div>
+
+) : vault.map((item)=>(
+
+<div key={item.id} className="pp-card">
+
+<div className="pp-label">
+ {new Date(item.created_at).toDateString()}
+</div>
+
+<strong>{item.mission}</strong>
+
+<div style={{marginTop:"10px"}}>
+ +{item.xp_earned} XP
+</div>
+
+</div>
+
+))}
+
+<button
+ className="pp-btn"
+ onClick={()=>setScreen("returning")}
+>
+ Dashboard →
+</button>
+
 </div>,
 
  };
