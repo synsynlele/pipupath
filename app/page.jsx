@@ -607,8 +607,9 @@ if (existing) {
       .eq("user_id", uid);
 
     if(error){
-      throw new Error("Database save failed.");
-    }
+  console.log("SUPABASE UPDATE ERROR:", error);
+  throw new Error(error.message || "Database save failed.");
+}
 
     if(oldLevel !== newLevel){
       alert(`🎉 Level Up! You are now a ${newLevel}`);
