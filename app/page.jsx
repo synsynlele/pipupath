@@ -174,11 +174,10 @@ User answers:
 ${summary}
 
 Rules:
-- Answer like you are speeaking to a youth
+- Answer like you are speaking to a teenager
 - No clichés
 - No generic advice
 - Be specific
-- Be very detailed
 - Use simple language
 - High leverage
 - Modern
