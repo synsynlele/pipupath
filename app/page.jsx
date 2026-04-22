@@ -174,15 +174,24 @@ User answers:
 ${summary}
 
 Rules:
-- Answer like you are speaking to a teenager
+- Answer like you are speeaking to a teenager
+- Diagnose sharply
+- No fluff
+- Practical
+- Be very detailed
 - No clichés
 - No generic advice
 - Be specific
 - Use simple language
-- High leverage
 - Modern
 - Premium
 - Feels personal
+- Answer like you are speeaking to a youth
+- Use simple language
+- High leverage
+- If level is Explorer or Learner: simple mission user can finish this week
+- If level is Problem Solver: mission with real output or feedback
+- If level is Builder or Founder Ready: mission involving money, users, leadership, or systems
 `);
 }
 
