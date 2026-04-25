@@ -323,10 +323,21 @@ border:1px solid rgba(255,255,255,.09);
 color:#F7E8C5
 }
 .pp-opt,.pp-input,.pp-textarea{
-width:100%;padding:16px;margin-top:10px;border-radius:16px;
-background:rgba(255,255,255,.03);
-border:1px solid rgba(255,255,255,.08);
-color:#F7E8C5;font-size:15px
+width:100%;
+padding:16px;
+margin-top:10px;
+border-radius:16px;
+background:rgba(255,255,255,.06);
+border:1px solid rgba(255,255,255,.12);
+color:#F7E8C5;
+font-size:15px;
+appearance:none;
+-webkit-appearance:none;
+-moz-appearance:none;
+}
+.pp-input option{
+background:#111;
+color:#F7E8C5;
 }
 .pp-btn:hover,
 .pp-btn-outline:hover,
