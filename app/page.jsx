@@ -955,6 +955,13 @@ onClick={()=>setScreen("chooser")}
 Home
 </button>
 
+<button
+className="pp-btn-outline"
+onClick={()=>setScreen("login")}
+>
+Save My Growth Profile →
+</button>
+
 </div>,
 
  boot:<div className="pp-spin"></div>,
@@ -1023,6 +1030,13 @@ marginBottom:"18px"
   <button className="pp-btn-outline" onClick={googleLogin}>
     Continue with Google
   </button>
+
+ <button
+className="pp-btn-outline"
+onClick={()=>setScreen("chooser")}
+>
+← Back
+</button>
 </div>,
 
  questions:<div>
