@@ -230,6 +230,42 @@ Rules:
 `);
 }
 
+async function generateBusinessPlan(type, problem, revenue){
+  return await callAI(`
+Return ONLY valid JSON.
+
+{
+"score":0,
+"stage":"",
+"strength":"",
+"weakness":"",
+"opportunity":"",
+"mission1":"",
+"mission2":"",
+"mission3":"",
+"mission4":"",
+"mission5":""
+}
+
+You are the greatest elite SME growth strategist.
+
+Business Type: ${type}
+Main Problem: ${problem}
+Revenue Level: ${revenue}
+
+Give a practical growth diagnosis for a small business owner in Africa.
+
+Rules:
+- sharp
+- practical
+- simple language
+- no fluff
+- missions must increase revenue
+- specific actions
+- use simple language
+`);
+}
+
 /* =========================
    STYLE
 ========================= */
@@ -372,7 +408,7 @@ function getLevelFloor(level){
 }
 
 export default function PipuPath(){
- const [screen,setScreen]=useState("boot");
+ const [screen,setScreen]=useState("chooser");
 const [email,setEmail]=useState("");
 const [password,setPassword]=useState("");
 const [user,setUser]=useState(null);
@@ -395,10 +431,70 @@ const [missionProof,setMissionProof] = useState({
 });
 
 const [vault,setVault] = useState([]);
+const [bizType,setBizType] = useState("");
+const [bizProblem,setBizProblem] = useState("");
+const [bizRevenue,setBizRevenue] = useState("");
+const [bizResult,setBizResult] = useState(null);
+const [feedback,setFeedback] = useState("");
 
  useEffect(() => {
-  checkUser();
+  checkUserSilent();
 }, []);
+
+async function submitBusiness(){
+
+  if(!bizType || !bizProblem || !bizRevenue){
+    alert("Please complete all fields.");
+    return;
+  }
+
+  try{
+    setBusy(true);
+    setScreen("generating");
+
+    const result = await generateBusinessPlan(
+      bizType,
+      bizProblem,
+      bizRevenue
+    );
+
+    setBizResult(result);
+
+    const uid = (await supabase.auth.getUser())?.data?.user?.id;
+
+    if(uid){
+      await supabase.from("business_profiles").insert({
+        user_id: uid,
+        business_type: bizType,
+        main_problem: bizProblem,
+        revenue_range: bizRevenue,
+        result: result
+      });
+    }
+
+    setScreen("business_result");
+
+  } catch(error){
+    console.log(error);
+    alert("Could not analyze business.");
+    setScreen("business");
+  } finally {
+    setBusy(false);
+  }
+}
+
+
+async function checkUserSilent() {
+  try {
+    const { data } = await supabase.auth.getSession();
+
+    if (data?.session?.user) {
+      checkUser();
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 async function checkUser() {
   try {
@@ -648,9 +744,218 @@ if (existing) {
   }
 }
 
+async function saveFeedback(type){
+
+  setFeedback(type);
+
+  const uid = (await supabase.auth.getUser())?.data?.user?.id;
+
+  if(uid){
+    await supabase.from("feedback").insert({
+      user_id: uid,
+      type: type
+    });
+  }
+
+  alert("Thanks for the feedback.");
+}
+
 const arch=ARCHETYPES[archKey] || {};
 
  const screens={
+
+chooser:<div>
+
+<div className="pp-brand">
+  <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+  <span>PIPUPATH</span>
+</div>
+
+<h1 className="pp-h1">
+What do you want to<br/><em>grow today?</em>
+</h1>
+
+<p style={{opacity:.75,marginBottom:"20px"}}>
+Choose your growth path.
+</p>
+
+<button
+className="pp-btn"
+onClick={()=>setScreen("login")}
+>
+Myself →
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>setScreen("business")}
+>
+My Business →
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>setScreen("admin")}
+>
+Founder View →
+</button>
+
+</div>,
+
+admin:<div>
+
+<div className="pp-brand">
+<span>PIPUPATH DATA</span>
+</div>
+
+<h2 className="pp-h2">
+Trust <em>Dashboard</em>
+</h2>
+
+<div className="pp-card">
+<div className="pp-label">Total Users</div>
+Coming Next
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Repeat Users</div>
+Coming Next
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Top Problems</div>
+Coming Next
+</div>
+
+<button
+className="pp-btn"
+onClick={()=>setScreen("chooser")}
+>
+Home
+</button>
+
+</div>,
+
+business:<div>
+
+<div className="pp-brand">
+  <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+  <span>PIPUPATH SME</span>
+</div>
+
+<h2 className="pp-h2">
+Grow Your <em>Business</em>
+</h2>
+
+<input
+className="pp-input"
+placeholder="What business are you into?"
+value={bizType}
+onChange={e=>setBizType(e.target.value)}
+/>
+
+<select
+className="pp-input"
+value={bizProblem}
+onChange={e=>setBizProblem(e.target.value)}
+>
+<option value="">Biggest challenge?</option>
+<option>Need customers</option>
+<option>Low sales</option>
+<option>No online presence</option>
+<option>Cash flow stress</option>
+<option>No direction</option>
+</select>
+
+<select
+className="pp-input"
+value={bizRevenue}
+onChange={e=>setBizRevenue(e.target.value)}
+>
+<option value="">Monthly revenue?</option>
+<option>Not selling yet</option>
+<option>Under ₦100k</option>
+<option>₦100k - ₦500k</option>
+<option>₦500k - ₦2m</option>
+<option>₦2m+</option>
+</select>
+
+<button
+className="pp-btn"
+onClick={submitBusiness}
+>
+Analyze My Business →
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>setScreen("chooser")}
+>
+Back
+</button>
+
+</div>,
+
+business_result:<div>
+
+<div className="pp-brand">
+  <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+  <span>PIPUPATH SME</span>
+</div>
+
+<h2 className="pp-h2">
+Business <em>Growth Report</em>
+</h2>
+
+<div className="pp-card">
+<div className="pp-label">Growth Score</div>
+{bizResult?.score}/100
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Stage</div>
+{bizResult?.stage}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Strength</div>
+{bizResult?.strength}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Weakness</div>
+{bizResult?.weakness}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Opportunity</div>
+{bizResult?.opportunity}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">This Week Missions</div>
+1. {bizResult?.mission1}<br/><br/>
+2. {bizResult?.mission2}<br/><br/>
+3. {bizResult?.mission3}<br/><br/>
+4. {bizResult?.mission4}<br/><br/>
+5. {bizResult?.mission5}
+</div>
+
+<button
+className="pp-btn"
+onClick={()=>setScreen("business")}
+>
+Run Again →
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>setScreen("chooser")}
+>
+Home
+</button>
+
+</div>,
 
  boot:<div className="pp-spin"></div>,
 
@@ -859,6 +1164,35 @@ marginBottom:"18px"
    <button className="pp-btn-outline" onClick={downloadPDF}>
      Download
    </button>
+
+   <div className="pp-card">
+
+<div className="pp-label">
+Was this result useful?
+</div>
+
+<button
+className="pp-btn-outline"
+onClick={()=>saveFeedback("useful")}
+>
+👍 Useful
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>saveFeedback("okay")}
+>
+😐 Okay
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>saveFeedback("weak")}
+>
+👎 Weak
+</button>
+</div>
+
  </div>,
 
  returning:<div>
@@ -933,6 +1267,26 @@ marginBottom:"18px"
    <div className="pp-label">Momentum</div>
    🔥 {streak} Week Streak
  </div>
+
+ <div className="pp-card">
+  <div className="pp-label">Completed Missions</div>
+  {Math.floor(xp / 80)}
+</div>
+
+<div className="pp-card">
+  <div className="pp-label">Growth Score</div>
+  {Math.min(100, 20 + Math.floor(xp / 10))}/100
+</div>
+
+<div className="pp-card">
+  <div className="pp-label">Next Milestone</div>
+  Reach {getNextXP(level)} XP to become {getNextLevel(level)}
+</div>
+
+ <div className="pp-card">
+<div className="pp-label">This Week Goal</div>
+Return 3 times and complete 1 mission.
+</div>
 
  <div className="pp-card">
    <div className="pp-label">Founder Pathway</div>
@@ -1035,7 +1389,7 @@ marginBottom:"18px"
      <div className="pp-label">Momentum Note</div>
      {checkinRes?.momentum_note}
    </div>
-
+    
    <button className="pp-btn" onClick={()=>setScreen("returning")}>
      Dashboard →
    </button>
@@ -1047,6 +1401,7 @@ marginBottom:"18px"
 <button className="pp-btn-outline" onClick={downloadPDF}>
   Download Adjustment
 </button>
+
 </div>,
 
 mission_proof:<div>
