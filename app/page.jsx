@@ -804,13 +804,6 @@ onClick={()=>setScreen("business")}
 My Business →
 </button>
 
-<button
-className="pp-btn-outline"
-onClick={()=>setScreen("admin")}
->
-Founder View →
-</button>
-
 </div>,
 
 admin:<div>
