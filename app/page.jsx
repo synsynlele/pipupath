@@ -1982,6 +1982,14 @@ setScreen("returning");
 >
   Submit Proof
 </button>
+
+<button
+ className="pp-btn"
+ onClick={()=>setScreen("returning")}
+>
+ Dashboard →
+</button>
+
 </div>,
 
 mission_vault:<div>
