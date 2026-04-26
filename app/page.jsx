@@ -144,54 +144,89 @@ async function callAI(prompt){
 }
 
 async function generatePath(key,answers){
- const arch=ARCHETYPES[key];
 
- const summary=answers.map((a,i)=>`Q${i+1}: ${QUESTIONS[i].options[a].text}`).join("\n");
+ const arch = ARCHETYPES[key];
+
+ const summary = answers
+ .map((a,i)=>`Q${i+1}: ${QUESTIONS[i].options[a].text}`)
+ .join("\n");
 
  return await callAI(`
 Return ONLY valid JSON.
 
 {
-"path_title":"",
-"revelation":"",
-"skill_one":"",
-"skill_why":"",
-"wealth_path":"",
-"career_path":"",
-"first_move":"",
+"identity_title":"",
+"core_truth":"",
+"hidden_edge":"",
+"why_you_feel_stuck":"",
+"wealth_engine":"",
+"career_arena":"",
+"skill_stack_1":"",
+"skill_stack_2":"",
+"skill_stack_3":"",
+"first_move_72hrs":"",
 "first_offer":"",
-"trap":"",
-"challenge":""
+"trap_to_avoid":"",
+"seven_day_mission":"",
+"future_self":"",
+"truth_line":""
 }
 
-You are Pipupath, the greatest elite Builder Coach and Behavioral Analyst. Your job is to analyse a person's responses and generate a highly practical, no-fluff Builder Report that forces real world action and measurable results that can help them start building something meaningful that can eventually become something great. The goal is not motivation. The goal is to move the user from thinking to doing, to producing, to proving value.
+You are PipuPath Builder OS.
 
-Builder Type: ${arch.name}
-Tagline: ${arch.tagline}
-Description: ${arch.description}
+You are an elite builder coach, behavioral strategist, talent analyst, and economic pathfinder.
 
-User answers:
+Your job is to analyze this person deeply and give them a practical identity-based growth report that helps them build a meaningful future.
+
+This is not entertainment.
+This is not motivation fluff.
+This is a real unlock report.
+
+BUILDER TYPE:
+${arch.name}
+
+TAGLINE:
+${arch.tagline}
+
+DESCRIPTION:
+${arch.description}
+
+TRAITS:
+${arch.traits?.join(", ")}
+
+USER ANSWERS:
 ${summary}
 
-Rules:
-- Answer like you are speeaking to a teenager
-- Diagnose sharply
-- No fluff
-- Practical
-- Be very detailed
-- No clichés
-- No generic advice
-- Be specific
-- Use simple language
-- Modern
-- Premium
-- Feels personal
-- Answer like you are speeaking to a youth
-- Use simple language
-- High leverage
-- If level is Explorer or Learner: simple mission user can finish this week
-- If level is Problem Solver: mission with real output or feedback
-- If level is Builder or Founder Ready: mission involving money, users, leadership, or systems
+ANALYZE:
+
+1. How they naturally win
+2. Hidden strengths others miss
+3. Why they may feel stuck
+4. Best way to create income
+5. Best career arenas
+6. Skills with highest leverage
+7. Immediate next move
+8. Biggest trap
+9. Future version if disciplined
+
+RULES:
+
+- deeply insightful
+- sharp
+- practical
+- specific
+- modern tone
+- premium feel
+- simple language
+- speak directly to user
+- no vague clichés
+- no generic career lists
+- no fake hype
+- help them move fast
+- sound like someone who truly understands talent
+- useful for ages 16 to 40
+- connect identity to economics
+- make it emotionally resonant but grounded
 `);
 }
 
@@ -209,7 +244,7 @@ Return ONLY valid JSON.
 }
 
 You are Pipupath, the greatest elite Builder Coach and Behavioral Analyst. Your job is to help the user Improve and Build after taking action. The goal is not motivation. The goal is to move the user from thinking to doing to producing to proving value.
-Builder Path: ${path.path_title}
+Builder Path: ${path.identity_title}
 Current Level: ${level}
 
 Tried:${checkin.tried}
@@ -644,7 +679,7 @@ async function checkUser() {
 
     if (row) {
   setArchKey(row.archetype);
-  setPathData(row.result);
+  setPathData(row.result || {});
 
   const realXP = row.xp || 0;
 
@@ -723,7 +758,7 @@ async function loadVault(){
  }
 
  function share(){
-   const title=pathData?.path_title || "My Builder Path";
+   const title=pathData?.identity_title || "My Builder Path";
    window.open(
     `https://wa.me/?text=${encodeURIComponent("I discovered my Builder Path on PipuPath: "+title)}`,
     "_blank"
@@ -1309,104 +1344,125 @@ onClick={()=>setScreen("chooser")}
 </div>,
 
  result:<div>
-   <div className="pp-brand">
+
+<div className="pp-brand">
   <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
   <span>{user?.email?.split("@")[0]}</span>
 </div>
 
-   <h2 className="pp-h2">
-     {arch.emoji} {arch.name}
-   </h2>
-   <div style={{
-    opacity:.82,
-    marginBottom:"16px",
-    lineHeight:"1.6",
-    fontSize:"16px"
-  }}>
-    You are not confused.<br/>
-    You are built for a lane that needs to be activated.
-  </div>
+<h2 className="pp-h2">
+{arch.emoji} {pathData?.identity_title}
+</h2>
 
-   <div className="pp-traits">
-     {arch.traits?.map(t=><span key={t} className="pp-trait">{t}</span>)}
-   </div>
+<div style={{
+opacity:.82,
+marginBottom:"16px",
+lineHeight:"1.6",
+fontSize:"16px"
+}}>
+You are not lost.<br/>
+You need the right lane activated.
+</div>
 
-   <div className="pp-card" style={{borderColor:arch.color}}>
-     <div className="pp-label">Path Title</div>
-     {pathData?.path_title}
-   </div>
+<div className="pp-traits">
+{arch.traits?.map(t=>(
+<span key={t} className="pp-trait">{t}</span>
+))}
+</div>
 
-   <div className="pp-card">
-     <div className="pp-label">Revelation</div>
-     {pathData?.revelation}
-   </div>
+<div className="pp-card">
+<div className="pp-label">Core Truth</div>
+{pathData?.core_truth}
+</div>
 
-   <div className="pp-card">
-     <div className="pp-label">Skill To Build First</div>
-     <strong>{pathData?.skill_one}</strong><br/>
-     <small>{pathData?.skill_why}</small>
-   </div>
+<div className="pp-card">
+<div className="pp-label">Hidden Edge</div>
+{pathData?.hidden_edge}
+</div>
 
-   <div className="pp-card">
-     <div className="pp-label">Wealth Path</div>
-     {pathData?.wealth_path}
-   </div>
-   
-   <div className="pp-card">
-     <div className="pp-label">Career Path</div>
-     {pathData?.career_path}
-   </div>
+<div className="pp-card">
+<div className="pp-label">Why You Feel Stuck</div>
+{pathData?.why_you_feel_stuck}
+</div>
 
-   <div className="pp-card">
-     <div className="pp-label">First Move</div>
-     {pathData?.first_move}
-   </div>
+<div className="pp-card">
+<div className="pp-label">Wealth Engine</div>
+{pathData?.wealth_engine}
+</div>
 
-   <div className="pp-card">
-     <div className="pp-label">First Offer</div>
-     {pathData?.first_offer}
-   </div>
+<div className="pp-card">
+<div className="pp-label">Best Career Arena</div>
+{pathData?.career_arena}
+</div>
 
-   <div className="pp-card">
-     <div className="pp-label">Trap</div>
-     {pathData?.trap}
-   </div>
+<div className="pp-card">
+<div className="pp-label">Skill Stack To Build</div>
 
-   <div className="pp-card">
-     <div className="pp-label">Challenge</div>
-     {pathData?.challenge}
-   </div>
+1. {pathData?.skill_stack_1}<br/>
+2. {pathData?.skill_stack_2}<br/>
+3. {pathData?.skill_stack_3}
 
-   <button className="pp-btn" onClick={()=>setScreen("returning")}>
-     Dashboard →
-   </button>
+</div>
 
-   <button
-  className="pp-btn-outline"
-  onClick={()=>{
-    if(weeklyMission && weeklyMission.trim() !== ""){
-      alert("Complete your current mission first.");
-      return;
-    }
-    setScreen("checkin");
-  }}
+<div className="pp-card">
+<div className="pp-label">First Move (72 Hours)</div>
+{pathData?.first_move_72hrs}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">First Offer</div>
+{pathData?.first_offer}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Trap To Avoid</div>
+{pathData?.trap_to_avoid}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">7 Day Mission</div>
+{pathData?.seven_day_mission}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Future Self</div>
+{pathData?.future_self}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Truth</div>
+<strong>{pathData?.truth_line}</strong>
+</div>
+
+<button
+className="pp-btn"
+onClick={()=>setScreen("returning")}
 >
-  Get New Mission
+Dashboard →
 </button>
 
-   <button className="pp-btn-outline" onClick={retake}>
-     Retake Questions
-   </button>
+<button
+className="pp-btn-outline"
+onClick={retake}
+>
+Retake Questions
+</button>
 
-   <button className="pp-btn-outline" onClick={share}>
-     Share
-   </button>
+<button
+className="pp-btn-outline"
+onClick={share}
+>
+Share
+</button>
 
-   <button className="pp-btn-outline" onClick={downloadPDF}>
-     Download
-   </button>
+<button
+className="pp-btn-outline"
+onClick={downloadPDF}
+>
+Download
+</button>
 
-   <div className="pp-card">
+<div className="pp-card">
 
 <div className="pp-label">
 Was this result useful?
@@ -1432,9 +1488,10 @@ onClick={()=>saveFeedback("weak")}
 >
 👎 Weak
 </button>
+
 </div>
 
- </div>,
+</div>,
 
  returning:<div>
  <div className="pp-brand">
@@ -1443,7 +1500,7 @@ onClick={()=>saveFeedback("weak")}
  </div>
 
  <h2 className="pp-h2">
-   Welcome back.<br/><em>{pathData?.path_title}</em>
+   Welcome back.<br/><em>{pathData?.identity_title}</em>
  </h2>
 
  <div className="pp-card">
