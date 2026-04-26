@@ -61,56 +61,122 @@ const ARCHETYPES = {
    PREMIUM QUESTIONS
 ========================= */
 const QUESTIONS = [
+
 {
-q:"When you see something broken or missing in the world, your first instinct is:",
+question:"When something important needs to happen, what do you naturally do first?",
 options:[
-{text:"Break it apart and fix it yourself",w:{SOLVER:3,ARCHITECT:1}},
-{text:"Find others who care about it too",w:{CONNECTOR:3,HEALER:1}},
-{text:"Build something that solves it permanently",w:{MAKER:3,SOLVER:1}},
-{text:"Talk or write about it until people pay attention",w:{VOICE:3,PERFORMER:1}}
-]},
+{text:"🚀 Start taking action immediately", type:"builder"},
+{text:"🧠 Think deeply before acting", type:"strategist"},
+{text:"🤝 Bring people together to help", type:"connector"},
+{text:"🎨 Look for a creative new angle", type:"creator"}
+]
+},
+
 {
-q:"What kind of work makes you lose track of time?",
+question:"What kind of challenge excites you most?",
 options:[
-{text:"Creating or crafting something from nothing",w:{MAKER:3,PERFORMER:1}},
-{text:"Deep conversations and building relationships",w:{CONNECTOR:3,HEALER:1}},
-{text:"Spotting an opportunity and making it real",w:{MERCHANT:3,SOLVER:1}},
-{text:"Teaching, explaining, helping someone understand",w:{VOICE:3,HEALER:1}}
-]},
+{text:"Building something useful", type:"builder"},
+{text:"Solving a hard problem", type:"strategist"},
+{text:"Leading people to win", type:"connector"},
+{text:"Creating something original", type:"creator"}
+]
+},
+
 {
-q:"What frustrates you most about the world right now?",
+question:"If you had one free Saturday, what sounds most satisfying?",
 options:[
-{text:"Things are broken and inefficient when they don't need to be",w:{SOLVER:3,ARCHITECT:2}},
-{text:"People are isolated with no support or community",w:{HEALER:3,CONNECTOR:2}},
-{text:"Good talent and ideas die without direction",w:{ARCHITECT:2,MERCHANT:2}},
-{text:"Important truths are not being told or heard",w:{VOICE:3,PERFORMER:2}}
-]},
+{text:"Start a side hustle or project", type:"builder"},
+{text:"Learn a valuable skill", type:"strategist"},
+{text:"Organize people for something meaningful or event", type:"connector"},
+{text:"Design, write or make content", type:"creator"}
+]
+},
+
 {
-q:"In 10 years, what does your greatest impact look like?",
+question:"What frustrates you most?",
 options:[
-{text:"A product or system millions of people depend on",w:{SOLVER:2,MAKER:2,ARCHITECT:2}},
-{text:"A movement or community that changed lives together",w:{CONNECTOR:3,HEALER:2}},
-{text:"A business that generates real wealth and employs people",w:{MERCHANT:3,ARCHITECT:1}},
-{text:"Work — art, ideas, stories — that changed how people think",w:{VOICE:2,PERFORMER:3}}
-]},
+{text:"Slow progress and wasted time", type:"builder"},
+{text:"Bad decisions and confusion", type:"strategist"},
+{text:"Disunity and poor leadership", type:"connector"},
+{text:"Being boxed in or restricted", type:"creator"}
+]
+},
+
 {
-q:"When you imagine yourself at your absolute best, you are:",
+question:"Which future sounds best to you?",
 options:[
-{text:"Deep in a hard problem, finally cracking it",w:{SOLVER:3,MAKER:1}},
-{text:"In a room of people who trust and follow your lead",w:{CONNECTOR:2,ARCHITECT:1,MERCHANT:1}},
-{text:"Creating something with total focus and flow",w:{MAKER:3,PERFORMER:2}},
-{text:"Sitting with someone who needs help — and actually helping",w:{HEALER:3,VOICE:1}}
-]}
+{text:"Owning something valuable", type:"builder"},
+{text:"Becoming a respected expert", type:"strategist"},
+{text:"Leading something important", type:"connector"},
+{text:"Having freedom through talent or skills", type:"creator"}
+]
+}
+
 ];
 
-function calcArchetype(answers){
- const scores={};
- Object.keys(ARCHETYPES).forEach(k=>scores[k]=0);
- answers.forEach((opt,qIdx)=>{
-   const weights=QUESTIONS[qIdx].options[opt].w;
-   Object.entries(weights).forEach(([k,v])=>scores[k]+=v);
- });
- return Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
+function calculateArchetype(answers){
+
+const scores = {
+SOLVER:0,
+CONNECTOR:0,
+MAKER:0,
+VOICE:0,
+MERCHANT:0,
+ARCHITECT:0,
+HEALER:0,
+PERFORMER:0
+};
+
+answers.forEach((answerIndex,i)=>{
+
+const type = QUESTIONS[i].options[answerIndex]?.type;
+
+if(i===0){
+if(type==="builder") scores.MERCHANT +=2;
+if(type==="strategist") scores.ARCHITECT +=2;
+if(type==="connector") scores.CONNECTOR +=2;
+if(type==="creator") scores.PERFORMER +=2;
+}
+
+if(i===1){
+if(type==="builder") scores.MAKER +=2;
+if(type==="strategist") scores.SOLVER +=2;
+if(type==="connector") scores.VOICE +=2;
+if(type==="creator") scores.PERFORMER +=2;
+}
+
+if(i===2){
+if(type==="builder") scores.MERCHANT +=2;
+if(type==="strategist") scores.ARCHITECT +=2;
+if(type==="connector") scores.HEALER +=2;
+if(type==="creator") scores.MAKER +=2;
+}
+
+if(i===3){
+if(type==="builder") scores.MERCHANT +=2;
+if(type==="strategist") scores.SOLVER +=2;
+if(type==="connector") scores.HEALER +=2;
+if(type==="creator") scores.PERFORMER +=2;
+}
+
+if(i===4){
+if(type==="builder") scores.MERCHANT +=2;
+if(type==="strategist") scores.ARCHITECT +=2;
+if(type==="connector") scores.VOICE +=2;
+if(type==="creator") scores.MAKER +=2;
+}
+
+});
+
+const sorted = Object.entries(scores)
+.sort((a,b)=>b[1]-a[1]);
+
+const topScore = sorted[0][1];
+
+const tied = sorted.filter(item => item[1] === topScore);
+
+return tied[Math.floor(Math.random() * tied.length)][0];
+
 }
 
 /* =========================
@@ -792,7 +858,7 @@ async function loadVault(){
  function share(){
    const title=pathData?.identity_title || "My Builder Path";
    window.open(
-    `https://wa.me/?text=${encodeURIComponent("I discovered my Builder Path on PipuPath: "+title)}`,
+    `https://wa.me/?text=${encodeURIComponent("I discovered my growth path on PipuPath: "+title)}`,
     "_blank"
    );
  }
@@ -808,7 +874,7 @@ async function loadVault(){
      return;
    }
 
-   const key=calcArchetype(next);
+   const key=calculateArchetype(next);
    setArchKey(key);
    setScreen("generating");
 
@@ -1357,13 +1423,35 @@ onClick={()=>setScreen("chooser")}
        transition:"0.4s ease"
     }}></div>
   </div>
-   <h2 className="pp-h2">{QUESTIONS[qIdx].q}</h2>
+
+   <div style={{
+opacity:.72,
+fontSize:"14px",
+marginBottom:"10px",
+lineHeight:"1.5"
+}}>
+Answer based on how you naturally act, not who you wish to be.
+</div>
+   <h2 className="pp-h2">{QUESTIONS[qIdx].question}</h2>
 
    {QUESTIONS[qIdx].options.map((o,i)=>(
     <button key={i} className="pp-opt" onClick={()=>pickAnswer(i)}>
       {o.text}
     </button>
    ))}
+
+    {qIdx > 0 && (
+<button
+className="pp-btn-outline"
+onClick={()=>{
+setQIdx(qIdx - 1);
+setAnswers(answers.slice(0,-1));
+}}
+>
+← Back
+</button>
+)}
+   
  </div>,
 
  generating:<div style={{textAlign:"center"}}>
@@ -1397,8 +1485,8 @@ marginBottom:"16px",
 lineHeight:"1.6",
 fontSize:"16px"
 }}>
-You are not lost.<br/>
-You need the right lane activated.
+You are not behind.<br/>
+You are under-aligned.
 </div>
 
 <div className="pp-traits">
@@ -1629,7 +1717,7 @@ Return 3 times and complete 1 mission.
  </div>
 
  <button className="pp-btn" onClick={()=>setScreen("result")}>
-   My Builder Path →
+   My Identity Report →
  </button>
  
  <button className="pp-btn-outline" onClick={retake}>
