@@ -237,32 +237,54 @@ Return ONLY valid JSON.
 {
 "score":0,
 "stage":"",
-"strength":"",
-"weakness":"",
-"opportunity":"",
+"summary":"",
+"top_bottleneck":"",
+"hidden_opportunity":"",
+"cashflow_risk":"",
+"founder_blindspot":"",
+"quick_win_48hrs":"",
 "mission1":"",
 "mission2":"",
 "mission3":"",
 "mission4":"",
-"mission5":""
+"mission5":"",
+"tool1":"",
+"tool2":"",
+"tool3":"",
+"tool4":"",
+"thirty_day_plan":"",
+"avoid_this":"",
+"motivation_truth":""
 }
 
-You are the greatest elite SME growth strategist.
+You are PipuPath SME OS.
+
+You are an elite small business growth strategist for African and emerging-market businesses.
 
 Business Type: ${type}
 Main Problem: ${problem}
 Revenue Level: ${revenue}
 
-Give a practical growth diagnosis for a small business owner in Africa.
+Analyze:
+1. Offer strength
+2. Demand weakness
+3. Sales leaks
+4. Repeat customer potential
+5. Cash flow risk
+6. Founder bottleneck
+7. Fastest growth lever
+8. Best affordable tools
+9. 30-day realistic plan
 
 Rules:
-- sharp
-- practical
-- simple language
 - no fluff
-- missions must increase revenue
-- specific actions
-- use simple language
+- practical
+- sharp
+- specific
+- simple language
+- realistic for low budgets
+- missions should help revenue or growth
+- tools must be common and useful
 `);
 }
 
@@ -353,6 +375,7 @@ background:rgba(255,255,255,.03);
 border:1px solid rgba(255,255,255,.08);
 margin-top:12px;
 transition:all .25s ease;
+line-height:1.6;
 }
 .pp-label{
 font-size:11px;opacity:.6;letter-spacing:.14em;
@@ -418,6 +441,70 @@ function getLevelFloor(level){
   return 0;
 }
 
+const BIZ_CATEGORIES = {
+  "Food & Drinks": [
+    "Bakery",
+    "Restaurant",
+    "Fast Food",
+    "Catering",
+    "Drinks / Juice",
+    "Snacks"
+  ],
+
+  "Fashion": [
+    "Boutique",
+    "Tailoring",
+    "Shoes",
+    "Jewelry",
+    "Thrift"
+  ],
+
+  "Beauty": [
+    "Barbing Salon",
+    "Hair Salon",
+    "Nails",
+    "Spa",
+    "Makeup Artist"
+  ],
+
+  "Education": [
+    "School",
+    "Lesson Center",
+    "Coaching",
+    "Skill Academy",
+    "Online Course"
+  ],
+
+  "Retail / Trading": [
+    "Mini Mart",
+    "Electronics",
+    "Household Goods",
+    "Phone Accessories",
+    "Mixed Shop"
+  ],
+
+  "Services": [
+    "Graphic Design",
+    "Digital Marketing",
+    "Cleaning",
+    "Logistics",
+    "Photography",
+    "Consultancy"
+  ],
+
+  "Agriculture": [
+    "Poultry",
+    "Crop Farming",
+    "Fish Farming",
+    "Food Processing",
+    "Produce Trading"
+  ],
+
+  "Other": [
+    "Other"
+  ]
+};
+
 export default function PipuPath(){
  const [screen,setScreen]=useState("chooser");
 const [email,setEmail]=useState("");
@@ -442,6 +529,8 @@ const [missionProof,setMissionProof] = useState({
 });
 
 const [vault,setVault] = useState([]);
+const [bizCategory,setBizCategory] = useState("");
+const [bizSubcategory,setBizSubcategory] = useState("");
 const [bizType,setBizType] = useState("");
 const [bizProblem,setBizProblem] = useState("");
 const [bizRevenue,setBizRevenue] = useState("");
@@ -454,7 +543,7 @@ const [feedback,setFeedback] = useState("");
 
 async function submitBusiness(){
 
-  if(!bizType || !bizProblem || !bizRevenue){
+  if(!bizCategory || !bizSubcategory || !bizProblem || !bizRevenue){
     alert("Please complete all fields.");
     return;
   }
@@ -463,11 +552,15 @@ async function submitBusiness(){
     setBusy(true);
     setScreen("generating");
 
-    const result = await generateBusinessPlan(
-      bizType,
-      bizProblem,
-      bizRevenue
-    );
+    const fullType = bizCategory + " - " + bizSubcategory;
+
+setBizType(fullType);
+
+const result = await generateBusinessPlan(
+  fullType,
+  bizProblem,
+  bizRevenue
+);
 
     setBizResult(result);
 
@@ -476,7 +569,7 @@ async function submitBusiness(){
     if(uid){
       await supabase.from("business_profiles").insert({
         user_id: uid,
-        business_type: bizType,
+        business_type: fullType,
         main_problem: bizProblem,
         revenue_range: bizRevenue,
         result: result
@@ -851,38 +944,107 @@ business:<div>
 Grow Your <em>Business</em>
 </h2>
 
-<input
+<p style={{opacity:.75,marginBottom:"12px"}}>
+Get a practical growth report in 60 seconds.
+</p>
+
+<div className="pp-card">
+<div className="pp-label">Step 1 of 4</div>
+What kind of business is this?
+</div>
+
+<select
 className="pp-input"
-placeholder="What business are you into?"
-value={bizType}
-onChange={e=>setBizType(e.target.value)}
-/>
+value={bizCategory}
+onChange={(e)=>{
+  setBizCategory(e.target.value);
+  setBizSubcategory("");
+}}
+>
+<option value="">Choose Category</option>
+
+{Object.keys(BIZ_CATEGORIES).map((cat)=>(
+<option key={cat} value={cat}>
+{cat}
+</option>
+))}
+</select>
+
+{bizCategory && (
+
+<>
+<div className="pp-card">
+<div className="pp-label">Step 2 of 4</div>
+Choose business type
+</div>
+
+<select
+className="pp-input"
+value={bizSubcategory}
+onChange={(e)=>setBizSubcategory(e.target.value)}
+>
+<option value="">Choose Type</option>
+
+{BIZ_CATEGORIES[bizCategory].map((item)=>(
+<option key={item} value={item}>
+{item}
+</option>
+))}
+</select>
+</>
+
+)}
+
+{bizSubcategory && (
+
+<>
+<div className="pp-card">
+<div className="pp-label">Step 3 of 4</div>
+What is slowing growth?
+</div>
 
 <select
 className="pp-input"
 value={bizProblem}
-onChange={e=>setBizProblem(e.target.value)}
+onChange={(e)=>setBizProblem(e.target.value)}
 >
-<option value="">Biggest challenge?</option>
-<option>Need customers</option>
+<option value="">Choose Problem</option>
+<option>Need more customers</option>
 <option>Low sales</option>
+<option>Customers don’t return</option>
 <option>No online presence</option>
 <option>Cash flow stress</option>
-<option>No direction</option>
+<option>Team issues</option>
+<option>Too disorganized</option>
+<option>Not sure what to do next</option>
 </select>
+</>
+
+)}
+
+{bizProblem && (
+
+<>
+<div className="pp-card">
+<div className="pp-label">Step 4 of 4</div>
+Monthly revenue
+</div>
 
 <select
 className="pp-input"
 value={bizRevenue}
-onChange={e=>setBizRevenue(e.target.value)}
+onChange={(e)=>setBizRevenue(e.target.value)}
 >
-<option value="">Monthly revenue?</option>
+<option value="">Choose Revenue</option>
 <option>Not selling yet</option>
 <option>Under ₦100k</option>
 <option>₦100k - ₦500k</option>
 <option>₦500k - ₦2m</option>
 <option>₦2m+</option>
 </select>
+</>
+
+)}
 
 <button
 className="pp-btn"
@@ -893,7 +1055,13 @@ Analyze My Business →
 
 <button
 className="pp-btn-outline"
-onClick={()=>setScreen("chooser")}
+onClick={()=>{
+ setBizCategory("");
+ setBizSubcategory("");
+ setBizProblem("");
+ setBizRevenue("");
+ setScreen("chooser");
+}}
 >
 Back
 </button>
@@ -908,41 +1076,83 @@ business_result:<div>
 </div>
 
 <h2 className="pp-h2">
-Business <em>Growth Report</em>
+{bizType}<br/><em>Growth Report</em>
 </h2>
 
 <div className="pp-card">
 <div className="pp-label">Growth Score</div>
-{bizResult?.score}/100
+<strong>{bizResult?.score}/100</strong>
 </div>
 
 <div className="pp-card">
-<div className="pp-label">Stage</div>
+<div className="pp-label">Business Stage</div>
 {bizResult?.stage}
 </div>
 
 <div className="pp-card">
-<div className="pp-label">Strength</div>
-{bizResult?.strength}
+<div className="pp-label">Executive Summary</div>
+{bizResult?.summary}
 </div>
 
 <div className="pp-card">
-<div className="pp-label">Weakness</div>
-{bizResult?.weakness}
+<div className="pp-label">Biggest Bottleneck</div>
+{bizResult?.top_bottleneck}
 </div>
 
 <div className="pp-card">
-<div className="pp-label">Opportunity</div>
-{bizResult?.opportunity}
+<div className="pp-label">Hidden Opportunity</div>
+{bizResult?.hidden_opportunity}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Cashflow Risk</div>
+{bizResult?.cashflow_risk}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Founder Blindspot</div>
+{bizResult?.founder_blindspot}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Quick Win (48 Hours)</div>
+{bizResult?.quick_win_48hrs}
 </div>
 
 <div className="pp-card">
 <div className="pp-label">This Week Missions</div>
+
 1. {bizResult?.mission1}<br/><br/>
 2. {bizResult?.mission2}<br/><br/>
 3. {bizResult?.mission3}<br/><br/>
 4. {bizResult?.mission4}<br/><br/>
 5. {bizResult?.mission5}
+
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Tools To Use</div>
+
+• {bizResult?.tool1}<br/>
+• {bizResult?.tool2}<br/>
+• {bizResult?.tool3}<br/>
+• {bizResult?.tool4}
+
+</div>
+
+<div className="pp-card">
+<div className="pp-label">30 Day Growth Plan</div>
+{bizResult?.thirty_day_plan}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Avoid This Mistake</div>
+{bizResult?.avoid_this}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Truth</div>
+<strong>{bizResult?.motivation_truth}</strong>
 </div>
 
 <button
@@ -959,6 +1169,19 @@ onClick={()=>setScreen("chooser")}
 Home
 </button>
 
+<button
+className="pp-btn-outline"
+onClick={()=>{
+window.open(
+`https://wa.me/?text=${encodeURIComponent("I used PipuPath to analyze my business growth path.")}`,
+"_blank"
+);
+}}
+>
+Share Result
+</button>
+
+<div style={{height:"8px"}}></div>
 <button
 className="pp-btn-outline"
 onClick={()=>setScreen("login")}
