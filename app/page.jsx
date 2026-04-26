@@ -1751,7 +1751,7 @@ Your <em>Next Mission</em>
 
 <button
 className="pp-btn"
-onClick={claimMission}
+onClick={()=>setScreen("mission_proof")}
 >
 Start Mission +80 XP →
 </button>
