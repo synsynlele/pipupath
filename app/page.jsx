@@ -230,38 +230,70 @@ RULES:
 `);
 }
 
-async function generateCheckin(checkin,path,level){
+async function generateCheckin(path,tried,worked,stuck){
+
  return await callAI(`
 Return ONLY valid JSON.
 
 {
 "acknowledgment":"",
-"insight":"",
-"adjustment":"",
+"diagnosis":"",
+"blindspot":"",
+"mission_name":"",
 "next_move":"",
-"momentum":8,
-"momentum_note":"",
+"proof_of_completion":"",
+"difficulty":"",
+"momentum_score":0,
+"why_this_matters":"",
+"truth_line":""
 }
 
-You are Pipupath, the greatest elite Builder Coach and Behavioral Analyst. Your job is to help the user Improve and Build after taking action. The goal is not motivation. The goal is to move the user from thinking to doing to producing to proving value.
-Builder Path: ${path.identity_title}
-Current Level: ${level}
+You are PipuPath Mission OS.
 
-Tried:${checkin.tried}
-Worked:${checkin.worked}
-Stuck:${checkin.stuck}
+You are an elite growth coach focused on helping ambitious people make weekly progress.
 
-Rules:
-- Diagnose sharply
-- No fluff
-- Practical
-- Be very detailed
-- Answer like you are speeaking to a youth
-- Use simple language
-- High leverage
-- If level is Explorer or Learner: simple mission user can finish this week
-- If level is Problem Solver: mission with real output or feedback
-- If level is Builder or Founder Ready: mission involving money, users, leadership, or systems
+Your job is to analyze their last attempt and prescribe the smartest next mission.
+
+USER IDENTITY:
+
+Title: ${path.identity_title}
+Truth: ${path.core_truth}
+Wealth Engine: ${path.wealth_engine}
+Trap: ${path.trap_to_avoid}
+
+CHECK-IN DATA:
+
+What They Tried:
+${tried}
+
+What Worked:
+${worked}
+
+Where They Got Stuck:
+${stuck}
+
+ANALYZE:
+
+1. What progress was made
+2. Hidden mistake or blindspot
+3. Best next mission this week
+4. Proof standard for success
+5. Correct difficulty level
+6. Why this mission matters now
+7. Motivational truth grounded in reality
+
+RULES:
+
+- practical
+- sharp
+- no fluff
+- no generic advice
+- mission must be actionable
+- mission should create growth, proof, skill, money, clarity or network
+- realistic for 7 days
+- simple language
+- premium coach tone
+- momentum_score must be number from 1 to 10
 `);
 }
 
@@ -837,7 +869,12 @@ if (existing) {
       return;
     }
 
-    const res = await generateCheckin(checkin, pathData, level);
+    const res = await generateCheckin(
+  pathData,
+  checkin.tried,
+  checkin.worked,
+  checkin.stuck
+);
 
     if(!res || res.error){
       throw new Error("No response received.");
@@ -1652,52 +1689,92 @@ Return 3 times and complete 1 mission.
  </div>,
 
  checkin_result:<div>
-   <div className="pp-brand">
+
+<div className="pp-brand">
   <img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
   <span>PIPUPATH</span>
 </div>
-   <h2 className="pp-h2">Your <em>Adjustment</em></h2>
-   
-   <div className="pp-card">
-     <div className="pp-label">Acknowledgment</div>
-     {checkinRes?.acknowledgment}
-   </div>
 
-   <div className="pp-card">
-     <div className="pp-label">Insight</div>
-     {checkinRes?.insight}
-   </div>
+<h2 className="pp-h2">
+Your <em>Next Mission</em>
+</h2>
 
-   <div className="pp-card">
-     <div className="pp-label">Adjustment</div>
-     {checkinRes?.adjustment}
-   </div>
+<div className="pp-card">
+<div className="pp-label">Acknowledgment</div>
+{checkinRes?.acknowledgment}
+</div>
 
-   <div className="pp-card">
-     <div className="pp-label">Next Move</div>
-     {checkinRes?.next_move}
-   </div>
+<div className="pp-card">
+<div className="pp-label">Diagnosis</div>
+{checkinRes?.diagnosis}
+</div>
 
-   <div className="pp-card">
-     <div className="pp-label">Momentum</div>
-     {checkinRes?.momentum}/10
-   </div>
+<div className="pp-card">
+<div className="pp-label">Blindspot</div>
+{checkinRes?.blindspot}
+</div>
 
-   <div className="pp-card">
-     <div className="pp-label">Momentum Note</div>
-     {checkinRes?.momentum_note}
-   </div>
-    
-   <button className="pp-btn" onClick={()=>setScreen("returning")}>
-     Dashboard →
-   </button>
+<div className="pp-card">
+<div className="pp-label">Mission Name</div>
+<strong>{checkinRes?.mission_name}</strong>
+</div>
 
-<button className="pp-btn-outline" onClick={share}>
-  Share Adjustment
+<div className="pp-card">
+<div className="pp-label">Next Move</div>
+{checkinRes?.next_move}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Proof Of Completion</div>
+{checkinRes?.proof_of_completion}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Difficulty</div>
+{checkinRes?.difficulty}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Momentum Score</div>
+{checkinRes?.momentum_score}/10
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Why This Matters</div>
+{checkinRes?.why_this_matters}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Truth</div>
+<strong>{checkinRes?.truth_line}</strong>
+</div>
+
+<button
+className="pp-btn"
+onClick={claimMission}
+>
+Start Mission +80 XP →
 </button>
 
-<button className="pp-btn-outline" onClick={downloadPDF}>
-  Download Adjustment
+<button
+className="pp-btn-outline"
+onClick={downloadPDF}
+>
+Download Mission
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={share}
+>
+Share Progress
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>setScreen("returning")}
+>
+Dashboard
 </button>
 
 </div>,
