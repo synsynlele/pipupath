@@ -675,6 +675,7 @@ const [vault,setVault] = useState([]);
 const [bizCategory,setBizCategory] = useState("");
 const [bizSubcategory,setBizSubcategory] = useState("");
 const [bizType,setBizType] = useState("");
+const [bizCustom,setBizCustom] = useState("");
 const [bizProblem,setBizProblem] = useState("");
 const [bizRevenue,setBizRevenue] = useState("");
 const [bizResult,setBizResult] = useState(null);
@@ -686,16 +687,27 @@ const [feedback,setFeedback] = useState("");
 
 async function submitBusiness(){
 
-  if(!bizCategory || !bizSubcategory || !bizProblem || !bizRevenue){
-    alert("Please complete all fields.");
-    return;
-  }
+  if(
+ !bizCategory ||
+ !bizSubcategory ||
+ !bizProblem ||
+ !bizRevenue ||
+ (bizSubcategory === "Other" && !bizCustom.trim())
+){
+ alert("Please complete all fields.");
+ return;
+}
 
   try{
     setBusy(true);
     setScreen("generating");
 
-    const fullType = bizCategory + " - " + bizSubcategory;
+    const finalSub =
+bizSubcategory === "Other"
+? bizCustom
+: bizSubcategory;
+
+const fullType = bizCategory + " - " + finalSub;
 
 setBizType(fullType);
 
@@ -1062,7 +1074,11 @@ async function submitGuideRequest(){
       best_time:""
     });
 
-    setScreen("returning");
+    setScreen(
+  guideSource === "business"
+    ? "business_result"
+    : "returning"
+);
 
   } catch(error){
     alert("Could not submit request.");
@@ -1164,6 +1180,7 @@ value={bizCategory}
 onChange={(e)=>{
   setBizCategory(e.target.value);
   setBizSubcategory("");
+  setBizCustom("");
 }}
 >
 <option value="">Choose Category</option>
@@ -1196,6 +1213,15 @@ onChange={(e)=>setBizSubcategory(e.target.value)}
 </option>
 ))}
 </select>
+
+{bizSubcategory === "Other" && (
+<input
+className="pp-input"
+placeholder="What kind of business do you run?"
+value={bizCustom}
+onChange={(e)=>setBizCustom(e.target.value)}
+/>
+)}
 </>
 
 )}
@@ -1251,12 +1277,14 @@ onChange={(e)=>setBizRevenue(e.target.value)}
 
 )}
 
+{bizRevenue && (
 <button
 className="pp-btn"
 onClick={submitBusiness}
 >
 Analyze My Business →
 </button>
+)}
 
 <button
 className="pp-btn-outline"
@@ -1265,6 +1293,7 @@ onClick={()=>{
  setBizSubcategory("");
  setBizProblem("");
  setBizRevenue("");
+ setBizCustom("");
  setScreen("chooser");
 }}
 >
