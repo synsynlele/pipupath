@@ -305,9 +305,11 @@ Return ONLY valid JSON.
 "acknowledgment":"",
 "diagnosis":"",
 "blindspot":"",
-"mission_name":"",
-"next_move":"",
-"proof_of_completion":"",
+"hook":"",
+"question":"",
+"learn":"",
+"solve":"",
+"proof":"",
 "difficulty":"",
 "momentum_score":0,
 "why_this_matters":"",
@@ -947,7 +949,7 @@ if (existing) {
     }
 
     setCheckinRes(res);
-    setWeeklyMission(res.next_move || "");
+    setWeeklyMission(res);
 
     const newXP = xp + 50;
     const newLevel = getLevelFromXP(newXP);
@@ -962,7 +964,7 @@ if (existing) {
       .from("leads")
       .update({
         xp:newXP,
-        weekly_mission: res.next_move || ""
+        weekly_mission: res
       })
       .eq("user_id", uid);
 
@@ -1662,7 +1664,29 @@ onClick={()=>saveFeedback("weak")}
   <div className="pp-label">Your Weekly Mission 🚀</div>
 
   <strong>
-    {weeklyMission || "Complete Mission Adjustment to unlock your next mission."}
+    {weeklyMission?.hook ? (
+<>
+<strong>Hook:</strong><br/>
+{weeklyMission.hook}
+
+<br/><br/>
+
+<strong>Question:</strong><br/>
+{weeklyMission.question}
+
+<br/><br/>
+
+<strong>Learn:</strong><br/>
+{weeklyMission.learn}
+
+<br/><br/>
+
+<strong>Solve:</strong><br/>
+{weeklyMission.solve}
+</>
+) : (
+"Complete Mission Adjustment to unlock your next mission."
+)}
   </strong>
 
   <button
@@ -1912,7 +1936,7 @@ if(
   return;
 }
 
-if(!weeklyMission || weeklyMission.trim() === ""){
+if(!weeklyMission || !weeklyMission.solve){
   alert("No active mission to claim.");
   return;
 }
@@ -1960,7 +1984,7 @@ await supabase
 .from("mission_vault")
 .insert({
   user_id: uid,
-  mission: weeklyMission,
+  mission: weeklyMission.solve,
   xp_earned: 80
 });
 
