@@ -1699,7 +1699,7 @@ onClick={()=>saveFeedback("weak")}
 <button
   className="pp-btn-outline"
   onClick={()=>{
-  if(weeklyMission && weeklyMission.solve){
+  if(weeklyMission?.solve){
     alert("Mission active. Finish it to unlock the next one.");
     return;
   }
@@ -1799,6 +1799,14 @@ Return 3 times and complete 1 mission.
    <button className="pp-btn" onClick={submitCheckin}>
      {busy?"Analyzing...":"Get My Adjustment →"}
    </button>
+
+   <button
+className="pp-btn-outline"
+onClick={()=>setScreen("returning")}
+>
+← Back
+</button>
+
  </div>,
 
  checkin_result:<div>
@@ -1947,15 +1955,10 @@ const uid = (await supabase.auth.getUser())?.data?.user?.id;
 const weekKey = getWeekKey();
 
 const { data: row } = await supabase
-  .from("leads")
-  .select("xp,streak,last_claim_week")
-  .eq("user_id", uid)
-  .single();
-
-if(row?.last_claim_week === weekKey){
-  alert("You already claimed this week's mission.");
-  return;
-}
+.from("leads")
+.select("xp,streak")
+.eq("user_id", uid)
+.single();
 
 const currentXP = row?.xp || 0;
 const currentStreak = row?.streak || 0;
@@ -1971,7 +1974,6 @@ const { error } = await supabase
   .update({
     xp:newXP,
     streak:newStreak,
-    last_claim_week:weekKey,
     weekly_mission:null
   })
   .eq("user_id", uid);
