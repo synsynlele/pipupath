@@ -663,6 +663,14 @@ const [missionProof,setMissionProof] = useState({
   learned:""
 });
 
+const [guideSource,setGuideSource] = useState("");
+const [guideForm,setGuideForm] = useState({
+  name:"",
+  phone:"",
+  need:"",
+  best_time:""
+});
+
 const [vault,setVault] = useState([]);
 const [bizCategory,setBizCategory] = useState("");
 const [bizSubcategory,setBizSubcategory] = useState("");
@@ -1016,6 +1024,51 @@ async function saveFeedback(type){
   alert("Thanks for the feedback.");
 }
 
+async function submitGuideRequest(){
+
+  if(
+    !guideForm.name.trim() ||
+    !guideForm.phone.trim() ||
+    !guideForm.need.trim()
+  ){
+    alert("Please complete all fields.");
+    return;
+  }
+
+  try{
+
+    const auth = await supabase.auth.getUser();
+
+    const uid = auth?.data?.user?.id;
+    const uemail = auth?.data?.user?.email;
+
+    await supabase.from("guide_requests").insert({
+      user_id: uid,
+      email: uemail,
+      name: guideForm.name,
+      phone: guideForm.phone,
+      help_needed: guideForm.need,
+      best_time: guideForm.best_time,
+      source: guideSource,
+      status: "new"
+    });
+
+    alert("Request submitted successfully.");
+
+    setGuideForm({
+      name:"",
+      phone:"",
+      need:"",
+      best_time:""
+    });
+
+    setScreen("returning");
+
+  } catch(error){
+    alert("Could not submit request.");
+  }
+}
+
 const arch=ARCHETYPES[archKey] || {};
 
  const screens={
@@ -1312,6 +1365,16 @@ className="pp-btn"
 onClick={()=>setScreen("business")}
 >
 Run Again →
+</button>
+
+<button
+className="pp-btn"
+onClick={()=>{
+  setGuideSource("business");
+  setScreen("guide_form");
+}}
+>
+Get a Growth Advisor
 </button>
 
 <button
@@ -1904,6 +1967,16 @@ Share Progress
 </button>
 
 <button
+className="pp-btn"
+onClick={()=>{
+  setGuideSource("myself");
+  setScreen("guide_form");
+}}
+>
+Get a Growth Advisor
+</button>
+
+<button
 className="pp-btn-outline"
 onClick={()=>setScreen("returning")}
 >
@@ -1964,7 +2037,6 @@ if(!weeklyMission || !weeklyMission.solve){
 
 const uid = (await supabase.auth.getUser())?.data?.user?.id;
 
-const weekKey = getWeekKey();
 
 const { data: row } = await supabase
 .from("leads")
@@ -2075,6 +2147,63 @@ mission_vault:<div>
  onClick={()=>setScreen("returning")}
 >
  Dashboard →
+</button>
+
+</div>,
+
+guide_form:<div>
+
+<div className="pp-brand">
+<img src="/logo.png" alt="PipuPath" className="pp-brand-logo" />
+<span>PIPUPATH</span>
+</div>
+
+<h2 className="pp-h2">
+Talk to a <em>Growth Advisor</em>
+</h2>
+
+<input
+className="pp-input"
+placeholder="Full Name"
+value={guideForm.name}
+onChange={e=>setGuideForm({...guideForm,name:e.target.value})}
+/>
+
+<input
+className="pp-input"
+placeholder="WhatsApp Number"
+value={guideForm.phone}
+onChange={e=>setGuideForm({...guideForm,phone:e.target.value})}
+/>
+
+<textarea
+className="pp-textarea"
+placeholder="What do you need help with?"
+value={guideForm.need}
+onChange={e=>setGuideForm({...guideForm,need:e.target.value})}
+/>
+
+<input
+className="pp-input"
+placeholder="Best time to reach you"
+value={guideForm.best_time}
+onChange={e=>setGuideForm({...guideForm,best_time:e.target.value})}
+/>
+
+<button
+className="pp-btn"
+onClick={submitGuideRequest}
+>
+Submit Request →
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>setScreen(
+  guideSource === "business" ? "business_result" : "returning"
+)}
+>
+← Back
 </button>
 
 </div>,
