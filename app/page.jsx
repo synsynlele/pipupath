@@ -1699,12 +1699,13 @@ onClick={()=>saveFeedback("weak")}
 <button
   className="pp-btn-outline"
   onClick={()=>{
-    if(weeklyMission && weeklyMission.trim() !== ""){
-      alert("Mission active. Finish it to unlock the next one.");
-      return;
-    }
-    setScreen("checkin");
-  }}
+  if(weeklyMission && weeklyMission.solve){
+    alert("Mission active. Finish it to unlock the next one.");
+    return;
+  }
+
+  setScreen("checkin");
+}}
 >
   Get New Mission
 </button>
@@ -1828,17 +1829,17 @@ Your <em>Next Mission</em>
 
 <div className="pp-card">
 <div className="pp-label">Mission Name</div>
-<strong>{checkinRes?.mission_name}</strong>
+<strong>{checkinRes?.hook}</strong>
 </div>
 
 <div className="pp-card">
 <div className="pp-label">Next Move</div>
-{checkinRes?.next_move}
+{checkinRes?.solve}
 </div>
 
 <div className="pp-card">
 <div className="pp-label">Proof Of Completion</div>
-{checkinRes?.proof_of_completion}
+{checkinRes?.proof}
 </div>
 
 <div className="pp-card">
@@ -1971,7 +1972,7 @@ const { error } = await supabase
     xp:newXP,
     streak:newStreak,
     last_claim_week:weekKey,
-    weekly_mission:""
+    weekly_mission:null
   })
   .eq("user_id", uid);
 
@@ -1991,7 +1992,7 @@ await supabase
 setXp(newXP);
 setStreak(newStreak);
 setLevel(newLevel);
-setWeeklyMission("");
+setWeeklyMission(null);
 
 alert("✅ Mission Progress Submitted! +80 XP");
 
