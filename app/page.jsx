@@ -1708,6 +1708,13 @@ onClick={()=>saveFeedback("weak")}
 >
   Get New Mission
 </button>
+
+<button
+className="pp-btn"
+onClick={()=>setScreen("returning")}
+>
+Dashboard →
+</button>
 </div>
 
  <div className="pp-card">
