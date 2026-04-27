@@ -883,6 +883,16 @@ async function loadVault(){
    const result=await generatePath(key,next);
    setPathData(result);
 
+   const starterMission = {
+  hook: "Your First Builder Mission",
+  question: "Will you act or delay?",
+  learn: "Momentum changes identity.",
+  solve: result.seven_day_mission || "Take one bold action this week.",
+  proof: "Return and submit what happened."
+};
+
+setWeeklyMission(starterMission);
+
    const { data: authData } = await supabase.auth.getUser();
 
    const uid = authData?.user?.id;
@@ -904,7 +914,8 @@ if (existing) {
       archetype: key,
       answers: next,
       result: result,
-      source: "pipupath"
+      weekly_mission: starterMission,
+      source:"pipupath"
     })
     .eq("user_id", uid);
 } else {
@@ -916,7 +927,8 @@ if (existing) {
       archetype: key,
       answers: next,
       result: result,
-      source: "pipupath"
+      weekly_mission: starterMission,
+      source:"pipupath"
     });
 }
 
