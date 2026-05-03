@@ -970,6 +970,7 @@ if (nortnspoil) {
   status: "active",
   trigger_ui: true
 });
+} 
 
 // Only soft redirect (optional)
 
