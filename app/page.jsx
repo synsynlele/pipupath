@@ -1631,7 +1631,8 @@ What do you want to<br/><em>grow today?</em>
 </h1>
 
 <p style={{opacity:.75,marginBottom:"20px"}}>
-Choose your growth path.
+A category-defining growth OS for ambitious humans.
+Find your edge. Get one mission. Compound it weekly.
 </p>
 
 <button
