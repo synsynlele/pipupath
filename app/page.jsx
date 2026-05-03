@@ -1145,8 +1145,24 @@ if(activeNortnspoil && activeNortnspoil.length > 0){
 // 🔥 SMART ENTRY LOGIC
 // 🔥 FIXED SMART ENTRY LOGIC
 
+// 🔥 FIXED ENTRY LOGIC
+
 await loadMagicHistory();
 
+// check if user has completed onboarding
+const { data: userData } = await supabase
+  .from("leads")
+  .select("*")
+  .eq("user_id", authUser.id)
+  .single();
+
+// 👉 FIRST TIME USER
+if(!userData || !userData.archetype){
+  setScreen("questions");
+  return;
+}
+
+// 👉 CHECK MAGICPEN ACTIVITY
 const { data: sessions } = await supabase
   .from("magicpen_sessions")
   .select("*")
@@ -1156,17 +1172,24 @@ const { data: sessions } = await supabase
 
 const lastSession = sessions?.[0];
 
-if(lastSession){
-  const lastDate = new Date(lastSession.created_at);
-  const now = new Date();
+// 👉 NO HISTORY BUT HAS ACCOUNT → send to dashboard
+if(!lastSession){
+  setScreen("returning");
+  return;
+}
 
-  const days = (now - lastDate) / (1000 * 60 * 60 * 24);
+// 👉 INACTIVE USER → force MagicPen
+const lastDate = new Date(lastSession.created_at);
+const now = new Date();
 
-  if(days > 3){
-    setScreen("magicpen");
-  } else {
-    setScreen("returning");
-  }
+const days = (now - lastDate) / (1000 * 60 * 60 * 24);
+
+if(days > 2){
+  setScreen("magicpen");
+} else {
+  setScreen("returning");
+}
+
 }else{
   setScreen("magicpen");
 }
