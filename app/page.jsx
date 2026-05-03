@@ -576,6 +576,33 @@ function getLevelFloor(level){
   return 0;
 }
 
+function getImprovementScore(history){
+
+ if(!history || history.length < 4) return "No Data Yet";
+
+ const last3 = history.slice(0,3);
+
+ const avg =
+   last3.reduce((sum,x)=>sum + (x.readiness_score || 0),0)
+   / last3.length;
+
+ const prev3 = history.slice(3,6);
+
+ if(prev3.length === 0) return "No Data Yet";
+
+ const prevAvg =
+   prev3.reduce((sum,x)=>sum + (x.readiness_score || 0),0)
+   / prev3.length;
+
+ const diff = avg - prevAvg;
+
+ if(diff > 20) return "Rapid Growth 🚀";
+ if(diff > 10) return "Strong Progress 📈";
+ if(diff > 0) return "Improving 👍";
+ if(diff === 0) return "Stable ⚖️";
+ return "Declining ⚠️";
+}
+
 const BIZ_CATEGORIES = {
   "Food & Drinks": [
     "Bakery",
@@ -640,6 +667,102 @@ const BIZ_CATEGORIES = {
   ]
 };
 
+function calculateRiskScore({ history, streak, weeklyMission }){
+
+  let score = 0;
+
+  const trend = getImprovementScore(history);
+
+  if(trend === "Declining ⚠️") score += 40;
+  if(trend === "Stable ⚖️") score += 10;
+
+  if(streak === 0) score += 30;
+  if(streak <= 2) score += 15;
+
+  if(!weeklyMission || !weeklyMission.solve) score += 20;
+
+  return score;
+}
+
+function getEscalationLevel({ history, streak, weeklyMission }){
+
+  const risk = calculateRiskScore({ history, streak, weeklyMission });
+
+  if(risk >= 80) return 4; // critical
+  if(risk >= 60) return 3; // high
+  if(risk >= 40) return 2; // warning
+  return 1; // safe
+}
+
+function shouldTriggerNortnspoil({ history, streak, weeklyMission }){
+
+  const trend = getImprovementScore(history);
+
+  if(trend === "Declining ⚠️"){
+    return {
+      trigger: "declining_performance",
+      message: "You are slipping. Intervene now."
+    };
+  }
+
+  if(streak === 0){
+    return {
+      trigger: "no_momentum",
+      message: "You are idle. Restart immediately."
+    };
+  }
+
+  if(weeklyMission && !weeklyMission.solve){
+    return {
+      trigger: "no_active_direction",
+      message: "You are drifting. Get a mission."
+    };
+  }
+
+  return null;
+}
+
+async function generateRecoveryPlan(context, level){
+
+  return await callAI(`
+Return ONLY JSON.
+
+{
+"level":"",
+"diagnosis":"",
+"reset_action":"",
+"plan_48hrs":"",
+"force_action":"",
+"truth":""
+}
+
+You are Nortnspoil Escalation Engine.
+
+Escalation Level: ${level}
+
+Context:
+${JSON.stringify(context)}
+
+Instructions:
+
+Level 2 (Warning):
+- gentle correction
+
+Level 3 (High Risk):
+- urgent reset plan
+
+Level 4 (Critical):
+- aggressive intervention
+- force_action must be strict
+
+Rules:
+- sharp
+- no fluff
+- practical
+- urgency increases with level
+`);
+}
+
 export default function PipuPath(){
  const [screen,setScreen]=useState("chooser");
 const [email,setEmail]=useState("");
@@ -680,10 +803,175 @@ const [bizProblem,setBizProblem] = useState("");
 const [bizRevenue,setBizRevenue] = useState("");
 const [bizResult,setBizResult] = useState(null);
 const [feedback,setFeedback] = useState("");
+// MAGIC PEN
+const [magicForm,setMagicForm] = useState({
+  exam:"",
+  subject:"",
+  date:"",
+  confidence:"",
+  coverage:"",
+  consistency:"",
+  fear:""
+});
 
- useEffect(() => {
-  checkUserSilent();
-}, []);
+const [magicResult,setMagicResult] = useState(null);
+const [magicHistory,setMagicHistory] = useState([]);
+async function loadMagicHistory(){
+
+ const uid = (await supabase.auth.getUser())?.data?.user?.id;
+
+ if(!uid) return;
+
+ const { data } = await supabase
+   .from("magicpen_sessions")
+   .select("*")
+   .eq("user_id", uid)
+   .order("created_at", { ascending:false });
+
+ setMagicHistory(data || []);
+}
+
+// NORTNSPOIL
+const [nortnspoil,setNortnspoil] = useState(null);
+
+useEffect(() => {
+
+  async function runAutoRecovery(){
+
+    await checkUserSilent();
+    await loadMagicHistory();
+
+// 🔥 AUTO-RESOLVE FIRST (BEFORE ANY RETURN)
+const trend = getImprovementScore(magicHistory);
+
+if(
+  trend === "Improving 👍" ||
+  trend === "Strong Progress 📈" ||
+  trend === "Rapid Growth 🚀"
+){
+  const uid = (await supabase.auth.getUser())?.data?.user?.id;
+
+  if(uid){
+    await supabase
+      .from("nortnspoil_events")
+      .update({
+        status: "resolved",
+        resolved_by: "auto_trend",
+        resolved_at: new Date().toISOString()
+      })
+      .eq("user_id", uid)
+      .eq("status", "active");
+  }
+
+  setNortnspoil(null);
+
+  return; // ⛔ STOP — do NOT continue to trigger logic
+}
+
+    const trigger = shouldTriggerNortnspoil({
+      history: magicHistory,
+      streak,
+      weeklyMission
+    });
+
+    let level = getEscalationLevel({
+      history: magicHistory,
+      streak,
+      weeklyMission
+    });
+
+   if(!magicHistory || magicHistory.length < 3){
+  return;
+}
+
+    if(!trigger && level < 3) return;
+
+    const uid = (await supabase.auth.getUser())?.data?.user?.id;
+    if(!uid) return;
+
+    // Prevent spam triggers
+    const { data: recent } = await supabase
+  .from("nortnspoil_events")
+  .select("*")
+  .eq("user_id", uid)
+  .order("created_at", { ascending:false })
+  .limit(1);
+
+const currentRisk = calculateRiskScore({
+  history: magicHistory,
+  streak,
+  weeklyMission
+});
+
+if(recent && recent.length > 0){
+
+  const lastRisk = recent[0].trigger_score || 0;
+  const lastLevel = recent[0].level || 1;
+
+  const lastTime = new Date(recent[0].created_at);
+  const now = new Date();
+
+  const hours = (now - lastTime) / (1000 * 60 * 60);
+
+  // Escalate if stuck too long
+  if(currentRisk <= lastRisk && hours < 24){
+    return;
+  }
+
+  // Force escalation after 24h even if same level
+  if(currentRisk <= lastRisk && hours >= 24){
+    level = Math.min(4, lastLevel + 1);
+  }
+}
+
+    const context = {
+      trend: getImprovementScore(magicHistory),
+      streak,
+      weeklyMission
+    };
+
+
+    const raw = await generateRecoveryPlan(context, level);
+
+let plan;
+
+try{
+  plan = typeof raw === "string" ? JSON.parse(raw) : raw;
+}catch{
+  console.log("AI parse failed", raw);
+  return;
+}
+
+    await supabase.from("nortnspoil_events").insert({
+
+      user_id: uid,
+      trigger_type: trigger?.trigger || "system_escalation",
+      trigger_score: calculateRiskScore({
+        history: magicHistory,
+        streak,
+        weeklyMission
+      }),
+      context,
+      recovery_plan: plan,
+      status: "active",
+      level: level
+    });
+
+    setNortnspoil({
+  ...plan,
+  level,
+  status: "active"
+});
+
+    if(level >= 4){
+      setScreen("nortnspoil_result");
+    }
+  }
+
+  runAutoRecovery();
+
+}, [magicHistory, streak, weeklyMission]);
+
 
 async function submitBusiness(){
 
@@ -808,7 +1096,29 @@ async function checkUser() {
   setStreak(row.streak || 0);
   setWeeklyMission(row.weekly_mission || "");
 
-  setScreen("returning");
+// LOAD ACTIVE NORTNSPOIL BEFORE ENTERING DASHBOARD
+const { data: activeNortnspoil } = await supabase
+  .from("nortnspoil_events")
+  .select("*")
+  .eq("user_id", authUser.id)
+  .eq("status", "active")
+  .order("created_at", { ascending: false })
+  .limit(1);
+
+if(activeNortnspoil && activeNortnspoil.length > 0){
+  const event = activeNortnspoil[0];
+
+  setNortnspoil({
+    ...event.recovery_plan,
+    level: event.level,
+    status: "active"
+  });
+} else {
+  setNortnspoil(null);
+}
+
+setScreen("returning");  
+
 } else {
   setScreen("questions");
 }
@@ -1000,6 +1310,19 @@ if (existing) {
       })
       .eq("user_id", uid);
 
+// Resolve active Nortnspoil events
+await supabase
+  .from("nortnspoil_events")
+  .update({
+    status: "resolved",
+    resolved_by: "checkin",
+    resolved_at: new Date().toISOString()
+  })
+  .eq("user_id", uid)
+  .eq("status", "active");
+
+setNortnspoil(null);
+
 
     if(error){
   console.log("SUPABASE UPDATE ERROR:", error);
@@ -1034,6 +1357,151 @@ async function saveFeedback(type){
   }
 
   alert("Thanks for the feedback.");
+}
+
+async function runMagicPen(){
+
+  try{
+    setBusy(true);
+    setScreen("generating");
+
+    const days = Math.max(
+      1,
+      Math.ceil((new Date(magicForm.date) - new Date()) / (1000*60*60*24))
+    );
+
+   if(
+ !magicForm.exam ||
+ !magicForm.subject ||
+ !magicForm.date
+){
+ alert("Please fill exam, subject and date.");
+ setBusy(false);
+ return;
+}
+
+    const res = await callAI(`
+Return ONLY JSON.
+
+{
+"readiness_score":0,
+"confidence_score":0,
+"risk_level":"",
+"summary":"",
+"weak_zones":"",
+"seven_day_plan":"",
+"exam_strategy":"",
+"truth_line":""
+}
+
+You are MagicPen.
+
+Exam: ${magicForm.exam}
+Subject: ${magicForm.subject}
+Days: ${days}
+Confidence: ${magicForm.confidence}
+Coverage: ${magicForm.coverage}
+Consistency: ${magicForm.consistency}
+Fear: ${magicForm.fear}
+
+Be practical. No fluff.
+`);
+
+    setMagicResult(res);
+
+const uid = (await supabase.auth.getUser())?.data?.user?.id;
+
+if(uid){
+  await supabase.from("magicpen_sessions").insert({
+    user_id: uid,
+    exam: magicForm.exam,
+    subject: magicForm.subject,
+    readiness_score: res.readiness_score,
+    confidence_score: res.confidence_score,
+    risk_level: res.risk_level
+  });
+}
+
+await loadMagicHistory();
+
+// If user improves, resolve Nortnspoil
+if(res?.readiness_score >= 60){
+setNortnspoil(null);
+  const uid = (await supabase.auth.getUser())?.data?.user?.id;
+
+  if(uid){
+   await supabase
+  .from("nortnspoil_events")
+  .update({
+    status: "resolved",
+    resolved_by: "magicpen",
+    resolved_at: new Date().toISOString()
+  })
+      .eq("user_id", uid)
+      .eq("status", "active");
+  }
+}
+
+    // Trigger Nortnspoil if low readiness
+   
+    // ADD XP FOR USING MAGICPEN
+const newXP = xp + 20;
+const newStreak = streak + 1;
+
+setXp(newXP);
+setStreak(newStreak);
+
+if(uid){
+  await supabase
+    .from("leads")
+    .update({
+      xp: newXP,
+      streak: newStreak
+    })
+    .eq("user_id", uid);
+}
+
+setScreen("magic_result");
+
+} catch(e){
+  alert("MagicPen failed.");
+  setScreen("returning");
+} finally{
+  setBusy(false);
+}
+}
+
+   async function runNortnspoil(){
+
+  try{
+    setBusy(true);
+
+    const res = await callAI(`
+Return ONLY JSON.
+
+{
+"diagnosis":"",
+"reset_action":"",
+"plan_48hrs":"",
+"truth":""
+}
+
+You are Nortnspoil.
+
+User lost momentum.
+
+Give recovery plan.
+`);
+
+    setNortnspoil(res);
+    setScreen("nortnspoil_result");
+
+  }catch(e){
+    alert("Recovery failed.");
+    setScreen("returning");
+  }finally{
+    setBusy(false);
+  }
 }
 
 async function submitGuideRequest(){
@@ -1845,10 +2313,44 @@ Return 3 times and complete 1 mission.
    Explorer → Learner → Problem Solver → Builder → Founder Ready
  </div>
 
+{nortnspoil && nortnspoil.status === "active" && (
+
+<div className="pp-card" style={{border:"1px solid #D4A43B"}}>
+
+<div className="pp-label">System Alert</div>
+
+<strong>{nortnspoil.truth}</strong>
+
+<button
+className="pp-btn"
+onClick={()=>setScreen("nortnspoil_result")}
+>
+Fix This Now →
+</button>
+
+</div>
+
+)}
+
  <button className="pp-btn" onClick={()=>setScreen("result")}>
    My Identity Report →
  </button>
  
+  <div className="pp-card">
+  <div className="pp-label">New</div>
+
+  <button
+    className="pp-btn"
+    onClick={async ()=>{
+  await loadMagicHistory();
+  setScreen("magicpen");
+}}
+  >
+    MagicPen ✍️ (Exam Readiness)
+  </button>
+
+</div>
+
  <button className="pp-btn-outline" onClick={retake}>
    Retake Questions
  </button>
@@ -2091,6 +2593,19 @@ const { error } = await supabase
   })
   .eq("user_id", uid);
 
+// Resolve active Nortnspoil events after mission completion
+await supabase
+  .from("nortnspoil_events")
+  .update({
+    status: "resolved",
+    resolved_by: "mission_proof",
+    resolved_at: new Date().toISOString()
+  })
+  .eq("user_id", uid)
+  .eq("status", "active");
+
+setNortnspoil(null);
+
 if(error){
   alert("Could not save progress.");
   return;
@@ -2233,6 +2748,208 @@ onClick={()=>setScreen(
 )}
 >
 ← Back
+</button>
+
+</div>,
+
+  magicpen:<div>
+
+<h2 className="pp-h2">
+MagicPen ✍️ <em>Exam Readiness</em>
+</h2>
+
+<input className="pp-input" placeholder="Exam (WAEC/JAMB)"
+value={magicForm.exam}
+onChange={e=>setMagicForm({...magicForm,exam:e.target.value})}
+/>
+
+<input className="pp-input" placeholder="Subject"
+value={magicForm.subject}
+onChange={e=>setMagicForm({...magicForm,subject:e.target.value})}
+/>
+
+<input type="date" className="pp-input"
+value={magicForm.date}
+onChange={e=>setMagicForm({...magicForm,date:e.target.value})}
+/>
+
+<input className="pp-input" placeholder="Confidence (1-10)"
+value={magicForm.confidence}
+onChange={e=>setMagicForm({...magicForm,confidence:e.target.value})}
+/>
+
+<input className="pp-input" placeholder="Topics Covered (%)"
+value={magicForm.coverage}
+onChange={e=>setMagicForm({...magicForm,coverage:e.target.value})}
+/>
+
+<input className="pp-input" placeholder="Study days/week"
+value={magicForm.consistency}
+onChange={e=>setMagicForm({...magicForm,consistency:e.target.value})}
+/>
+
+<textarea className="pp-textarea"
+placeholder="What are you afraid of?"
+value={magicForm.fear}
+onChange={e=>setMagicForm({...magicForm,fear:e.target.value})}
+/>
+
+<button className="pp-btn" onClick={runMagicPen}>
+Analyze →
+</button>
+
+<button className="pp-btn-outline" onClick={()=>setScreen("returning")}>
+Back
+</button>
+
+</div>,
+
+
+ magic_result:<div>
+
+<h2 className="pp-h2">
+Readiness: <em>{magicResult?.readiness_score}%</em>
+</h2>
+
+<div className="pp-card">
+Confidence: {magicResult?.confidence_score}
+</div>
+
+<div className="pp-card">
+Risk: {magicResult?.risk_level}
+</div>
+
+<div className="pp-card">
+Weak Zones: {magicResult?.weak_zones}
+</div>
+
+<div className="pp-card">
+7 Day Plan: {magicResult?.seven_day_plan}
+</div>
+
+<div className="pp-card">
+Strategy: {magicResult?.exam_strategy}
+</div>
+
+<div className="pp-card">
+<strong>{magicResult?.truth_line}</strong>
+</div>
+
+{nortnspoil && (
+<button
+className="pp-btn"
+onClick={()=>setScreen("nortnspoil")}
+>
+Recover Now →
+</button>
+)}
+
+{/* GRAPH FIRST */}
+{magicHistory.length > 0 && (
+
+<div className="pp-card">
+
+<div className="pp-label">Progress Trend</div>
+
+<div style={{
+display:"flex",
+alignItems:"flex-end",
+gap:"6px",
+height:"120px"
+}}>
+
+{magicHistory.slice(0,7).reverse().map((item,i)=>(
+  <div key={i}
+    style={{
+      width:"20px",
+      height:`${item.readiness_score}%`,
+      background:"#D4A43B",
+      borderRadius:"4px"
+    }}
+  />
+))}
+
+</div>
+
+<div style={{
+marginTop:"10px",
+fontSize:"13px",
+opacity:.7
+}}>
+Last 7 attempts
+</div>
+
+</div>
+
+)}
+
+{/* TREND */}
+{magicHistory.length > 1 && (
+
+<div className="pp-card">
+<div className="pp-label">Your Trend</div>
+<strong>{getImprovementScore(magicHistory)}</strong>
+</div>
+
+)}
+
+{/* ACTIONS LAST */}
+<button
+className="pp-btn"
+onClick={()=>setScreen("magicpen")}
+>
+Recheck My Readiness →
+</button>
+
+<button className="pp-btn-outline" onClick={()=>setScreen("returning")}>
+Dashboard
+</button>
+
+</div>,
+
+nortnspoil_result:<div>
+
+<h2 className="pp-h2">
+Back <em>On Track</em>
+</h2>
+
+<div className="pp-card">
+<div className="pp-label">Alert Level</div>
+Level {nortnspoil?.level} Intervention
+</div>
+
+<div className="pp-card">
+{nortnspoil?.diagnosis}
+</div>
+
+<div className="pp-card">
+{nortnspoil?.reset_action}
+</div>
+
+<div className="pp-card">
+{nortnspoil?.plan_48hrs}
+</div>
+
+<div className="pp-card">
+<strong>{nortnspoil?.truth}</strong>
+</div>
+
+{nortnspoil?.level >= 4 && (
+
+<button
+className="pp-btn"
+style={{background:"#EF4444"}}
+onClick={()=>{
+  alert("No escape. Act now.");
+}}
+>
+Execute Reset Now ⚠️
+</button>
+
+)}
+
+<button className="pp-btn" onClick={()=>setScreen("returning")}>
+Return Stronger →
 </button>
 
 </div>,
