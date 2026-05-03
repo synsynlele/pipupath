@@ -1142,7 +1142,34 @@ if(activeNortnspoil && activeNortnspoil.length > 0){
   setNortnspoil(null);
 }
 
-setScreen("returning");  
+// 🔥 SMART ENTRY LOGIC
+// 🔥 FIXED SMART ENTRY LOGIC
+
+await loadMagicHistory();
+
+const { data: sessions } = await supabase
+  .from("magicpen_sessions")
+  .select("*")
+  .eq("user_id", authUser.id)
+  .order("created_at", { ascending:false })
+  .limit(1);
+
+const lastSession = sessions?.[0];
+
+if(lastSession){
+  const lastDate = new Date(lastSession.created_at);
+  const now = new Date();
+
+  const days = (now - lastDate) / (1000 * 60 * 60 * 24);
+
+  if(days > 3){
+    setScreen("magicpen");
+  } else {
+    setScreen("returning");
+  }
+}else{
+  setScreen("magicpen");
+}
 
 } else {
   setScreen("questions");
@@ -1433,6 +1460,16 @@ Be practical. No fluff.
 `);
 
     setMagicResult(res);
+
+// 🔥 AUTO-MISSION FROM MAGICPEN
+if(res?.readiness_score < 60){
+  setWeeklyMission({
+    hook: "Emergency Recovery",
+    question: "Will you fix your weak area now?",
+    learn: "Weakness ignored becomes failure.",
+    solve: res.weak_zones || "Revise your weakest topic immediately"
+  });
+}
 
 const uid = (await supabase.auth.getUser())?.data?.user?.id;
 
@@ -2227,6 +2264,26 @@ onClick={()=>saveFeedback("weak")}
    Welcome back.<br/><em>{pathData?.identity_title}</em>
  </h2>
 
+<div style={{
+display:"flex",
+gap:"8px",
+marginBottom:"16px"
+}}>
+
+<button className="pp-btn-outline" onClick={()=>setScreen("returning")}>
+Dashboard
+</button>
+
+<button className="pp-btn-outline" onClick={()=>setScreen("magicpen")}>
+MagicPen
+</button>
+
+<button className="pp-btn-outline" onClick={()=>setScreen("mission_vault")}>
+Vault
+</button>
+
+</div>
+
  <div className="pp-card">
    <div className="pp-label">Builder Level</div>
    {level} 🚀
@@ -2324,6 +2381,11 @@ onClick={()=>saveFeedback("weak")}
 </div>
 
 <div className="pp-card">
+  <div className="pp-label">Performance Status</div>
+  {getImprovementScore(magicHistory)}
+</div>
+
+<div className="pp-card">
   <div className="pp-label">Next Milestone</div>
   Reach {getNextXP(level)} XP to become {getNextLevel(level)}
 </div>
@@ -2360,21 +2422,6 @@ Fix This Now →
  <button className="pp-btn" onClick={()=>setScreen("result")}>
    My Identity Report →
  </button>
- 
-  <div className="pp-card">
-  <div className="pp-label">New</div>
-
-  <button
-    className="pp-btn"
-    onClick={async ()=>{
-  await loadMagicHistory();
-  setScreen("magicpen");
-}}
-  >
-    MagicPen ✍️ (Exam Readiness)
-  </button>
-
-</div>
 
  <button className="pp-btn-outline" onClick={retake}>
    Retake Questions
@@ -2779,6 +2826,11 @@ onClick={()=>setScreen(
 
   magicpen:<div>
 
+<div className="pp-brand">
+  <img src="/logo.png" className="pp-brand-logo" />
+  <span>{user?.email}</span>
+</div>
+
 <h2 className="pp-h2">
 MagicPen ✍️ <em>Exam Readiness</em>
 </h2>
@@ -2919,15 +2971,12 @@ Last 7 attempts
 )}
 
 {/* ACTIONS LAST */}
+
 <button
 className="pp-btn"
-onClick={()=>setScreen("magicpen")}
+onClick={()=>setScreen("checkin")}
 >
-Recheck My Readiness →
-</button>
-
-<button className="pp-btn-outline" onClick={()=>setScreen("returning")}>
-Dashboard
+Continue Improvement →
 </button>
 
 </div>,
