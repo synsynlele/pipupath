@@ -2691,6 +2691,8 @@ await supabase
   xp_earned: 80
 });
 
+await loadVault(); // ✅ refresh vault data
+
 setXp(newXP);
 setStreak(newStreak);
 setLevel(newLevel);
