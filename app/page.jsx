@@ -764,7 +764,8 @@ Rules:
 }
 
 export default function PipuPath(){
- const [screen,setScreen]=useState("chooser");
+const [screen,setScreen]=useState("chooser");
+const [nortnspoilChecked, setNortnspoilChecked] = useState(false);
 const [email,setEmail]=useState("");
 const [password,setPassword]=useState("");
 const [user,setUser]=useState(null);
@@ -835,6 +836,8 @@ async function loadMagicHistory(){
 const [nortnspoil,setNortnspoil] = useState(null);
 
 useEffect(() => {
+
+  if (nortnspoilChecked) return;
 
   async function runAutoRecovery(){
 
@@ -942,6 +945,10 @@ try{
   return;
 }
 
+if (nortnspoil) {
+  return;
+}
+
     await supabase.from("nortnspoil_events").insert({
 
       user_id: uid,
@@ -963,12 +970,21 @@ try{
   status: "active"
 });
 
-    if(level >= 4){
-      setScreen("nortnspoil_result");
-    }
+    // Store state only
+setNortnspoil({
+  ...plan,
+  level,
+  status: "active"
+});
+
+// Only soft redirect (optional)
+if (level >= 4 && screen === "returning") {
+  setScreen("nortnspoil_result");
+}
   }
 
   runAutoRecovery();
+setNortnspoilChecked(true);
 
 }, [magicHistory, streak, weeklyMission]);
 
