@@ -967,27 +967,33 @@ if (nortnspoil) {
     setNortnspoil({
   ...plan,
   level,
-  status: "active"
-});
-
-    // Store state only
-setNortnspoil({
-  ...plan,
-  level,
-  status: "active"
+  status: "active",
+  trigger_ui: true
 });
 
 // Only soft redirect (optional)
-if (level >= 4 && screen === "returning") {
-  setScreen("nortnspoil_result");
-}
-  }
 
   runAutoRecovery();
 setNortnspoilChecked(true);
 
 }, [magicHistory, streak, weeklyMission]);
 
+useEffect(() => {
+
+  if (!nortnspoil || !nortnspoil.trigger_ui) return;
+
+  // If critical → show full recovery screen
+  if (nortnspoil.level >= 4) {
+    setScreen("nortnspoil_result");
+  }
+
+  // Reset trigger so it runs only once
+  setNortnspoil(prev => ({
+    ...prev,
+    trigger_ui: false
+  }));
+
+}, [nortnspoil]);
 
 async function submitBusiness(){
 
@@ -1125,10 +1131,12 @@ if(activeNortnspoil && activeNortnspoil.length > 0){
   const event = activeNortnspoil[0];
 
   setNortnspoil({
-    ...event.recovery_plan,
-    level: event.level,
-    status: "active"
-  });
+  ...event.recovery_plan,
+  level: event.level,
+  status: "active",
+  trigger_ui: true
+});
+
 } else {
   setNortnspoil(null);
 }
