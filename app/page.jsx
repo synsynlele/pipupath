@@ -1083,9 +1083,9 @@ async function checkUser() {
     const session = sessionResult?.data?.session;
 
     if (!session) {
-      setScreen("login");
-      return;
-    }
+  setScreen("chooser");
+  return;
+}
 
     const authUser = session.user;
 
