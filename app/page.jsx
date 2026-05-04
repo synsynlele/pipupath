@@ -764,7 +764,7 @@ Rules:
 }
 
 export default function PipuPath(){
-const [screen,setScreen]=useState("chooser");
+const [screen,setScreen]=useState("boot");
 const [nortnspoilChecked, setNortnspoilChecked] = useState(false);
 const [email,setEmail]=useState("");
 const [password,setPassword]=useState("");
@@ -836,12 +836,15 @@ async function loadMagicHistory(){
 const [nortnspoil,setNortnspoil] = useState(null);
 
 useEffect(() => {
+  checkUser();
+}, []);
+
+useEffect(() => {
 
   if (nortnspoilChecked) return;
 
   async function runAutoRecovery(){
 
-    await checkUserSilent();
     await loadMagicHistory();
 
 // 🔥 AUTO-RESOLVE FIRST (BEFORE ANY RETURN)
