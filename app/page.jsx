@@ -1142,8 +1142,6 @@ if(activeNortnspoil && activeNortnspoil.length > 0){
   setNortnspoil(null);
 }
 
-// 🔥 SMART ENTRY LOGIC
-// 🔥 FIXED SMART ENTRY LOGIC
 
 // 🔥 FIXED ENTRY LOGIC
 
@@ -1191,7 +1189,8 @@ if(days > 2){
 }
 
 }else{
-  setScreen("magicpen");
+  // No user record → first time user
+  setScreen("questions");
 }
 
 } else {
