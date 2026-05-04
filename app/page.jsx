@@ -1188,12 +1188,8 @@ if(days > 2){
   setScreen("returning");
 }
 
-}else{
-  // No user record → first time user
-  setScreen("questions");
-}
-
 } else {
+  // No user record → first time user
   setScreen("questions");
 }
 
