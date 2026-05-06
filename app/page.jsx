@@ -1432,6 +1432,94 @@ async function saveFeedback(type){
   alert("Thanks for the feedback.");
 }
 
+
+async function runPublicMagicPen(){
+
+  try{
+    setBusy(true);
+
+    // show loading screen
+    setScreen("generating");
+
+    // calculate exam days remaining
+    const days = Math.max(
+      1,
+      Math.ceil(
+        (new Date(magicForm.date) - new Date())
+        / (1000 * 60 * 60 * 24)
+      )
+    );
+
+    // validation
+    if(
+      !magicForm.exam ||
+      !magicForm.subject ||
+      !magicForm.date
+    ){
+      alert("Please fill exam, subject and date.");
+      setBusy(false);
+      setScreen("magicpen_public");
+      return;
+    }
+
+    // AI ANALYSIS
+    const res = await callAI(`
+Return ONLY JSON.
+
+{
+"readiness_score":0,
+"confidence_score":0,
+"risk_level":"",
+"summary":"",
+"weak_zones":"",
+"seven_day_plan":"",
+"exam_strategy":"",
+"truth_line":""
+}
+
+You are MagicPen.
+
+Exam: ${magicForm.exam}
+Subject: ${magicForm.subject}
+Days: ${days}
+Confidence: ${magicForm.confidence}
+Coverage: ${magicForm.coverage}
+Consistency: ${magicForm.consistency}
+Fear: ${magicForm.fear}
+
+Be practical.
+No fluff.
+`);
+
+    // save temporary result only
+    setMagicResult(res);
+
+    // IMPORTANT:
+    // NO XP
+    // NO STREAK
+    // NO DATABASE
+    // NO MISSIONS
+    // NO NORTNSPOIL
+
+    // move to public results page
+    setScreen("magic_result_public");
+
+  } catch(e){
+
+    console.log(e);
+
+    alert("MagicPen failed.");
+
+    setScreen("magicpen_public");
+
+  } finally {
+
+    setBusy(false);
+
+  }
+}
+
+
 async function runMagicPen(){
 
   try{
@@ -1668,6 +1756,27 @@ className="pp-btn-outline"
 onClick={()=>setScreen("business")}
 >
 My Business →
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>{
+  setMagicResult(null);
+
+  setMagicForm({
+    exam:"",
+    subject:"",
+    date:"",
+    confidence:"",
+    coverage:"",
+    consistency:"",
+    fear:""
+  });
+
+  setScreen("magicpen_public");
+}}
+>
+MagicPen Exam Prep →
 </button>
 
 </div>,
@@ -1984,6 +2093,168 @@ onClick={()=>setScreen("login")}
 >
 Save My Growth Profile →
 </button>
+
+</div>,
+
+magicpen_public:<div>
+
+<div className="pp-brand">
+  <img src="/logo.png" className="pp-brand-logo" />
+  <span>MAGICPEN</span>
+</div>
+
+<h2 className="pp-h2">
+Exam <em>Readiness</em>
+</h2>
+
+<p style={{opacity:.75,marginBottom:"18px"}}>
+Get a fast AI-powered exam readiness breakdown.
+</p>
+
+<input
+className="pp-input"
+placeholder="Exam (WAEC/JAMB/School Exam)"
+value={magicForm.exam}
+onChange={e=>setMagicForm({...magicForm,exam:e.target.value})}
+/>
+
+<input
+className="pp-input"
+placeholder="Subject"
+value={magicForm.subject}
+onChange={e=>setMagicForm({...magicForm,subject:e.target.value})}
+/>
+
+<input
+type="date"
+className="pp-input"
+value={magicForm.date}
+onChange={e=>setMagicForm({...magicForm,date:e.target.value})}
+/>
+
+<input
+className="pp-input"
+placeholder="Confidence (1-10)"
+value={magicForm.confidence}
+onChange={e=>setMagicForm({...magicForm,confidence:e.target.value})}
+/>
+
+<input
+className="pp-input"
+placeholder="Topics Covered (%)"
+value={magicForm.coverage}
+onChange={e=>setMagicForm({...magicForm,coverage:e.target.value})}
+/>
+
+<input
+className="pp-input"
+placeholder="Study days/week"
+value={magicForm.consistency}
+onChange={e=>setMagicForm({...magicForm,consistency:e.target.value})}
+/>
+
+<textarea
+className="pp-textarea"
+placeholder="What are you afraid of?"
+value={magicForm.fear}
+onChange={e=>setMagicForm({...magicForm,fear:e.target.value})}
+/>
+
+<button
+className="pp-btn"
+onClick={runPublicMagicPen}
+>
+Analyze →
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>setScreen("chooser")}
+>
+← Back
+</button>
+
+</div>,
+
+magic_result_public:<div>
+
+<div className="pp-brand">
+  <img src="/logo.png" className="pp-brand-logo" />
+  <span>MAGICPEN</span>
+</div>
+
+<h2 className="pp-h2">
+Readiness: <em>{magicResult?.readiness_score}%</em>
+</h2>
+
+<div className="pp-card">
+<div className="pp-label">Confidence</div>
+{magicResult?.confidence_score}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Risk Level</div>
+{magicResult?.risk_level}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Weak Zones</div>
+{magicResult?.weak_zones}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">7 Day Plan</div>
+{magicResult?.seven_day_plan}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Exam Strategy</div>
+{magicResult?.exam_strategy}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Truth</div>
+<strong>{magicResult?.truth_line}</strong>
+</div>
+
+<button
+className="pp-btn"
+onClick={()=>setScreen("magicpen_public")}
+>
+Analyze Another Subject →
+</button>
+
+<button
+className="pp-btn-outline"
+onClick={()=>setScreen("chooser")}
+>
+Home
+</button>
+
+<div className="pp-card">
+
+<div className="pp-label">
+Want deeper growth tracking?
+</div>
+
+Unlock:
+
+<br/><br/>
+
+• XP Progress  
+• Weekly Missions  
+• Momentum Tracking  
+• Mission Vault  
+• Growth Dashboard
+
+<button
+className="pp-btn"
+onClick={()=>setScreen("login")}
+>
+Create Free Account →
+</button>
+
+</div>
 
 </div>,
 
