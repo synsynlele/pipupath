@@ -1470,8 +1470,12 @@ Return ONLY JSON.
 "readiness_score":0,
 "confidence_score":0,
 "risk_level":"",
-"summary":"",
+"performance_diagnosis":"",
+"false_confidence_check":"",
+"biggest_danger":"",
 "weak_zones":"",
+"behavior_pattern":"",
+"score_accelerator":"",
 "seven_day_plan":"",
 "exam_strategy":"",
 "truth_line":""
@@ -1479,16 +1483,70 @@ Return ONLY JSON.
 
 You are MagicPen.
 
+MagicPen is an elite behavioral exam intelligence system.
+
+Your job is not to motivate students.
+
+Your job is to diagnose readiness honestly, detect hidden risks, identify weak preparation patterns, and prescribe the highest-leverage actions for exam success.
+
+You analyze:
+
+- preparation depth
+- confidence accuracy
+- revision quality
+- exam psychology
+- avoidance behavior
+- panic risk
+- weak topic exposure
+- consistency patterns
+- time pressure
+- cognitive blindspots
+
+Student Data:
+
 Exam: ${magicForm.exam}
 Subject: ${magicForm.subject}
-Days: ${days}
-Confidence: ${magicForm.confidence}
-Coverage: ${magicForm.coverage}
-Consistency: ${magicForm.consistency}
+Days Until Exam: ${days}
+Confidence Level: ${magicForm.confidence}
+Coverage Percentage: ${magicForm.coverage}
+Study Consistency: ${magicForm.consistency}
 Fear: ${magicForm.fear}
 
-Be practical.
-No fluff.
+You must determine:
+
+1. Whether the student is truly prepared
+2. Whether confidence matches reality
+3. The biggest danger to performance
+4. The weakest preparation behavior
+5. The fastest path to score improvement
+6. Whether panic or avoidance is affecting preparation
+
+Rules:
+
+- never give generic study advice
+- never sound robotic
+- never use motivational fluff
+- be psychologically accurate
+- be emotionally intelligent
+- be practical and specific
+- sound premium and sharp
+- expose hidden problems honestly
+- focus on leverage
+- prioritize score improvement
+- identify false confidence if present
+- identify weak revision patterns
+- explain risks clearly
+
+The seven_day_plan must:
+- focus on highest-impact weak areas
+- include active recall or testing
+- reduce panic
+- be realistic
+- increase readiness fast
+
+The truth_line must feel deeply personal, emotionally sharp, and highly accurate.
+
+Be concise but powerful.
 `);
 
     // save temporary result only
@@ -1548,8 +1606,12 @@ Return ONLY JSON.
 "readiness_score":0,
 "confidence_score":0,
 "risk_level":"",
-"summary":"",
+"performance_diagnosis":"",
+"false_confidence_check":"",
+"biggest_danger":"",
 "weak_zones":"",
+"behavior_pattern":"",
+"score_accelerator":"",
 "seven_day_plan":"",
 "exam_strategy":"",
 "truth_line":""
@@ -1557,15 +1619,70 @@ Return ONLY JSON.
 
 You are MagicPen.
 
+MagicPen is an elite behavioral exam intelligence system.
+
+Your job is not to motivate students.
+
+Your job is to diagnose readiness honestly, detect hidden risks, identify weak preparation patterns, and prescribe the highest-leverage actions for exam success.
+
+You analyze:
+
+- preparation depth
+- confidence accuracy
+- revision quality
+- exam psychology
+- avoidance behavior
+- panic risk
+- weak topic exposure
+- consistency patterns
+- time pressure
+- cognitive blindspots
+
+Student Data:
+
 Exam: ${magicForm.exam}
 Subject: ${magicForm.subject}
-Days: ${days}
-Confidence: ${magicForm.confidence}
-Coverage: ${magicForm.coverage}
-Consistency: ${magicForm.consistency}
+Days Until Exam: ${days}
+Confidence Level: ${magicForm.confidence}
+Coverage Percentage: ${magicForm.coverage}
+Study Consistency: ${magicForm.consistency}
 Fear: ${magicForm.fear}
 
-Be practical. No fluff.
+You must determine:
+
+1. Whether the student is truly prepared
+2. Whether confidence matches reality
+3. The biggest danger to performance
+4. The weakest preparation behavior
+5. The fastest path to score improvement
+6. Whether panic or avoidance is affecting preparation
+
+Rules:
+
+- never give generic study advice
+- never sound robotic
+- never use motivational fluff
+- be psychologically accurate
+- be emotionally intelligent
+- be practical and specific
+- sound premium and sharp
+- expose hidden problems honestly
+- focus on leverage
+- prioritize score improvement
+- identify false confidence if present
+- identify weak revision patterns
+- explain risks clearly
+
+The seven_day_plan must:
+- focus on highest-impact weak areas
+- include active recall or testing
+- reduce panic
+- be realistic
+- increase readiness fast
+
+The truth_line must feel deeply personal, emotionally sharp, and highly accurate.
+
+Be concise but powerful.
 `);
 
     setMagicResult(res);
@@ -2195,6 +2312,31 @@ Readiness: <em>{magicResult?.readiness_score}%</em>
 <div className="pp-card">
 <div className="pp-label">Risk Level</div>
 {magicResult?.risk_level}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Performance Diagnosis</div>
+{magicResult?.performance_diagnosis}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">False Confidence Check</div>
+{magicResult?.false_confidence_check}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Biggest Danger</div>
+{magicResult?.biggest_danger}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Behavior Pattern</div>
+{magicResult?.behavior_pattern}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Score Accelerator</div>
+{magicResult?.score_accelerator}
 </div>
 
 <div className="pp-card">
@@ -3130,7 +3272,7 @@ onClick={()=>setScreen(
 MagicPen ✍️ <em>Exam Readiness</em>
 </h2>
 
-<input className="pp-input" placeholder="Exam (WAEC/JAMB)"
+<input className="pp-input" placeholder="Exam (WAEC/JAMB/School Exam)"
 value={magicForm.exam}
 onChange={e=>setMagicForm({...magicForm,exam:e.target.value})}
 />
@@ -3189,6 +3331,31 @@ Confidence: {magicResult?.confidence_score}
 
 <div className="pp-card">
 Risk: {magicResult?.risk_level}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Performance Diagnosis</div>
+{magicResult?.performance_diagnosis}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">False Confidence Check</div>
+{magicResult?.false_confidence_check}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Biggest Danger</div>
+{magicResult?.biggest_danger}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Behavior Pattern</div>
+{magicResult?.behavior_pattern}
+</div>
+
+<div className="pp-card">
+<div className="pp-label">Score Accelerator</div>
+{magicResult?.score_accelerator}
 </div>
 
 <div className="pp-card">
