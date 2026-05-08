@@ -4,180 +4,25 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 /* =========================
-   PREMIUM ARCHETYPES
-========================= */
-const ARCHETYPES = {
-  SOLVER:{
-    name:"The Solver",emoji:"⚡",tagline:"You fix what others walk past.",
-    color:"#F97316",glow:"rgba(249,115,22,.15)",
-    description:"Problems fuel you. You naturally diagnose friction and move toward resolution.",
-    traits:["Analytical","Relentless","Resourceful"]
-  },
-  CONNECTOR:{
-    name:"The Connector",emoji:"🌐",tagline:"People and ideas find their home through you.",
-    color:"#10B981",glow:"rgba(16,185,129,.15)",
-    description:"You create leverage through trust, relationships and alignment.",
-    traits:["Empathetic","Influential","Magnetic"]
-  },
-  MAKER:{
-    name:"The Maker",emoji:"🔨",tagline:"Your hands and mind build what did not exist.",
-    color:"#A78BFA",glow:"rgba(167,139,250,.15)",
-    description:"Creation is not optional for you. You feel alive when building.",
-    traits:["Skilled","Precise","Patient"]
-  },
-  VOICE:{
-    name:"The Voice",emoji:"🔥",tagline:"You make ideas move and people listen.",
-    color:"#FBBF24",glow:"rgba(251,191,36,.15)",
-    description:"Communication is your force multiplier.",
-    traits:["Articulate","Persuasive","Curious"]
-  },
-  MERCHANT:{
-    name:"The Merchant",emoji:"💎",tagline:"You see value where others see nothing.",
-    color:"#F59E0B",glow:"rgba(245,158,11,.15)",
-    description:"You understand opportunity, exchange and momentum.",
-    traits:["Sharp","Bold","Strategic"]
-  },
-  ARCHITECT:{
-    name:"The Architect",emoji:"🏛️",tagline:"You design systems before others see the need.",
-    color:"#38BDF8",glow:"rgba(56,189,248,.15)",
-    description:"You think in systems, frameworks and scale.",
-    traits:["Strategic","Visionary","Disciplined"]
-  },
-  HEALER:{
-    name:"The Healer",emoji:"🌱",tagline:"You build to reduce human pain.",
-    color:"#4ADE80",glow:"rgba(74,222,128,.15)",
-    description:"You are moved by human need and compelled to help.",
-    traits:["Compassionate","Driven","Grounded"]
-  },
-  PERFORMER:{
-    name:"The Performer",emoji:"✨",tagline:"You create experiences that change people.",
-    color:"#F472B6",glow:"rgba(244,114,182,.15)",
-    description:"Emotion, culture and expression are your tools.",
-    traits:["Creative","Expressive","Bold"]
-  }
-};
+import { ARCHETYPES } from "@/lib/archetypes";
 
-/* =========================
-   PREMIUM QUESTIONS
-========================= */
-const QUESTIONS = [
+import {
+  getLevelFromXP,
+  getNextLevel,
+  getNextXP,
+  getLevelFloor
+} from "@/lib/xp";
 
-{
-question:"When something important needs to happen, what do you naturally do first?",
-options:[
-{text:"🚀 Start taking action immediately", type:"builder"},
-{text:"🧠 Think deeply before acting", type:"strategist"},
-{text:"🤝 Bring people together to help", type:"connector"},
-{text:"🎨 Look for a creative new angle", type:"creator"}
-]
-},
+import {
+  calculateRiskScore,
+  getEscalationLevel,
+  shouldTriggerNortnspoil
+} from "@/lib/nortnspoil";
 
-{
-question:"What kind of challenge excites you most?",
-options:[
-{text:"Building something useful", type:"builder"},
-{text:"Solving a hard problem", type:"strategist"},
-{text:"Leading people to win", type:"connector"},
-{text:"Creating something original", type:"creator"}
-]
-},
-
-{
-question:"If you had one free Saturday, what sounds most satisfying?",
-options:[
-{text:"Start a side hustle or project", type:"builder"},
-{text:"Learn a valuable skill", type:"strategist"},
-{text:"Organize people for something meaningful or event", type:"connector"},
-{text:"Design, write or make content", type:"creator"}
-]
-},
-
-{
-question:"What frustrates you most?",
-options:[
-{text:"Slow progress and wasted time", type:"builder"},
-{text:"Bad decisions and confusion", type:"strategist"},
-{text:"Disunity and poor leadership", type:"connector"},
-{text:"Being boxed in or restricted", type:"creator"}
-]
-},
-
-{
-question:"Which future sounds best to you?",
-options:[
-{text:"Owning something valuable", type:"builder"},
-{text:"Becoming a respected expert", type:"strategist"},
-{text:"Leading something important", type:"connector"},
-{text:"Having freedom through talent or skills", type:"creator"}
-]
-}
-
-];
-
-function calculateArchetype(answers){
-
-const scores = {
-SOLVER:0,
-CONNECTOR:0,
-MAKER:0,
-VOICE:0,
-MERCHANT:0,
-ARCHITECT:0,
-HEALER:0,
-PERFORMER:0
-};
-
-answers.forEach((answerIndex,i)=>{
-
-const type = QUESTIONS[i].options[answerIndex]?.type;
-
-if(i===0){
-if(type==="builder") scores.MERCHANT +=2;
-if(type==="strategist") scores.ARCHITECT +=2;
-if(type==="connector") scores.CONNECTOR +=2;
-if(type==="creator") scores.PERFORMER +=2;
-}
-
-if(i===1){
-if(type==="builder") scores.MAKER +=2;
-if(type==="strategist") scores.SOLVER +=2;
-if(type==="connector") scores.VOICE +=2;
-if(type==="creator") scores.PERFORMER +=2;
-}
-
-if(i===2){
-if(type==="builder") scores.MERCHANT +=2;
-if(type==="strategist") scores.ARCHITECT +=2;
-if(type==="connector") scores.HEALER +=2;
-if(type==="creator") scores.MAKER +=2;
-}
-
-if(i===3){
-if(type==="builder") scores.MERCHANT +=2;
-if(type==="strategist") scores.SOLVER +=2;
-if(type==="connector") scores.HEALER +=2;
-if(type==="creator") scores.PERFORMER +=2;
-}
-
-if(i===4){
-if(type==="builder") scores.MERCHANT +=2;
-if(type==="strategist") scores.ARCHITECT +=2;
-if(type==="connector") scores.VOICE +=2;
-if(type==="creator") scores.MAKER +=2;
-}
-
-});
-
-const sorted = Object.entries(scores)
-.sort((a,b)=>b[1]-a[1]);
-
-const topScore = sorted[0][1];
-
-const tied = sorted.filter(item => item[1] === topScore);
-
-return tied[Math.floor(Math.random() * tied.length)][0];
-
-}
+import {
+  getImprovementScore,
+  getWeekKey
+} from "@/lib/helpers";
 
 /* =========================
    AI
@@ -531,77 +376,6 @@ animation:spin 1s linear infinite
 @keyframes spin{to{transform:rotate(360deg)}}
 `;
 
- function getWeekKey() {
-  const d = new Date();
-  const year = d.getFullYear();
-
-  const firstDay = new Date(year, 0, 1);
-  const days = Math.floor((d - firstDay) / 86400000);
-
-  const week = Math.ceil((days + firstDay.getDay() + 1) / 7);
-
-  return `${year}-W${week}`;
-}
-
- function getLevelFromXP(xp){
-  if (xp >= 1000) return "Founder Ready";
-  if (xp >= 700) return "Builder";
-  if (xp >= 300) return "Problem Solver";
-  if (xp >= 100) return "Learner";
-  return "Explorer";
-}
-
-function getNextLevel(level){
-  if(level === "Explorer") return "Learner";
-  if(level === "Learner") return "Problem Solver";
-  if(level === "Problem Solver") return "Builder";
-  if(level === "Builder") return "Founder Ready";
-  return "Max Level";
-}
-
-function getNextXP(level){
-  if(level === "Explorer") return 100;
-  if(level === "Learner") return 300;
-  if(level === "Problem Solver") return 700;
-  if(level === "Builder") return 1000;
-  return 1000;
-}
-
-function getLevelFloor(level){
-  if(level === "Explorer") return 0;
-  if(level === "Learner") return 100;
-  if(level === "Problem Solver") return 300;
-  if(level === "Builder") return 700;
-  if(level === "Founder Ready") return 1000;
-  return 0;
-}
-
-function getImprovementScore(history){
-
- if(!history || history.length < 4) return "No Data Yet";
-
- const last3 = history.slice(0,3);
-
- const avg =
-   last3.reduce((sum,x)=>sum + (x.readiness_score || 0),0)
-   / last3.length;
-
- const prev3 = history.slice(3,6);
-
- if(prev3.length === 0) return "No Data Yet";
-
- const prevAvg =
-   prev3.reduce((sum,x)=>sum + (x.readiness_score || 0),0)
-   / prev3.length;
-
- const diff = avg - prevAvg;
-
- if(diff > 20) return "Rapid Growth 🚀";
- if(diff > 10) return "Strong Progress 📈";
- if(diff > 0) return "Improving 👍";
- if(diff === 0) return "Stable ⚖️";
- return "Declining ⚠️";
-}
 
 const BIZ_CATEGORIES = {
   "Food & Drinks": [
@@ -666,44 +440,6 @@ const BIZ_CATEGORIES = {
     "Other"
   ]
 };
-
-function calculateRiskScore({ history, streak, weeklyMission }){
-
-  let score = 0;
-
-  const trend = getImprovementScore(history);
-
-  if(trend === "Declining ⚠️") score += 40;
-  if(trend === "Stable ⚖️") score += 10;
-
-  if(streak === 0) score += 30;
-  if(streak <= 2) score += 15;
-
-  if(!weeklyMission || !weeklyMission.solve) score += 20;
-
-  return score;
-}
-
-function getEscalationLevel({ history, streak, weeklyMission }){
-
-  const risk = calculateRiskScore({ history, streak, weeklyMission });
-
-  if(risk >= 80) return 4; // critical
-  if(risk >= 60) return 3; // high
-  if(risk >= 40) return 2; // warning
-  return 1; // safe
-}
-
-function shouldTriggerNortnspoil({ history, streak, weeklyMission }){
-
-  const trend = getImprovementScore(history);
-
-  if(trend === "Declining ⚠️"){
-    return {
-      trigger: "declining_performance",
-      message: "You are slipping. Intervene now."
-    };
-  }
 
   if(streak === 0){
     return {
@@ -2230,7 +1966,7 @@ Get a fast AI-powered exam readiness breakdown.
 
 <input
 className="pp-input"
-placeholder="Exam (WAEC/JAMB/School Exam)"
+placeholder="Exam (WAEC/JAMB/SAT/School Exam...)"
 value={magicForm.exam}
 onChange={e=>setMagicForm({...magicForm,exam:e.target.value})}
 />
@@ -3272,7 +3008,7 @@ onClick={()=>setScreen(
 MagicPen ✍️ <em>Exam Readiness</em>
 </h2>
 
-<input className="pp-input" placeholder="Exam (WAEC/JAMB/School Exam)"
+<input className="pp-input" placeholder="Exam (WAEC/JAMB/SAT/School Exam...)"
 value={magicForm.exam}
 onChange={e=>setMagicForm({...magicForm,exam:e.target.value})}
 />
