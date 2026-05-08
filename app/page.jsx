@@ -441,22 +441,6 @@ const BIZ_CATEGORIES = {
   ]
 };
 
-  if(streak === 0){
-    return {
-      trigger: "no_momentum",
-      message: "You are idle. Restart immediately."
-    };
-  }
-
-  if(weeklyMission && !weeklyMission.solve){
-    return {
-      trigger: "no_active_direction",
-      message: "You are drifting. Get a mission."
-    };
-  }
-
-  return null;
-}
 
 async function generateRecoveryPlan(context, level){
 
