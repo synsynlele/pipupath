@@ -7,6 +7,7 @@ import NavBar from "@/components/NavBar";
 export default function DashboardPage(){
 
   const [user,setUser] = useState(null);
+  const [profile,setProfile] = useState(null);
 
   useEffect(()=>{
 
@@ -14,10 +15,22 @@ export default function DashboardPage(){
 
       const { data } = await supabase.auth.getUser();
 
-      if(data?.user){
-        setUser(data.user);
-      }
-    }
+     if(data?.user){
+
+  setUser(data.user);
+
+  const { data:profileData } =
+    await supabase
+      .from("user_profiles")
+      .select("*")
+      .eq("user_id", data.user.id)
+      .single();
+
+  if(profileData){
+    setProfile(profileData);
+  }
+
+}
 
     loadUser();
 
@@ -50,9 +63,43 @@ export default function DashboardPage(){
             and compounding your growth momentum.
           </p>
 
+          <div className="mt-8 flex gap-4">
+
+  <a
+    href="/discover"
+    className="px-6 py-4 rounded-2xl bg-[#D4A43B] text-black font-bold hover:scale-[1.03] transition"
+  >
+    Discover Yourself
+  </a>
+
+  <a
+    href="/guides"
+    className="px-6 py-4 rounded-2xl border border-[#2a2112] hover:border-[#D4A43B]/40 transition"
+  >
+    Find Guides
+  </a>
+
+</div>
+
           <div className="mt-6 text-sm text-[#D4A43B]">
             {user?.email}
           </div>
+          
+         {profile?.archetype && (
+
+  <div className="mt-6 inline-flex items-center gap-3 px-5 py-3 rounded-2xl border border-[#2a2112] bg-white/[0.03]">
+
+    <div className="text-[#D4A43B] text-sm">
+      Archetype
+    </div>
+
+    <div className="font-bold">
+      {profile.archetype}
+    </div>
+
+  </div>
+
+)}
 
         </div>
 

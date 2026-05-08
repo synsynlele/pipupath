@@ -1,5 +1,7 @@
 'use client';
 
+import { supabase } from "@/lib/supabase";
+
 import { useState } from "react";
 
 import NavBar from "@/components/NavBar";
@@ -31,21 +33,49 @@ export default function DiscoverPage(){
 
     if(step + 1 >= QUESTIONS.length){
 
-      const archetypeKey =
-        calculateArchetype(updated);
+  const archetypeKey =
+    calculateArchetype(updated);
 
-      setResult({
-        key: archetypeKey,
-        ...ARCHETYPES[archetypeKey]
-      });
+  const archetype =
+    ARCHETYPES[archetypeKey];
 
-      return;
-    }
+  setResult({
+    key: archetypeKey,
+    ...archetype
+  });
+
+  saveProfile(archetypeKey, archetype);
+
+  return;
+}
 
     setStep(step + 1);
   }
 
   function restart(){
+
+async function saveProfile(archetypeKey, archetype){
+
+  const { data:userData } =
+    await supabase.auth.getUser();
+
+  const user = userData?.user;
+
+  if(!user) return;
+
+  await supabase
+    .from("user_profiles")
+    .upsert({
+
+      user_id:user.id,
+
+      archetype:archetypeKey,
+
+      archetype_data:archetype
+
+    });
+
+}
 
     setAnswers([]);
 
