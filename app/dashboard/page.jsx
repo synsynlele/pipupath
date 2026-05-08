@@ -7,30 +7,34 @@ import NavBar from "@/components/NavBar";
 export default function DashboardPage(){
 
   const [user,setUser] = useState(null);
+
   const [profile,setProfile] = useState(null);
 
   useEffect(()=>{
 
     async function loadUser(){
 
-      const { data } = await supabase.auth.getUser();
+      const { data } =
+        await supabase.auth.getUser();
 
-     if(data?.user){
+      if(data?.user){
 
-  setUser(data.user);
+        setUser(data.user);
 
-  const { data:profileData } =
-    await supabase
-      .from("user_profiles")
-      .select("*")
-      .eq("user_id", data.user.id)
-      .single();
+        const { data:profileData } =
+          await supabase
+            .from("user_profiles")
+            .select("*")
+            .eq("user_id", data.user.id)
+            .single();
 
-  if(profileData){
-    setProfile(profileData);
-  }
+        if(profileData){
+          setProfile(profileData);
+        }
 
-}
+      }
+
+    }
 
     loadUser();
 
@@ -85,16 +89,40 @@ export default function DashboardPage(){
             {user?.email}
           </div>
           
-         {profile?.archetype && (
+         {profile?.archetype_data && (
 
-  <div className="mt-6 inline-flex items-center gap-3 px-5 py-3 rounded-2xl border border-[#2a2112] bg-white/[0.03]">
+  <div
+    className="mt-6 inline-flex items-center gap-4 px-5 py-4 rounded-2xl border border-[#2a2112] bg-white/[0.03]"
+    style={{
+      boxShadow:`0 0 30px ${profile.archetype_data.glow}`
+    }}
+  >
 
-    <div className="text-[#D4A43B] text-sm">
-      Archetype
+    <div
+      className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+      style={{
+        background:profile.archetype_data.glow,
+        border:`1px solid ${profile.archetype_data.color}`
+      }}
+    >
+      {profile.archetype_data.emoji}
     </div>
 
-    <div className="font-bold">
-      {profile.archetype}
+    <div>
+
+      <div className="text-[#D4A43B] text-xs uppercase tracking-[0.2em]">
+        Archetype
+      </div>
+
+      <div
+        className="font-bold text-lg"
+        style={{
+          color:profile.archetype_data.color
+        }}
+      >
+        {profile.archetype_data.name}
+      </div>
+
     </div>
 
   </div>
