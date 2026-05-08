@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-
-/* =========================
-import { ARCHETYPES } from "@/lib/archetypes";
+import {
+  ARCHETYPES,
+  QUESTIONS,
+  calculateArchetype
+} from "@/lib/archetypes";
 
 import {
   getLevelFromXP,
