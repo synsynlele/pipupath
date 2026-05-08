@@ -1,8 +1,19 @@
 'use client';
 
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function NavBar(){
+
+  const router = useRouter();
+
+  async function logout(){
+
+    await supabase.auth.signOut();
+
+    router.push("/");
+  }
 
   return (
 
@@ -46,10 +57,24 @@ export default function NavBar(){
           </Link>
 
           <Link
+            href="/discover"
+            className="text-[#F7E8C5]/75 hover:text-[#D4A43B] transition"
+          >
+            Discover
+          </Link>
+
+          <Link
             href="/magicpen"
             className="text-[#F7E8C5]/75 hover:text-[#D4A43B] transition"
           >
             MagicPen
+          </Link>
+
+          <Link
+            href="/business"
+            className="text-[#F7E8C5]/75 hover:text-[#D4A43B] transition"
+          >
+            Business
           </Link>
 
           <Link
@@ -59,12 +84,12 @@ export default function NavBar(){
             Guides
           </Link>
 
-          <Link
-            href="/session"
-            className="text-[#F7E8C5]/75 hover:text-[#D4A43B] transition"
+          <button
+            onClick={logout}
+            className="px-4 py-2 rounded-xl border border-[#2a2112] text-[#F7E8C5]/70 hover:text-[#D4A43B] hover:border-[#D4A43B]/40 transition"
           >
-            Sessions
-          </Link>
+            Sign Out
+          </button>
 
         </div>
 
