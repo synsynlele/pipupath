@@ -25,101 +25,108 @@ export default function DashboardPage(){
 
   return (
 
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#050300] to-[#0c0903] text-[#F7E8C5]">
 
       <NavBar />
 
-      <div className="max-w-7xl mx-auto px-6 py-10">
+      <div className="max-w-7xl mx-auto px-6 py-14">
 
         {/* HERO */}
 
-        <div className="mb-10">
+        <div className="mb-14">
 
-          <h1 className="text-5xl font-bold leading-tight">
+          <div className="text-[#D4A43B] uppercase tracking-[0.35em] text-xs mb-5">
+            Guided Growth System
+          </div>
+
+          <h1 className="text-6xl font-bold leading-[1.05] mb-5">
+
             Welcome Back
+
           </h1>
 
-          <p className="text-zinc-400 mt-3 text-lg">
-            Continue your guided growth journey.
+          <p className="text-[#F7E8C5]/70 text-xl max-w-2xl leading-relaxed">
+            Continue building your edge, sharpening your leverage,
+            and compounding your growth momentum.
           </p>
 
-          <div className="mt-4 text-sm text-zinc-500">
+          <div className="mt-6 text-sm text-[#D4A43B]">
             {user?.email}
           </div>
 
         </div>
 
-        {/* CARDS */}
+        {/* GRID */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-7">
 
-          {/* CARD 1 */}
+          {/* CARD */}
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div className="rounded-[28px] border border-[#2a2112] bg-white/[0.03] backdrop-blur-xl p-7 hover:translate-y-[-4px] transition">
 
-            <div className="text-zinc-400 text-sm">
+            <div className="text-[#D4A43B] text-xs uppercase tracking-[0.25em]">
               Current XP
             </div>
 
-            <div className="text-4xl font-bold mt-3">
+            <div className="text-6xl font-bold mt-5">
               240
             </div>
 
-            <div className="mt-4 text-green-400 text-sm">
+            <div className="mt-5 text-green-400">
               +12% this week
             </div>
 
           </div>
 
-          {/* CARD 2 */}
+          {/* CARD */}
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div className="rounded-[28px] border border-[#2a2112] bg-white/[0.03] backdrop-blur-xl p-7 hover:translate-y-[-4px] transition">
 
-            <div className="text-zinc-400 text-sm">
+            <div className="text-[#D4A43B] text-xs uppercase tracking-[0.25em]">
               Active Missions
             </div>
 
-            <div className="text-4xl font-bold mt-3">
+            <div className="text-6xl font-bold mt-5">
               5
             </div>
 
-            <div className="mt-4 text-zinc-500 text-sm">
+            <div className="mt-5 text-[#F7E8C5]/60">
               Stay consistent
             </div>
 
           </div>
 
-          {/* CARD 3 */}
+          {/* CARD */}
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div className="rounded-[28px] border border-[#2a2112] bg-white/[0.03] backdrop-blur-xl p-7 hover:translate-y-[-4px] transition">
 
-            <div className="text-zinc-400 text-sm">
+            <div className="text-[#D4A43B] text-xs uppercase tracking-[0.25em]">
               Guide Sessions
             </div>
 
-            <div className="text-4xl font-bold mt-3">
+            <div className="text-6xl font-bold mt-5">
               2
             </div>
 
-            <div className="mt-4 text-zinc-500 text-sm">
+            <div className="mt-5 text-[#F7E8C5]/60">
               Upcoming this week
             </div>
 
           </div>
 
-          {/* CARD 4 */}
+          {/* CARD */}
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div className="rounded-[28px] border border-[#2a2112] bg-white/[0.03] backdrop-blur-xl p-7 hover:translate-y-[-4px] transition">
 
-            <div className="text-zinc-400 text-sm">
+            <div className="text-[#D4A43B] text-xs uppercase tracking-[0.25em]">
               Momentum
             </div>
 
-            <div className="text-4xl font-bold mt-3">
+            <div className="text-5xl font-bold mt-5">
               Strong
             </div>
 
-            <div className="mt-4 text-blue-400 text-sm">
+            <div className="mt-5 text-[#4ea1ff]">
               Nortnspoil stable
             </div>
 
