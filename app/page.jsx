@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -500,6 +501,7 @@ const [level,setLevel] = useState("Explorer");
 const [streak,setStreak] = useState(0);
 const [weeklyMission,setWeeklyMission] = useState("");
 const [busy,setBusy]=useState(false);
+const router = useRouter();
 const [checkin,setCheckin]=useState({tried:"",worked:"",stuck:""});
 const [checkinRes,setCheckinRes]=useState(null);
 const [authMode,setAuthMode]=useState("login");
@@ -907,11 +909,8 @@ const now = new Date();
 
 const days = (now - lastDate) / (1000 * 60 * 60 * 24);
 
-if(days > 2){
-  setScreen("magicpen");
-} else {
-  setScreen("returning");
-}
+router.push("/dashboard");
+return;
 
 } else {
   // No user record → first time user
