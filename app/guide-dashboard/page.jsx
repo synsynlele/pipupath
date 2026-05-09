@@ -7,6 +7,13 @@ export default function GuideDashboardPage() {
 
   const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
+  const [dayOfWeek, setDayOfWeek] = useState(1)
+
+const [startTime, setStartTime] = useState("09:00")
+
+const [endTime, setEndTime] = useState("17:00")
+
+const [savingAvailability, setSavingAvailability] = useState(false)
 
   useEffect(() => {
 
@@ -29,6 +36,40 @@ export default function GuideDashboardPage() {
 
   }, [])
 
+async function saveAvailability() {
+
+  setSavingAvailability(true)
+
+  const { error } = await supabase
+    .from("guide_availability")
+    .insert({
+
+      guide_id: "PUT_GUIDE_ID_HERE",
+
+      day_of_week: dayOfWeek,
+
+      start_time: startTime,
+
+      end_time: endTime,
+
+      is_active: true,
+
+    })
+
+  setSavingAvailability(false)
+
+  if(error){
+
+    alert(error.message)
+
+    return
+
+  }
+
+  alert("Availability saved!")
+
+}
+
   return (
 
     <div className="min-h-screen bg-black text-white p-8">
@@ -46,6 +87,145 @@ export default function GuideDashboardPage() {
         </p>
 
       </div>
+
+<div
+  className="
+    bg-zinc-900
+    border
+    border-white/10
+    rounded-3xl
+    p-8
+    mb-10
+  "
+>
+
+  <h2 className="text-3xl font-bold mb-6">
+    Availability
+  </h2>
+
+  <div className="grid md:grid-cols-3 gap-5 mb-6">
+
+    {/* DAY */}
+
+    <div>
+
+      <label className="block text-white/60 mb-3">
+        Day
+      </label>
+
+      <select
+        value={dayOfWeek}
+        onChange={(e)=>
+          setDayOfWeek(Number(e.target.value))
+        }
+
+        className="
+          w-full
+          bg-black
+          border
+          border-white/10
+          rounded-2xl
+          p-4
+          text-white
+        "
+      >
+
+        <option value={1}>Monday</option>
+        <option value={2}>Tuesday</option>
+        <option value={3}>Wednesday</option>
+        <option value={4}>Thursday</option>
+        <option value={5}>Friday</option>
+        <option value={6}>Saturday</option>
+        <option value={0}>Sunday</option>
+
+      </select>
+
+    </div>
+
+    {/* START */}
+
+    <div>
+
+      <label className="block text-white/60 mb-3">
+        Start Time
+      </label>
+
+      <input
+        type="time"
+        value={startTime}
+        onChange={(e)=>
+          setStartTime(e.target.value)
+        }
+
+        className="
+          w-full
+          bg-black
+          border
+          border-white/10
+          rounded-2xl
+          p-4
+          text-white
+        "
+      />
+
+    </div>
+
+    {/* END */}
+
+    <div>
+
+      <label className="block text-white/60 mb-3">
+        End Time
+      </label>
+
+      <input
+        type="time"
+        value={endTime}
+        onChange={(e)=>
+          setEndTime(e.target.value)
+        }
+
+        className="
+          w-full
+          bg-black
+          border
+          border-white/10
+          rounded-2xl
+          p-4
+          text-white
+        "
+      />
+
+    </div>
+
+  </div>
+
+  <button
+    onClick={saveAvailability}
+
+    disabled={savingAvailability}
+
+    className="
+      bg-yellow-500
+      hover:bg-yellow-400
+      text-black
+      font-bold
+      px-6
+      py-4
+      rounded-2xl
+      transition
+    "
+  >
+
+    {
+      savingAvailability
+        ? "Saving..."
+        : "Save Availability"
+    }
+
+  </button>
+
+</div>
 
       {/* STATS */}
 

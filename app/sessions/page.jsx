@@ -18,8 +18,8 @@ export default function SessionsPage() {
         .select(`
           *,
           guides (
-            name,
-            expertise
+          full_name,
+          headline
           )
         `)
         .order("scheduled_for", { ascending: true })
@@ -123,11 +123,11 @@ export default function SessionsPage() {
                 <div>
 
                   <div className="text-2xl font-bold mb-2">
-                    {session.guides?.name}
+                    {session.guides?.full_name}
                   </div>
 
                   <div className="text-yellow-500 mb-3">
-                    {session.guides?.expertise}
+                    {session.guides?.headline}
                   </div>
 
                   <div className="text-white/60 mb-1">
@@ -216,7 +216,7 @@ export default function SessionsPage() {
                 <div>
 
                   <div className="text-2xl font-bold mb-2">
-                    {session.guides?.name}
+                    {session.guides?.full_name}
                   </div>
 
                   <div className="text-white/60">
