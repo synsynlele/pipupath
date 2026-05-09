@@ -301,10 +301,26 @@ window.location.reload()
                 </label>
 
                 <input
-                  type="date"
-                  min={new Date().toISOString().split("T")[0]}
-                  value={date}
-                  onChange={(e)=>setDate(e.target.value)}
+  type="date"
+
+  min={new Date().toISOString().split("T")[0]}
+
+  value={date}
+
+  onChange={(e) => setDate(e.target.value)}
+
+  className="
+    w-full
+    bg-black
+    border
+    border-white/10
+    rounded-2xl
+    p-4
+    text-white
+    color-scheme-dark
+  "
+/>
+
                   className="
                     w-full
                     bg-black
