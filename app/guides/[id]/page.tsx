@@ -24,21 +24,7 @@ const [availability, setAvailability] = useState<any[]>([])
 
       // LOAD USER
 
-      const { data:userData } =
-  await supabase.auth.getUser()
-
-if(userData?.user){
-
-  const { data:profileData } =
-    await supabase
-      .from("user_profiles")
-      .select("*")
-      .eq("user_id", userData.user.id)
-      .single()
-
-  setProfile(profileData)
-
-}
+      
 
       // LOAD GUIDE
 
@@ -177,20 +163,10 @@ setAvailability(availabilityData || [])
 
         <div className="mt-20 max-w-xl">
 
-          {profile ? (
-
-            <BookingModal
-              guideId={guide.id}
-              studentId={profile.id}
-            />
-
-          ) : (
-
-            <div className="text-white/60">
-              Please log in to book a session.
-            </div>
-
-          )}
+          <BookingModal
+  guideId={guide.id}
+  studentId="11111111-1111-1111-1111-111111111111"
+/>
 
         </div>
 

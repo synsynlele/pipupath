@@ -5,10 +5,10 @@ import { supabase } from "../../lib/supabase"
 
 export default function BookingModal({
   guideId,
-  studentId,
+  
 }: {
   guideId: string
-  studentId: string
+ 
 }) {
 
   const [open, setOpen] = useState(false)
@@ -16,6 +16,8 @@ export default function BookingModal({
   const [date, setDate] = useState("")
   const [time, setTime] = useState("")
   const [note, setNote] = useState("")
+  const [studentName, setStudentName] = useState("")
+const [studentEmail, setStudentEmail] = useState("")
 
   const [loading, setLoading] = useState(false)
 
@@ -34,7 +36,8 @@ export default function BookingModal({
       .from("sessions")
       .insert({
         guide_id: guideId,
-        student_id: studentId,
+        student_name: studentName,
+student_email: studentEmail,
 
         title: "Guidance Session",
 
@@ -136,6 +139,54 @@ window.location.reload()
             {/* FORM */}
 
             <div className="space-y-5">
+
+           <div>
+
+  <label className="text-white/70 block mb-2">
+    Your Name
+  </label>
+
+  <input
+    type="text"
+    placeholder="Enter your name"
+    value={studentName}
+    onChange={(e)=>setStudentName(e.target.value)}
+    className="
+      w-full
+      bg-black
+      border
+      border-white/10
+      rounded-2xl
+      p-4
+      text-white
+    "
+  />
+
+</div>
+
+<div>
+
+  <label className="text-white/70 block mb-2">
+    Your Email
+  </label>
+
+  <input
+    type="email"
+    placeholder="Enter your email"
+    value={studentEmail}
+    onChange={(e)=>setStudentEmail(e.target.value)}
+    className="
+      w-full
+      bg-black
+      border
+      border-white/10
+      rounded-2xl
+      p-4
+      text-white
+    "
+  />
+
+</div>
 
               <div>
                 <label className="text-white/70 block mb-2">
