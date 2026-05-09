@@ -1,6 +1,6 @@
-import { supabase } from "@/lib/supabase"
+import { supabase } from "../../../lib/supabase"
 
-import BookingModal from "@/components/sessions/BookingModal"
+import BookingModal from "../../../components/sessions/BookingModal"
 
 export default async function GuidePage({
   params,
