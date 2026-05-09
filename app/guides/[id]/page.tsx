@@ -67,6 +67,21 @@ setAvailability(availabilityData || [])
 
       <div className="max-w-6xl mx-auto px-6 py-20">
 
+<a
+  href="/dashboard"
+  className="
+    inline-flex
+    items-center
+    gap-2
+    text-white/60
+    hover:text-white
+    mb-10
+    transition
+  "
+>
+  ← Back to Dashboard
+</a>
+
         {/* HERO */}
 
         <div className="flex flex-col md:flex-row gap-10">

@@ -21,10 +21,27 @@ const [studentEmail, setStudentEmail] = useState("")
 
   const [loading, setLoading] = useState(false)
 
+const timeSlots = [
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+]
+
   async function createBooking() {
 
-    if (!date || !time) {
-      alert("Select date and time")
+    if (
+  !studentName ||
+  !studentEmail ||
+  !date ||
+  !time
+)
+      alert("Please complete all booking fields")
       return
     }
 
@@ -197,6 +214,7 @@ window.location.reload()
 
                 <input
                   type="date"
+                  min={new Date().toISOString().split("T")[0]}
                   value={date}
                   onChange={(e)=>setDate(e.target.value)}
                   className="
@@ -211,26 +229,42 @@ window.location.reload()
                 />
               </div>
 
-              <div>
-                <label className="text-white/70 block mb-2">
-                  Select Time
-                </label>
+             <div>
 
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e)=>setTime(e.target.value)}
-                  className="
-                    w-full
-                    bg-black
-                    border
-                    border-white/10
-                    rounded-2xl
-                    p-4
-                    text-white
-                  "
-                />
-              </div>
+  <label className="text-white/70 block mb-4">
+    Select Time Slot
+  </label>
+
+  <div className="grid grid-cols-3 gap-3">
+
+    {timeSlots.map((slot)=>(
+
+      <button
+        key={slot}
+        type="button"
+        onClick={()=>setTime(slot)}
+        className={`
+          rounded-2xl
+          py-3
+          font-semibold
+          transition
+          border
+
+          ${
+            time === slot
+              ? "bg-yellow-500 text-black border-yellow-500"
+              : "bg-black text-white border-white/10 hover:border-white/30"
+          }
+        `}
+      >
+        {slot}
+      </button>
+
+    ))}
+
+  </div>
+
+</div>
 
               <div>
                 <label className="text-white/70 block mb-2">
