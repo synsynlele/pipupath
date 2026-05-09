@@ -163,9 +163,8 @@ setAvailability(availabilityData || [])
 
         <div className="mt-20 max-w-xl">
 
-          <BookingModal
+         <BookingModal
   guideId={guide.id}
-  studentId="11111111-1111-1111-1111-111111111111"
 />
 
         </div>
