@@ -188,7 +188,7 @@ export default function GuidesPage(){
                 {/* ACTION */}
 
                 <a
-                  href={`/guides/${guide.id}`}
+                  href={`/guides/${guide.slug}`}
                   className="block text-center w-full py-4 rounded-2xl bg-[#D4A43B] text-black font-bold hover:scale-[1.02] transition"
                 >
                   View Guide
