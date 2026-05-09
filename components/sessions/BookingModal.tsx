@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabase"
 
 export default function BookingModal({
@@ -20,18 +20,106 @@ export default function BookingModal({
 const [studentEmail, setStudentEmail] = useState("")
 
   const [loading, setLoading] = useState(false)
+const [bookedSlots, setBookedSlots] = useState<string[]>([])
+const [timeSlots, setTimeSlots] = useState<string[]>([])
 
-const timeSlots = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-]
+
+
+useEffect(() => {
+
+  async function loadBookedSlots() {
+
+    if (!date) return
+
+    const startOfDay = `${date}T00:00:00`
+    const endOfDay = `${date}T23:59:59`
+
+    const { data, error } = await supabase
+      .from("sessions")
+      .select("scheduled_for")
+
+      .eq("guide_id", guideId)
+
+      .gte("scheduled_for", startOfDay)
+
+      .lte("scheduled_for", endOfDay)
+
+      .neq("status", "cancelled")
+
+    if (!error && data) {
+
+      const bookedTimes = data.map((session) => {
+
+        const bookingDate = new Date(session.scheduled_for)
+
+        return bookingDate.toISOString().slice(11,16)
+
+      })
+
+      setBookedSlots(bookedTimes)
+
+    }
+
+  }
+
+  loadBookedSlots()
+
+}, [date, guideId])
+
+useEffect(() => {
+
+  async function loadAvailability() {
+
+    if (!date) return
+
+    const selectedDay = new Date(date).toLocaleDateString(
+      "en-US",
+      { weekday: "long" }
+    )
+
+    const { data, error } = await supabase
+      .from("guide_availability")
+      .select("*")
+      .eq("guide_id", guideId)
+      .eq("day_of_week", selectedDay)
+      .eq("is_active", true)
+
+    if (error || !data || data.length === 0) {
+
+      setTimeSlots([])
+
+      return
+    }
+
+    const availability = data[0]
+
+    const slots: string[] = []
+
+    const startHour = parseInt(
+      availability.start_time.split(":")[0]
+    )
+
+    const endHour = parseInt(
+      availability.end_time.split(":")[0]
+    )
+
+    for (let hour = startHour; hour < endHour; hour++) {
+
+      const formattedHour = hour
+        .toString()
+        .padStart(2, "0")
+
+      slots.push(`${formattedHour}:00`)
+
+    }
+
+    setTimeSlots(slots)
+
+  }
+
+  loadAvailability()
+
+}, [date, guideId])
 
   async function createBooking() {
 
@@ -48,6 +136,7 @@ const timeSlots = [
     setLoading(true)
 
     const scheduledFor = `${date}T${time}:00`
+const bookedSlot = `${guideId}_${scheduledFor}`
 
     const { error } = await supabase
       .from("sessions")
@@ -63,6 +152,8 @@ student_email: studentEmail,
         status: "pending",
 
         scheduled_for: scheduledFor,
+
+        booked_slot: bookedSlot,
       })
 
     setLoading(false)
@@ -237,30 +328,75 @@ window.location.reload()
 
   <div className="grid grid-cols-3 gap-3">
 
-    {timeSlots.map((slot)=>(
+{timeSlots.length === 0 && (
 
-      <button
-        key={slot}
-        type="button"
-        onClick={()=>setTime(slot)}
-        className={`
-          rounded-2xl
-          py-3
-          font-semibold
-          transition
-          border
+  <div className="col-span-3">
 
-          ${
-            time === slot
-              ? "bg-yellow-500 text-black border-yellow-500"
-              : "bg-black text-white border-white/10 hover:border-white/30"
-          }
-        `}
-      >
-        {slot}
-      </button>
+    <div
+      className="
+        bg-zinc-900
+        border
+        border-zinc-800
+        rounded-2xl
+        p-5
+        text-zinc-400
+        text-center
+      "
+    >
+      No available slots for this day
+    </div>
 
-    ))}
+  </div>
+
+)}
+
+   {timeSlots.map((slot) => {
+
+  const isBooked = bookedSlots.includes(slot)
+
+  return (
+
+    <button
+      key={slot}
+      type="button"
+
+      disabled={isBooked}
+
+      onClick={() => {
+
+        if (!isBooked) {
+          setTime(slot)
+        }
+
+      }}
+
+      className={`
+        rounded-2xl
+        py-3
+        font-semibold
+        transition
+        border
+
+        ${
+          isBooked
+            ? "bg-zinc-900 text-zinc-600 border-zinc-800 cursor-not-allowed"
+
+            : time === slot
+
+            ? "bg-yellow-500 text-black border-yellow-500"
+
+            : "bg-black text-white border-white/10 hover:border-white/30"
+        }
+      `}
+    >
+
+      {isBooked ? `${slot} • Booked` : slot}
+
+    </button>
+
+  )
+
+})}
 
   </div>
 
