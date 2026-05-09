@@ -16,7 +16,7 @@ export default async function GuidePage({
       guide_specialties (*),
       guide_stats (*)
     `)
-    .eq("slug", params.slug)
+    .eq("id", params.slug)
     .single()
 
   if (!guide) {
