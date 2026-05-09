@@ -12,6 +12,14 @@ export default function SessionDetailPage(){
 
   const [loading, setLoading] = useState(true)
 
+  const [notes, setNotes] = useState("")
+
+  const [savingNotes, setSavingNotes] = useState(false)
+  
+  const [aiSummary, setAiSummary] = useState("")
+
+const [generatingSummary, setGeneratingSummary] = useState(false)
+
   useEffect(() => {
 
     async function loadSession(){
@@ -29,7 +37,13 @@ export default function SessionDetailPage(){
         .single()
 
       if(data){
+
         setSession(data)
+
+        setNotes(data.guide_notes || "")
+
+        setAiSummary(data.ai_summary || "")
+
       }
 
       setLoading(false)
@@ -41,6 +55,84 @@ export default function SessionDetailPage(){
     }
 
   }, [params])
+
+  async function saveNotes(){
+
+  if(!session) return
+
+  setSavingNotes(true)
+
+  const { error } = await supabase
+    .from("sessions")
+    .update({
+      guide_notes: notes
+    })
+    .eq("id", session.id)
+
+  setSavingNotes(false)
+
+  if(error){
+
+    alert(error.message)
+
+    return
+
+  }
+
+  alert("Notes saved!")
+
+}
+
+async function generateSummary(){
+
+  if(!notes){
+
+    alert("Add session notes first")
+
+    return
+
+  }
+
+  setGeneratingSummary(true)
+
+  const summary = `
+SESSION SUMMARY
+
+${notes.substring(0, 300)}
+
+KEY INSIGHTS
+- Student discussed growth challenges
+- Strategic guidance was provided
+- Actionable next steps identified
+
+NEXT ACTIONS
+- Continue implementation
+- Monitor progress
+- Schedule follow-up session
+`
+
+  setAiSummary(summary)
+
+  const { error } = await supabase
+    .from("sessions")
+    .update({
+      ai_summary: summary
+    })
+    .eq("id", session.id)
+
+  setGeneratingSummary(false)
+
+  if(error){
+
+    alert(error.message)
+
+    return
+
+  }
+
+}
+
+  
 
   if(loading){
 
@@ -155,6 +247,7 @@ export default function SessionDetailPage(){
             border-white/10
             rounded-3xl
             p-8
+            mb-10
           "
         >
 
@@ -182,6 +275,152 @@ export default function SessionDetailPage(){
           >
             Join Live Session
           </a>
+
+        </div>
+
+        {/* SESSION NOTES */}
+
+        <div
+          className="
+            bg-zinc-900
+            border
+            border-white/10
+            rounded-3xl
+            p-8
+          "
+        >
+
+          <h2 className="text-3xl font-bold mb-6">
+            Session Notes
+          </h2>
+
+          <textarea
+
+            value={notes}
+
+            onChange={(e)=>
+              setNotes(e.target.value)
+            }
+
+            placeholder="
+              Capture insights, breakthroughs,
+              action plans, and guidance notes...
+            "
+
+            className="
+              w-full
+              min-h-[220px]
+              bg-black
+              border
+              border-white/10
+              rounded-2xl
+              p-5
+              text-white
+              resize-none
+              mb-6
+            "
+          />
+
+          
+
+           <button
+
+  onClick={saveNotes}
+
+  disabled={savingNotes}
+
+  className="
+    bg-yellow-500
+    hover:bg-yellow-400
+    text-black
+    font-bold
+    px-6
+    py-4
+    rounded-2xl
+    transition
+  "
+>
+
+  {
+    savingNotes
+      ? "Saving..."
+      : "Save Notes"
+  }
+
+</button>
+
+</div>
+
+{/* AI SUMMARY */}
+
+<div
+  className="
+    bg-zinc-900
+    border
+    border-white/10
+    rounded-3xl
+    p-8
+    mt-10
+  "
+>
+
+  <div className="flex items-center justify-between mb-6">
+
+    <h2 className="text-3xl font-bold">
+      AI Session Summary
+    </h2>
+
+    <button
+
+      onClick={generateSummary}
+
+      disabled={generatingSummary}
+
+      className="
+        bg-yellow-500
+        hover:bg-yellow-400
+        text-black
+        font-bold
+        px-5
+        py-3
+        rounded-2xl
+        transition
+      "
+    >
+
+      {
+        generatingSummary
+          ? "Generating..."
+          : "Generate AI Summary"
+      }
+
+    </button>
+
+  </div>
+
+  <div
+    className="
+      bg-black
+      border
+      border-white/10
+      rounded-2xl
+      p-6
+      whitespace-pre-wrap
+      text-white/80
+      leading-relaxed
+      min-h-[220px]
+    "
+  >
+
+    {
+      aiSummary ||
+      "AI summary will appear here..."
+    }
+
+  </div>
+
+</div>
+
 
         </div>
 

@@ -144,21 +144,37 @@ export default function SessionsPage() {
 
                 <div className="flex gap-3 items-center">
 
-                  <div
-                    className="
-                      px-4
-                      py-2
-                      rounded-full
-                      bg-yellow-500
-                      text-black
-                      font-semibold
-                      text-sm
-                    "
-                  >
-                    {session.status}
-                  </div>
+  <Link
+    href={`/sessions/${session.id}`}
 
-                </div>
+    className="
+      bg-white/10
+      hover:bg-white/20
+      transition
+      px-5
+      py-3
+      rounded-2xl
+      font-semibold
+    "
+  >
+    Open Session
+  </Link>
+
+  <div
+    className="
+      px-4
+      py-2
+      rounded-full
+      bg-yellow-500
+      text-black
+      font-semibold
+      text-sm
+    "
+  >
+    {session.status}
+  </div>
+
+</div>
 
               </div>
 
@@ -227,18 +243,38 @@ export default function SessionsPage() {
 
                 </div>
 
-                <div
-                  className="
-                    px-4
-                    py-2
-                    rounded-full
-                    bg-white/10
-                    text-white
-                    text-sm
-                  "
-                >
-                  Completed
-                </div>
+                <div className="flex gap-3 items-center">
+
+  <Link
+    href={`/sessions/${session.id}`}
+
+    className="
+      bg-white/10
+      hover:bg-white/20
+      transition
+      px-5
+      py-3
+      rounded-2xl
+      font-semibold
+    "
+  >
+    Open Session
+  </Link>
+
+  <div
+    className="
+      px-4
+      py-2
+      rounded-full
+      bg-white/10
+      text-white
+      text-sm
+    "
+  >
+    Completed
+  </div>
+
+</div>
 
               </div>
 

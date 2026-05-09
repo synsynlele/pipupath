@@ -7,6 +7,7 @@ export default function GuideDashboardPage() {
 
   const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
+const [guideId, setGuideId] = useState(null)
   const [dayOfWeek, setDayOfWeek] = useState(1)
 
 const [startTime, setStartTime] = useState("09:00")
@@ -18,6 +19,24 @@ const [savingAvailability, setSavingAvailability] = useState(false)
   useEffect(() => {
 
     async function loadSessions() {
+
+const { data: userData } =
+  await supabase.auth.getUser()
+
+if(userData?.user){
+
+  const { data: guideData } =
+    await supabase
+      .from("guides")
+      .select("id")
+      .eq("user_id", userData.user.id)
+      .single()
+
+  if(guideData){
+    setGuideId(guideData.id)
+  }
+
+}
 
       const { data, error } = await supabase
         .from("sessions")
@@ -38,13 +57,21 @@ const [savingAvailability, setSavingAvailability] = useState(false)
 
 async function saveAvailability() {
 
+if(!guideId){
+
+  alert("Guide profile not found")
+
+  return
+
+}
+
   setSavingAvailability(true)
 
   const { error } = await supabase
     .from("guide_availability")
     .insert({
 
-      guide_id: "PUT_GUIDE_ID_HERE",
+     guide_id: guideId,
 
       day_of_week: dayOfWeek,
 
