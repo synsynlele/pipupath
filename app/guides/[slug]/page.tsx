@@ -12,11 +12,10 @@ export default async function GuidePage({
     .from("guides")
     .select(`
       *,
-      user_profiles (*),
       guide_specialties (*),
       guide_stats (*)
     `)
-    .eq("id", params.slug)
+    .eq("slug", params.slug)
     .single()
 
   if (!guide) {
@@ -33,7 +32,7 @@ export default async function GuidePage({
       <div className="flex flex-col md:flex-row gap-10">
 
         <img
-          src={guide.user_profiles.avatar_url}
+          src={guide.avatar_url}
           alt=""
           className="w-40 h-40 rounded-full object-cover border border-white/20"
         />
@@ -41,7 +40,7 @@ export default async function GuidePage({
         <div className="flex-1">
 
           <h1 className="text-5xl font-bold">
-            {guide.user_profiles.full_name}
+            {guide.full_name}
           </h1>
 
           <p className="text-yellow-400 mt-3 text-xl">
