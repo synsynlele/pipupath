@@ -8,11 +8,18 @@ export default async function GuidePage({
   params: { id: string }
 }) {
 
-  const { data: guide, error } = await supabase
-    .from("guides")
-    .select("*")
-    .eq("id", params.id)
-    .single()
+  const cleanId = decodeURIComponent(params.id).trim()
+
+const { data, error } = await supabase
+  .from("guides")
+  .select("*")
+
+console.log("PARAM ID:", cleanId)
+console.log("ALL GUIDES:", data)
+
+const guide = data?.find(
+  (g:any) => g.id === cleanId
+)
 
   if (error || !guide) {
     return (
