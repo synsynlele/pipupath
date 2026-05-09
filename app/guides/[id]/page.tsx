@@ -2,21 +2,23 @@
 
 import { useEffect, useState } from "react"
 
+import { useParams } from "next/navigation"
+
 import { supabase } from "../../../lib/supabase"
 
 import BookingModal from "../../../components/sessions/BookingModal"
 
-export default function GuidePage({
-  params,
-}: {
-  params: { id: string }
-}) {
+export default function GuidePage() {
 
   const [guide, setGuide] = useState<any>(null)
 
   const [profile, setProfile] = useState<any>(null)
 
 const [availability, setAvailability] = useState<any[]>([])
+
+const params = useParams()
+
+const id = params?.id as string
 
   useEffect(() => {
 
@@ -32,7 +34,7 @@ const [availability, setAvailability] = useState<any[]>([])
         await supabase
           .from("guides")
           .select("*")
-          .eq("id", params.id)
+          .eq("id", id)
           .single()
 
       setGuide(data)
@@ -41,7 +43,7 @@ const [availability, setAvailability] = useState<any[]>([])
   await supabase
     .from("guide_availability")
     .select("*")
-    .eq("guide_id", params.id)
+    .eq("guide_id", id)
     .eq("is_active", true)
 
 setAvailability(availabilityData || [])
@@ -50,7 +52,7 @@ setAvailability(availabilityData || [])
 
     loadGuide()
 
-  }, [params.id])
+  }, [id])
 
   if (!guide) {
     return (
