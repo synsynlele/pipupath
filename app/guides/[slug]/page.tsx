@@ -8,19 +8,29 @@ export default async function GuidePage({
   params: { slug: string }
 }) {
 
-  const { data: guide } = await supabase
-    .from("guides")
-    .select(`
-      *,
-      guide_specialties (*),
-      guide_stats (*)
-    `)
-    .eq("slug", params.slug)
-    .single()
+  console.log("PARAMS:", params.slug)
 
-  if (!guide) {
-    return <div>Guide not found</div>
-  }
+const { data: guide, error } = await supabase
+  .from("guides")
+  .select(`
+    *,
+    guide_specialties (*),
+    guide_stats (*)
+  `)
+  .eq("id", params.slug)
+  .single()
+
+console.log("GUIDE:", guide)
+console.log("ERROR:", error)
+const stats = guide.guide_stats?.[0]
+
+if (!guide) {
+  return (
+    <div className="min-h-screen bg-black text-white p-10">
+      Guide not found
+    </div>
+  )
+}
 
  return (
   <div className="min-h-screen bg-black text-white">
@@ -49,7 +59,7 @@ export default async function GuidePage({
 
           <div className="flex flex-wrap gap-3 mt-6">
 
-            {guide.guide_specialties.map((item:any) => (
+            {guide.guide_specialties?.map((item:any) => (
               <span
                 key={item.id}
                 className="px-4 py-2 rounded-full bg-white/10"
@@ -70,7 +80,7 @@ export default async function GuidePage({
 
         <div className="bg-white/5 rounded-3xl p-6">
           <p className="text-4xl font-bold">
-            {guide.guide_stats?.sessions_completed || 0}
+            {stats?.sessions_completed || 0}
           </p>
 
           <p className="text-white/60 mt-2">
@@ -80,7 +90,7 @@ export default async function GuidePage({
 
         <div className="bg-white/5 rounded-3xl p-6">
           <p className="text-4xl font-bold">
-            {guide.guide_stats?.students_helped || 0}
+            {stats?.students_helped || 0}
           </p>
 
           <p className="text-white/60 mt-2">
@@ -90,7 +100,7 @@ export default async function GuidePage({
 
         <div className="bg-white/5 rounded-3xl p-6">
           <p className="text-4xl font-bold">
-            {guide.guide_stats?.rating || 0}
+            {stats?.rating || 0}
           </p>
 
           <p className="text-white/60 mt-2">
@@ -100,7 +110,7 @@ export default async function GuidePage({
 
         <div className="bg-white/5 rounded-3xl p-6">
           <p className="text-4xl font-bold">
-            {guide.guide_stats?.xp_earned || 0}
+            {stats?.xp_earned || 0}
           </p>
 
           <p className="text-white/60 mt-2">
