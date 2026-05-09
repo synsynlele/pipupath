@@ -22,7 +22,6 @@ const { data: guide, error } = await supabase
 
 console.log("GUIDE:", guide)
 console.log("ERROR:", error)
-const stats = guide.guide_stats?.[0]
 
 if (!guide) {
   return (
@@ -31,6 +30,9 @@ if (!guide) {
     </div>
   )
 }
+
+const stats = guide.guide_stats?.[0]
+const specialties = guide.guide_specialties || []
 
  return (
   <div className="min-h-screen bg-black text-white">
@@ -42,7 +44,7 @@ if (!guide) {
       <div className="flex flex-col md:flex-row gap-10">
 
         <img
-          src={guide.avatar_url}
+          src={guide.avatar_url || "/placeholder.png"}
           alt=""
           className="w-40 h-40 rounded-full object-cover border border-white/20"
         />
@@ -50,7 +52,7 @@ if (!guide) {
         <div className="flex-1">
 
           <h1 className="text-5xl font-bold">
-            {guide.full_name}
+            {guide.full_name || "Guide"}
           </h1>
 
           <p className="text-yellow-400 mt-3 text-xl">
@@ -59,7 +61,7 @@ if (!guide) {
 
           <div className="flex flex-wrap gap-3 mt-6">
 
-            {guide.guide_specialties?.map((item:any) => (
+            {specialties.map((item:any) => (
               <span
                 key={item.id}
                 className="px-4 py-2 rounded-full bg-white/10"
@@ -129,7 +131,7 @@ if (!guide) {
         </h2>
 
         <p className="text-white/70 mt-6 text-lg leading-relaxed max-w-3xl">
-          {guide.about}
+          {guide.about || "No bio yet"}
         </p>
 
       </div>
@@ -139,7 +141,7 @@ if (!guide) {
       <div className="mt-20 max-w-xl">
 
         <BookingModal
-          guideId={guide.user_id}
+          guideId={guide.id}
           studentId="456"
         />
 
