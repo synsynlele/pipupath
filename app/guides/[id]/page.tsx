@@ -16,6 +16,8 @@ export default function GuidePage({
 
   const [profile, setProfile] = useState<any>(null)
 
+const [availability, setAvailability] = useState<any[]>([])
+
   useEffect(() => {
 
     async function loadGuide() {
@@ -23,20 +25,20 @@ export default function GuidePage({
       // LOAD USER
 
       const { data:userData } =
-        await supabase.auth.getUser()
+  await supabase.auth.getUser()
 
-      if(userData?.user){
+if(userData?.user){
 
-        const { data:profileData } =
-          await supabase
-            .from("user_profiles")
-            .select("*")
-            .eq("user_id", userData.user.id)
-            .single()
+  const { data:profileData } =
+    await supabase
+      .from("user_profiles")
+      .select("*")
+      .eq("user_id", userData.user.id)
+      .single()
 
-        setProfile(profileData)
+  setProfile(profileData)
 
-      }
+}
 
       // LOAD GUIDE
 
@@ -48,6 +50,15 @@ export default function GuidePage({
           .single()
 
       setGuide(data)
+
+     const { data:availabilityData } =
+  await supabase
+    .from("guide_availability")
+    .select("*")
+    .eq("guide_id", params.id)
+    .eq("is_active", true)
+
+setAvailability(availabilityData || [])
 
     }
 
@@ -118,6 +129,49 @@ export default function GuidePage({
           </p>
 
         </div>
+
+       {/* AVAILABILITY */}
+
+<div className="mt-20">
+
+  <h2 className="text-3xl font-bold mb-6">
+    Availability
+  </h2>
+
+  <div className="space-y-4">
+
+    {availability.map((slot:any)=>(
+
+      <div
+        key={slot.id}
+        className="bg-white/5 border border-white/10 rounded-2xl p-5"
+      >
+
+        <div className="font-semibold">
+          {
+            [
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday"
+            ][slot.day_of_week]
+          }
+        </div>
+
+        <div className="text-white/60 mt-1">
+          {slot.start_time} — {slot.end_time}
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+
+</div>
 
         {/* BOOKING */}
 
