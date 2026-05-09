@@ -1,25 +1,24 @@
 import { supabase } from "../../../lib/supabase"
-
 import BookingModal from "../../../components/sessions/BookingModal"
 
 export default async function GuidePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
 
-  const cleanId = decodeURIComponent(params.id).trim()
+  const { id } = await params
 
-const { data, error } = await supabase
-  .from("guides")
-  .select("*")
+  const cleanId = decodeURIComponent(id).trim()
 
-console.log("PARAM ID:", cleanId)
-console.log("ALL GUIDES:", data)
+  const { data: guide, error } = await supabase
+    .from("guides")
+    .select("*")
+    .eq("id", cleanId)
+    .single()
 
-const guide = data?.find(
-  (g:any) => g.id === cleanId
-)
+  console.log("GUIDE:", guide)
+  console.log("ERROR:", error)
 
   if (error || !guide) {
     return (
