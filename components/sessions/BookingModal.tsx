@@ -35,15 +35,15 @@ const timeSlots = [
 
   async function createBooking() {
 
-    if (
+   if (
   !studentName ||
   !studentEmail ||
   !date ||
   !time
-)
-      alert("Please complete all booking fields")
-      return
-    }
+) {
+  alert("Please complete all booking fields")
+  return
+}
 
     setLoading(true)
 

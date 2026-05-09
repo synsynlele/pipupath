@@ -66,7 +66,6 @@ setAvailability(availabilityData || [])
     <div className="min-h-screen bg-black text-white">
 
       <div className="max-w-6xl mx-auto px-6 py-20">
-
 <a
   href="/dashboard"
   className="
