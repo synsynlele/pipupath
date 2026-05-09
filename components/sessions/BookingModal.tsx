@@ -95,29 +95,31 @@ window.location.reload()
       {open && (
 
         <div
-          className="
-            fixed
-            inset-0
-            bg-black/80
-            z-50
-            flex
-            items-center
-            justify-center
-            p-6
-          "
-        >
+  className="
+    fixed
+    inset-0
+    bg-black/80
+    z-50
+    overflow-y-auto
+    flex
+    items-start
+    justify-center
+    p-6
+  "
+>
 
           <div
-            className="
-              bg-[#111]
-              border
-              border-white/10
-              rounded-3xl
-              p-8
-              w-full
-              max-w-xl
-            "
-          >
+  className="
+    bg-[#111]
+    border
+    border-white/10
+    rounded-3xl
+    p-8
+    w-full
+    max-w-xl
+    my-10
+  "
+>
 
             {/* HEADER */}
 
