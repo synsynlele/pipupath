@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import NavBar from "@/components/NavBar";
 
+import Link from "next/link";
+
 import { supabase } from "@/lib/supabase";
 
 export default function GuidesPage(){
@@ -76,6 +78,51 @@ export default function GuidesPage(){
           <p className="text-[#F7E8C5]/70 text-xl max-w-3xl leading-relaxed">
             Connect with strategic guides aligned with your growth archetype and trajectory.
           </p>
+
+         <div className="flex gap-4 mt-8">
+
+  <Link
+    href="/sessions"
+
+    className="
+      inline-flex
+      items-center
+      justify-center
+      px-6
+      py-4
+      rounded-2xl
+      bg-white/[0.05]
+      border
+      border-[#2a2112]
+      hover:bg-white/[0.08]
+      transition
+      font-semibold
+    "
+  >
+    View Sessions
+  </Link>
+
+  <Link
+    href="/guide-dashboard"
+
+    className="
+      inline-flex
+      items-center
+      justify-center
+      px-6
+      py-4
+      rounded-2xl
+      bg-[#D4A43B]
+      text-black
+      font-bold
+      hover:scale-[1.02]
+      transition
+    "
+  >
+    Guide Dashboard
+  </Link>
+
+</div>
 
         </div>
 
