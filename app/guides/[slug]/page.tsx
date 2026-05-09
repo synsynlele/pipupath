@@ -138,5 +138,6 @@ export default async function GuidePage({
 
     </div>
 
-  </div>
+   </div>
 )
+}
