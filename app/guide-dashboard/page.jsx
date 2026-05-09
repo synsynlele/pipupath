@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabase"
 
 export default function GuideDashboardPage() {
 
-  const [sessions, setSessions] = useState<any[]>([])
+  const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase"
 
 export default function SessionsPage() {
 
-  const [sessions, setSessions] = useState<any[]>([])
+  const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
