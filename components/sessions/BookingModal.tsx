@@ -72,10 +72,7 @@ useEffect(() => {
 
     if (!date) return
 
-    const selectedDay = new Date(date).toLocaleDateString(
-      "en-US",
-      { weekday: "long" }
-    )
+    const selectedDay = new Date(date).getDay()
 
     const { data, error } = await supabase
       .from("guide_availability")
