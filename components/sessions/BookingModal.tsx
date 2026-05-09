@@ -309,6 +309,8 @@ window.location.reload()
 
   onChange={(e) => setDate(e.target.value)}
 
+  style={{ colorScheme: "dark" }}
+
   className="
     w-full
     bg-black
@@ -317,20 +319,8 @@ window.location.reload()
     rounded-2xl
     p-4
     text-white
-    color-scheme-dark
   "
 />
-
-                  className="
-                    w-full
-                    bg-black
-                    border
-                    border-white/10
-                    rounded-2xl
-                    p-4
-                    text-white
-                  "
-                />
               </div>
 
              <div>
