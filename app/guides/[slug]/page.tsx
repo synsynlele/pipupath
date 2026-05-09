@@ -10,18 +10,19 @@ export default async function GuidePage({
 
   console.log("PARAMS:", params.slug)
 
-const { data: guide, error } = await supabase
+const { data, error } = await supabase
   .from("guides")
   .select(`
     *,
     guide_specialties (*),
     guide_stats (*)
   `)
-  .eq("id", params.slug)
-  .single()
+  .eq("slug", params.slug)
 
-console.log("GUIDE:", guide)
+console.log("DATA:", data)
 console.log("ERROR:", error)
+
+const guide = data?.[0]
 
 if (!guide) {
   return (
