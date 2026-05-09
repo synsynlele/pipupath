@@ -125,7 +125,7 @@ export default async function GuidePage({
 
 <BookingModal
   guideId={guide.user_id}
-  studentId={"001-Tosin"}
+  studentId={"YOUR_ID"}
 />
 
 </div>

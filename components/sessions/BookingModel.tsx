@@ -11,6 +11,8 @@ export default function BookingModal({
   studentId: string
 }) {
 
+  const [open, setOpen] = useState(false)
+
   const [date, setDate] = useState("")
   const [time, setTime] = useState("")
   const [note, setNote] = useState("")
@@ -18,6 +20,11 @@ export default function BookingModal({
   const [loading, setLoading] = useState(false)
 
   async function createBooking() {
+
+    if (!date || !time) {
+      alert("Select date and time")
+      return
+    }
 
     setLoading(true)
 
@@ -46,55 +53,174 @@ export default function BookingModal({
     }
 
     alert("Session booked successfully")
+
+    setOpen(false)
+
+    setDate("")
+    setTime("")
+    setNote("")
   }
 
   return (
-    <div className="bg-white/5 rounded-3xl p-8 mt-10">
+    <>
+      {/* OPEN BUTTON */}
 
-      <h2 className="text-2xl font-bold mb-6">
+      <button
+        onClick={() => setOpen(true)}
+        className="
+          w-full
+          bg-yellow-500
+          hover:bg-yellow-400
+          text-black
+          rounded-2xl
+          py-5
+          font-bold
+          text-lg
+          transition
+        "
+      >
         Book Session
-      </h2>
+      </button>
 
-      <div className="space-y-5">
+      {/* MODAL */}
 
-        <input
-          type="date"
-          value={date}
-          onChange={(e)=>setDate(e.target.value)}
-          className="w-full bg-black border border-white/10 rounded-2xl p-4"
-        />
+      {open && (
 
-        <input
-          type="time"
-          value={time}
-          onChange={(e)=>setTime(e.target.value)}
-          className="w-full bg-black border border-white/10 rounded-2xl p-4"
-        />
-
-        <textarea
-          placeholder="Optional note..."
-          value={note}
-          onChange={(e)=>setNote(e.target.value)}
-          className="w-full bg-black border border-white/10 rounded-2xl p-4 h-32"
-        />
-
-        <button
-          onClick={createBooking}
-          disabled={loading}
+        <div
           className="
-            w-full
-            bg-white
-            text-black
-            rounded-2xl
-            py-4
-            font-semibold
+            fixed
+            inset-0
+            bg-black/80
+            z-50
+            flex
+            items-center
+            justify-center
+            p-6
           "
         >
-          {loading ? "Booking..." : "Confirm Booking"}
-        </button>
 
-      </div>
+          <div
+            className="
+              bg-[#111]
+              border
+              border-white/10
+              rounded-3xl
+              p-8
+              w-full
+              max-w-xl
+            "
+          >
 
-    </div>
+            {/* HEADER */}
+
+            <div className="flex items-center justify-between mb-8">
+
+              <h2 className="text-3xl font-bold text-white">
+                Book Session
+              </h2>
+
+              <button
+                onClick={() => setOpen(false)}
+                className="text-white/60 text-2xl"
+              >
+                ×
+              </button>
+
+            </div>
+
+            {/* FORM */}
+
+            <div className="space-y-5">
+
+              <div>
+                <label className="text-white/70 block mb-2">
+                  Select Date
+                </label>
+
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e)=>setDate(e.target.value)}
+                  className="
+                    w-full
+                    bg-black
+                    border
+                    border-white/10
+                    rounded-2xl
+                    p-4
+                    text-white
+                  "
+                />
+              </div>
+
+              <div>
+                <label className="text-white/70 block mb-2">
+                  Select Time
+                </label>
+
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e)=>setTime(e.target.value)}
+                  className="
+                    w-full
+                    bg-black
+                    border
+                    border-white/10
+                    rounded-2xl
+                    p-4
+                    text-white
+                  "
+                />
+              </div>
+
+              <div>
+                <label className="text-white/70 block mb-2">
+                  Optional Note
+                </label>
+
+                <textarea
+                  placeholder="Tell the guide what you need help with..."
+                  value={note}
+                  onChange={(e)=>setNote(e.target.value)}
+                  className="
+                    w-full
+                    bg-black
+                    border
+                    border-white/10
+                    rounded-2xl
+                    p-4
+                    h-32
+                    text-white
+                  "
+                />
+              </div>
+
+              <button
+                onClick={createBooking}
+                disabled={loading}
+                className="
+                  w-full
+                  bg-yellow-500
+                  hover:bg-yellow-400
+                  text-black
+                  rounded-2xl
+                  py-5
+                  font-bold
+                  text-lg
+                  transition
+                "
+              >
+                {loading ? "Booking..." : "Confirm Booking"}
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+    </>
   )
 }
