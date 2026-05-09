@@ -66,7 +66,10 @@ export default function BookingModal({
       {/* OPEN BUTTON */}
 
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+  alert("button clicked")
+  setOpen(true)
+}}
         className="
           w-full
           bg-yellow-500
