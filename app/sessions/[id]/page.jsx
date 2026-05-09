@@ -419,10 +419,6 @@ NEXT ACTIONS
 
   </div>
 
-</div>
-
-
-        </div>
 
       </div>
 
