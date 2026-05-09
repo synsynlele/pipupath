@@ -1,29 +1,64 @@
+"use client"
+
+import { useEffect, useState } from "react"
+
 import { supabase } from "../../../lib/supabase"
+
 import BookingModal from "../../../components/sessions/BookingModal"
 
-export default async function GuidePage({
+export default function GuidePage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }) {
 
-  const { id } = await params
+  const [guide, setGuide] = useState<any>(null)
 
-  const cleanId = decodeURIComponent(id).trim()
+  const [profile, setProfile] = useState<any>(null)
 
-  const { data: guide, error } = await supabase
-    .from("guides")
-    .select("*")
-    .eq("id", cleanId)
-    .single()
+  useEffect(() => {
 
-  console.log("GUIDE:", guide)
-  console.log("ERROR:", error)
+    async function loadGuide() {
 
-  if (error || !guide) {
+      // LOAD USER
+
+      const { data:userData } =
+        await supabase.auth.getUser()
+
+      if(userData?.user){
+
+        const { data:profileData } =
+          await supabase
+            .from("user_profiles")
+            .select("*")
+            .eq("user_id", userData.user.id)
+            .single()
+
+        setProfile(profileData)
+
+      }
+
+      // LOAD GUIDE
+
+      const { data } =
+        await supabase
+          .from("guides")
+          .select("*")
+          .eq("id", params.id)
+          .single()
+
+      setGuide(data)
+
+    }
+
+    loadGuide()
+
+  }, [params.id])
+
+  if (!guide) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        Guide not found
+        Loading...
       </div>
     )
   }
@@ -88,10 +123,20 @@ export default async function GuidePage({
 
         <div className="mt-20 max-w-xl">
 
-          <BookingModal
-            guideId={guide.id}
-            studentId="456"
-          />
+          {profile ? (
+
+            <BookingModal
+              guideId={guide.id}
+              studentId={profile.id}
+            />
+
+          ) : (
+
+            <div className="text-white/60">
+              Please log in to book a session.
+            </div>
+
+          )}
 
         </div>
 

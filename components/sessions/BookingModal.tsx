@@ -52,7 +52,9 @@ export default function BookingModal({
       return
     }
 
-    alert("Session booked successfully")
+    alert("Session booked successfully!")
+
+window.location.reload()
 
     setOpen(false)
 
@@ -67,7 +69,7 @@ export default function BookingModal({
 
       <button
         onClick={() => {
-  alert("button clicked")
+  
   setOpen(true)
 }}
         className="
