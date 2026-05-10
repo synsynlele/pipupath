@@ -417,8 +417,7 @@ NEXT ACTIONS
       "AI summary will appear here..."
     }
 
-  </div>
-
+    </div>
 
       </div>
 
