@@ -103,7 +103,7 @@ setAvailability(availabilityData || [])
 
             <div className="flex flex-wrap gap-3 mt-6">
 
-              {guide.expertise?.map((item:any, index:number) => (
+              {guide.expertise?.map((item, index) => (
                 <span
                   key={index}
                   className="px-4 py-2 rounded-full bg-white/10"
