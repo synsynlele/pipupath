@@ -1,187 +1,267 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+import { useEffect, useState } from "react";
 
-export default function SessionDetailPage(){
+import { useParams, useRouter } from "next/navigation";
 
-  const params = useParams()
+import { supabase } from "../../../lib/supabase";
 
-  const [session, setSession] = useState(null)
+export default function SessionDetailPage() {
 
-  const [loading, setLoading] = useState(true)
+  const params = useParams();
 
-  const [notes, setNotes] = useState("")
+  const router = useRouter();
 
-  const [savingNotes, setSavingNotes] = useState(false)
-  
-  const [aiSummary, setAiSummary] = useState("")
+  const [session, setSession] = useState(null);
 
-const [generatingSummary, setGeneratingSummary] = useState(false)
+  const [loading, setLoading] = useState(true);
+
+  const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
 
-    async function loadSession(){
+    async function loadSession() {
 
-      const { data, error } = await supabase
-        .from("sessions")
-        .select(`
-          *,
-          guides (
-            full_name,
-            headline
-          )
-        `)
-        .eq("id", params.id)
-        .single()
+      const { data: authData } =
+        await supabase.auth.getUser();
 
-      if(data){
+      if (!authData?.user) {
 
-        setSession(data)
+        router.push("/");
 
-        setNotes(data.guide_notes || "")
-
-        setAiSummary(data.ai_summary || "")
+        return;
 
       }
 
-      setLoading(false)
+      const { data, error } =
+        await supabase
+          .from("sessions")
+          .select(`
+            *,
+            guides (
+              full_name,
+              headline,
+              profile_image
+            )
+          `)
+          .eq("id", params.id)
+          .single();
+
+      if (!data || error) {
+
+        setLoading(false);
+
+        return;
+
+      }
+
+      const isOwner =
+        data.user_id === authData.user.id;
+
+      const { data: guideData } =
+        await supabase
+          .from("guides")
+          .select("id")
+          .eq("user_id", authData.user.id)
+          .single();
+
+      const isGuide =
+        guideData?.id === data.guide_id;
+
+      if (!isOwner && !isGuide) {
+
+        router.push("/dashboard");
+
+        return;
+
+      }
+
+      setAuthorized(true);
+
+      setSession(data);
+
+      setLoading(false);
 
     }
 
-    if(params?.id){
-      loadSession()
+    if (params?.id) {
+      loadSession();
     }
 
-  }, [params])
+  }, [params, router]);
 
-  async function saveNotes(){
-
-  if(!session) return
-
-  setSavingNotes(true)
-
-  const { error } = await supabase
-    .from("sessions")
-    .update({
-      guide_notes: notes
-    })
-    .eq("id", session.id)
-
-  setSavingNotes(false)
-
-  if(error){
-
-    alert(error.message)
-
-    return
-
-  }
-
-  alert("Notes saved!")
-
-}
-
-async function generateSummary(){
-
-  if(!notes){
-
-    alert("Add session notes first")
-
-    return
-
-  }
-
-  setGeneratingSummary(true)
-
-  const summary = `
-SESSION SUMMARY
-
-${notes.substring(0, 300)}
-
-KEY INSIGHTS
-- Student discussed growth challenges
-- Strategic guidance was provided
-- Actionable next steps identified
-
-NEXT ACTIONS
-- Continue implementation
-- Monitor progress
-- Schedule follow-up session
-`
-
-  setAiSummary(summary)
-
-  const { error } = await supabase
-    .from("sessions")
-    .update({
-      ai_summary: summary
-    })
-    .eq("id", session.id)
-
-  setGeneratingSummary(false)
-
-  if(error){
-
-    alert(error.message)
-
-    return
-
-  }
-
-}
-
-  
-
-  if(loading){
+  if (loading) {
 
     return (
-      <div className="min-h-screen bg-black text-white p-10">
-        Loading session...
+
+      <div className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+
+        <div className="text-center">
+
+          <div className="text-3xl font-bold mb-4">
+            Loading Session...
+          </div>
+
+          <div className="text-white/50">
+            Preparing session workspace
+          </div>
+
+        </div>
+
       </div>
-    )
+
+    );
 
   }
 
-  if(!session){
+  if (!authorized || !session) {
 
     return (
-      <div className="min-h-screen bg-black text-white p-10">
-        Session not found
+
+      <div className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+
+        <div className="text-center">
+
+          <div className="text-3xl font-bold mb-4">
+            Session Not Available
+          </div>
+
+          <div className="text-white/50 mb-8">
+            You do not have access to this session.
+          </div>
+
+          <button
+            onClick={() =>
+              router.push("/dashboard")
+            }
+
+            className="
+              bg-yellow-500
+              hover:bg-yellow-400
+              text-black
+              font-bold
+              px-6
+              py-4
+              rounded-2xl
+              transition
+            "
+          >
+            Return to Dashboard
+          </button>
+
+        </div>
+
       </div>
-    )
+
+    );
 
   }
 
   const roomUrl =
-    `https://meet.jit.si/${session.room_name}`
+    `https://meet.jit.si/${session.room_name}`;
 
   return (
 
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-black text-white">
 
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-10 md:py-20">
 
-        {/* HEADER */}
+        {/* BACK */}
 
-        <div className="mb-10">
+        <button
+          onClick={() => router.back()}
 
-          <div className="text-yellow-500 uppercase text-sm tracking-[0.3em] mb-4">
-            Guidance Session
+          className="
+            inline-flex
+            items-center
+            gap-2
+            text-white/60
+            hover:text-white
+            mb-10
+            transition
+          "
+        >
+          ← Back
+        </button>
+
+        {/* HERO */}
+
+        <div
+          className="
+            flex
+            flex-col
+            lg:flex-row
+            gap-8
+            lg:gap-10
+            items-start
+            mb-12
+          "
+        >
+
+          {/* IMAGE */}
+
+          <div className="flex-shrink-0">
+
+            <img
+              src={
+                session.guides?.profile_image ||
+                "https://placehold.co/400x400?text=Guide"
+              }
+
+              alt={
+                session.guides?.full_name ||
+                "Guide"
+              }
+
+              className="
+                w-28
+                h-28
+                md:w-36
+                md:h-36
+                rounded-3xl
+                object-cover
+                border
+                border-white/10
+              "
+            />
+
           </div>
 
-          <h1 className="text-5xl font-bold mb-4">
-            {session.guides?.full_name}
-          </h1>
+          {/* CONTENT */}
 
-          <p className="text-white/60 text-xl">
-            {session.guides?.headline}
-          </p>
+          <div className="flex-1">
+
+            <div className="text-yellow-500 uppercase tracking-[0.3em] text-xs mb-5">
+
+              Guidance Session
+
+            </div>
+
+            <h1
+              className="
+                text-4xl
+                md:text-6xl
+                font-bold
+                leading-tight
+                mb-4
+              "
+            >
+
+              {session.guides?.full_name}
+
+            </h1>
+
+            <p className="text-white/60 text-lg md:text-2xl max-w-3xl leading-relaxed">
+
+              {session.guides?.headline}
+
+            </p>
+
+          </div>
 
         </div>
 
-        {/* SESSION CARD */}
+        {/* SESSION INFO */}
 
         <div
           className="
@@ -189,33 +269,44 @@ NEXT ACTIONS
             border
             border-white/10
             rounded-3xl
-            p-8
+            p-6
+            md:p-8
             mb-10
           "
         >
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            {/* TIME */}
 
             <div>
 
-              <div className="text-white/50 text-sm mb-2">
+              <div className="text-white/50 text-sm mb-3">
+
                 Scheduled Time
+
               </div>
 
-              <div className="text-2xl font-bold">
+              <div className="text-2xl md:text-3xl font-bold leading-tight">
+
                 {
                   new Date(
                     session.scheduled_for
                   ).toLocaleString()
                 }
+
               </div>
 
             </div>
 
+            {/* STATUS */}
+
             <div>
 
-              <div className="text-white/50 text-sm mb-2">
-                Status
+              <div className="text-white/50 text-sm mb-3">
+
+                Session Status
+
               </div>
 
               <div
@@ -229,7 +320,9 @@ NEXT ACTIONS
                   font-bold
                 "
               >
+
                 {session.status}
+
               </div>
 
             </div>
@@ -246,185 +339,55 @@ NEXT ACTIONS
             border
             border-white/10
             rounded-3xl
-            p-8
-            mb-10
+            p-6
+            md:p-8
           "
         >
 
-          <h2 className="text-3xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-5">
+
             Live Session Room
+
           </h2>
+
+          <p className="text-white/60 leading-relaxed max-w-2xl mb-8">
+
+            Enter the private live session room to begin your mentorship conversation.
+
+          </p>
 
           <a
             href={roomUrl}
             target="_blank"
+            rel="noopener noreferrer"
 
             className="
               inline-flex
               items-center
               justify-center
               bg-yellow-500
+              hover:bg-yellow-400
               text-black
               font-bold
               px-8
               py-5
               rounded-2xl
-              hover:scale-[1.02]
               transition
+              w-full
+              md:w-auto
             "
           >
+
             Join Live Session
+
           </a>
 
         </div>
-
-        {/* SESSION NOTES */}
-
-        <div
-          className="
-            bg-zinc-900
-            border
-            border-white/10
-            rounded-3xl
-            p-8
-          "
-        >
-
-          <h2 className="text-3xl font-bold mb-6">
-            Session Notes
-          </h2>
-
-          <textarea
-
-            value={notes}
-
-            onChange={(e)=>
-              setNotes(e.target.value)
-            }
-
-            placeholder="
-              Capture insights, breakthroughs,
-              action plans, and guidance notes...
-            "
-
-            className="
-              w-full
-              min-h-[220px]
-              bg-black
-              border
-              border-white/10
-              rounded-2xl
-              p-5
-              text-white
-              resize-none
-              mb-6
-            "
-          />
-
-          
-
-           <button
-
-  onClick={saveNotes}
-
-  disabled={savingNotes}
-
-  className="
-    bg-yellow-500
-    hover:bg-yellow-400
-    text-black
-    font-bold
-    px-6
-    py-4
-    rounded-2xl
-    transition
-  "
->
-
-  {
-    savingNotes
-      ? "Saving..."
-      : "Save Notes"
-  }
-
-</button>
-
-</div>
-
-{/* AI SUMMARY */}
-
-<div
-  className="
-    bg-zinc-900
-    border
-    border-white/10
-    rounded-3xl
-    p-8
-    mt-10
-  "
->
-
-  <div className="flex items-center justify-between mb-6">
-
-    <h2 className="text-3xl font-bold">
-      AI Session Summary
-    </h2>
-
-    <button
-
-      onClick={generateSummary}
-
-      disabled={generatingSummary}
-
-      className="
-        bg-yellow-500
-        hover:bg-yellow-400
-        text-black
-        font-bold
-        px-5
-        py-3
-        rounded-2xl
-        transition
-      "
-    >
-
-      {
-        generatingSummary
-          ? "Generating..."
-          : "Generate AI Summary"
-      }
-
-    </button>
-
-  </div>
-
-  <div
-    className="
-      bg-black
-      border
-      border-white/10
-      rounded-2xl
-      p-6
-      whitespace-pre-wrap
-      text-white/80
-      leading-relaxed
-      min-h-[220px]
-    "
-  >
-
-    {
-      aiSummary ||
-      "AI summary will appear here..."
-    }
-
-        </div>
-
-      </div>
 
       </div>
 
     </div>
 
-  )
+  );
 
 }
