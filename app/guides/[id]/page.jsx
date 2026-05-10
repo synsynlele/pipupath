@@ -18,7 +18,7 @@ const [availability, setAvailability] = useState([])
 
 const params = useParams()
 
-const id = params?.id as string
+const id = params?.id
 
   useEffect(() => {
 
