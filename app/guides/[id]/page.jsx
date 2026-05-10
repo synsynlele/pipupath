@@ -12,9 +12,9 @@ export default function GuidePage() {
 
   const [guide, setGuide] = useState<any>(null)
 
-  const [profile, setProfile] = useState<any>(null)
+  const [profile, setProfile] = useState(null)
 
-const [availability, setAvailability] = useState<any[]>([])
+const [availability, setAvailability] = useState([])
 
 const params = useParams()
 
