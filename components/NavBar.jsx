@@ -1,12 +1,40 @@
 'use client';
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+
 
 export default function NavBar(){
 
   const router = useRouter();
+const [isGuide, setIsGuide] = useState(false);
+
+useEffect(() => {
+
+  async function checkGuide(){
+
+    const { data: userData } =
+      await supabase.auth.getUser();
+
+    if(!userData?.user) return;
+
+    const { data } = await supabase
+      .from("guides")
+      .select("id")
+      .eq("user_id", userData.user.id)
+      .single();
+
+    if(data){
+      setIsGuide(true);
+    }
+
+  }
+
+  checkGuide();
+
+}, []);
 
   async function logout(){
 
@@ -83,6 +111,28 @@ export default function NavBar(){
           >
             Guides
           </Link>
+
+          {
+  isGuide ? (
+
+    <Link
+      href="/guide-dashboard"
+      className="text-[#F7E8C5]/75 hover:text-[#D4A43B] transition"
+    >
+      Guide Dashboard
+    </Link>
+
+  ) : (
+
+    <Link
+      href="/become-guide"
+      className="text-[#F7E8C5]/75 hover:text-[#D4A43B] transition"
+    >
+      Become a Guide
+    </Link>
+
+  )
+}
 
           <button
             onClick={logout}

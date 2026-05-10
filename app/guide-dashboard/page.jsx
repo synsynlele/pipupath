@@ -7,7 +7,9 @@ export default function GuideDashboardPage() {
 
   const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
+const [uploadingImage, setUploadingImage] = useState(false)
 const [guideId, setGuideId] = useState(null)
+const [guide, setGuide] = useState(null)
   const [dayOfWeek, setDayOfWeek] = useState(1)
 
 const [startTime, setStartTime] = useState("09:00")
@@ -26,16 +28,19 @@ const { data: userData } =
 if(userData?.user){
 
   const { data: guideData } =
-    await supabase
-      .from("guides")
-      .select("id")
-      .eq("user_id", userData.user.id)
-      .single()
+  await supabase
+    .from("guides")
+    .select("*")
+    .eq("user_id", userData.user.id)
+    .single()
 
-  if(guideData){
-    setGuideId(guideData.id)
-  }
+if(guideData){
 
+  setGuideId(guideData.id)
+
+  setGuide(guideData)
+
+}
 }
 
       const { data, error } = await supabase
@@ -54,6 +59,68 @@ if(userData?.user){
     loadSessions()
 
   }, [])
+
+async function uploadGuideImage(event){
+
+  const file = event.target.files?.[0]
+
+  if(!file || !guide){
+    return
+  }
+
+  setUploadingImage(true)
+
+  const fileExt =
+    file.name.split(".").pop()
+
+  const fileName =
+    `${guide.id}-${Date.now()}.${fileExt}`
+
+  const { error: uploadError } =
+    await supabase.storage
+      .from("guide-images")
+      .upload(fileName, file)
+
+  if(uploadError){
+
+    alert(uploadError.message)
+
+    setUploadingImage(false)
+
+    return
+
+  }
+
+  const {
+    data: { publicUrl }
+  } = supabase.storage
+      .from("guide-images")
+      .getPublicUrl(fileName)
+
+  const { error: updateError } =
+    await supabase
+      .from("guides")
+      .update({
+        profile_image: publicUrl
+      })
+      .eq("id", guide.id)
+
+  setUploadingImage(false)
+
+  if(updateError){
+
+    alert(updateError.message)
+
+    return
+
+  }
+
+  setGuide({
+    ...guide,
+    profile_image: publicUrl
+  })
+
+}
 
 async function saveAvailability() {
 
@@ -105,6 +172,43 @@ if(!guideId){
 
       <div className="mb-10">
 
+<div className="mb-8">
+
+  {
+    guide?.profile_image ? (
+
+      <img
+        src={guide.profile_image}
+        alt={guide.full_name}
+
+        className="
+          w-32
+          h-32
+          rounded-3xl
+          object-cover
+          border
+          border-white/10
+        "
+      />
+
+    ) : (
+
+      <div
+        className="
+          w-32
+          h-32
+          rounded-3xl
+          bg-white/5
+          border
+          border-white/10
+        "
+      />
+
+    )
+  }
+
+</div>
+
         <h1 className="text-5xl font-bold mb-3">
           Guide Dashboard
         </h1>
@@ -112,6 +216,37 @@ if(!guideId){
         <p className="text-white/60">
           Manage your sessions and availability
         </p>
+
+<label
+  className="
+    inline-flex
+    mt-6
+    cursor-pointer
+    bg-yellow-500
+    hover:bg-yellow-400
+    text-black
+    font-bold
+    px-6
+    py-4
+    rounded-2xl
+    transition
+  "
+>
+
+  {
+    uploadingImage
+      ? "Uploading..."
+      : "Upload Profile Image"
+  }
+
+  <input
+    type="file"
+    accept="image/*"
+    onChange={uploadGuideImage}
+    className="hidden"
+  />
+
+</label>
 
       </div>
 
