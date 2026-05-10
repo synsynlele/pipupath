@@ -173,7 +173,10 @@ export default function GuidesPage(){
               <div className="h-64 overflow-hidden">
 
                 <img
-                  src={guide.avatar_url}
+                  src={
+  guide.profile_image ||
+  "https://placehold.co/600x400?text=Guide"
+}
                   alt={guide.full_name}
                   className="w-full h-full object-cover"
                 />

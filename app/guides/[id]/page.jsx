@@ -10,7 +10,7 @@ import BookingModal from "../../../components/sessions/BookingModal"
 
 export default function GuidePage() {
 
-  const [guide, setGuide] = useState<any>(null)
+  const [guide, setGuide] = useState(null)
 
   const [profile, setProfile] = useState(null)
 
@@ -86,7 +86,10 @@ setAvailability(availabilityData || [])
         <div className="flex flex-col md:flex-row gap-10">
 
           <img
-            src={guide.avatar_url || "/placeholder.png"}
+            src={
+  guide.profile_image ||
+  "https://placehold.co/400x400?text=Guide"
+}
             alt=""
             className="w-40 h-40 rounded-full object-cover border border-white/20"
           />
