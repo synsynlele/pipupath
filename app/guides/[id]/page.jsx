@@ -142,7 +142,7 @@ setAvailability(availabilityData || [])
 
   <div className="space-y-4">
 
-    {availability.map((slot:any)=>(
+    {availability.map((slot)=>(
 
       <div
         key={slot.id}
