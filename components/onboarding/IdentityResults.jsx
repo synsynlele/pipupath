@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { motion } from "framer-motion";
 
 import { supabase }
@@ -84,40 +82,7 @@ export default function IdentityResults({
 
   const profile = generateProfile();
 
-  const [email, setEmail] = useState("");
-
-  const [loading, setLoading] = useState(false);
-
-  const [success, setSuccess] = useState(false);
-
-  async function handleContinue(){
-
-    if(!email) return;
-
-    setLoading(true);
-
-    const { error } =
-      await supabase.auth.signInWithOtp({
-
-        email,
-
-        options: {
-
-          emailRedirectTo:
-  `${window.location.origin}/auth/callback`
-        }
-
-      });
-
-    setLoading(false);
-
-    if(error){
-
-      alert(error.message);
-
-      return;
-
-    }
+  async function handleGoogleContinue(){
 
     localStorage.setItem(
       "pipupath_completed",
@@ -129,7 +94,25 @@ export default function IdentityResults({
       selectedPath
     );
 
-    setSuccess(true);
+    const { error } =
+      await supabase.auth.signInWithOAuth({
+
+        provider: "google",
+
+        options: {
+
+          redirectTo:
+            `${window.location.origin}/auth/callback`
+
+        }
+
+      });
+
+    if(error){
+
+      alert(error.message);
+
+    }
 
   }
 
@@ -368,6 +351,20 @@ export default function IdentityResults({
 
             </div>
 
+            <p
+              className="
+              mt-4
+              text-white/70
+              leading-relaxed
+              "
+            >
+
+              Based on your behavioral responses,
+              this system will create the highest
+              leverage improvement in your trajectory.
+
+            </p>
+
           </div>
 
         </div>
@@ -441,171 +438,76 @@ export default function IdentityResults({
       {/* CONTINUE */}
       <div className="mt-10">
 
-        {
+        <div
+          className="
+          rounded-[30px]
+          border
+          border-white/10
+          bg-white/[0.03]
+          p-6
+          md:p-8
+          "
+        >
 
-          !success ? (
+          <div className="text-white/40 text-sm">
 
-            <div
-              className="
-              rounded-[30px]
-              border
-              border-white/10
-              bg-white/[0.03]
-              p-6
-              md:p-8
-              "
-            >
+            Save Your HumanOS Profile
 
-              <div className="text-white/40 text-sm">
+          </div>
 
-                Save Your HumanOS Profile
+          <h3
+            className="
+            mt-3
+            text-3xl
+            md:text-4xl
+            font-black
+            leading-tight
+            text-white
+            "
+          >
 
-              </div>
+            Continue Into PipuPath
 
-              <h3
-                className="
-                mt-3
-                text-3xl
-                md:text-4xl
-                font-black
-                leading-tight
-                text-white
-                "
-              >
+          </h3>
 
-                Continue Into PipuPath
+          <p
+            className="
+            mt-4
+            text-white/65
+            leading-relaxed
+            "
+          >
 
-              </h3>
+            Save your onboarding intelligence,
+            trajectory analysis,
+            and adaptive growth systems.
 
-              <p
-                className="
-                mt-4
-                text-white/65
-                leading-relaxed
-                "
-              >
+          </p>
 
-                Save your onboarding intelligence,
-                trajectory analysis,
-                and adaptive growth systems.
+          <motion.button
+            whileHover={{
+              scale: 1.02
+            }}
+            whileTap={{
+              scale: 0.98
+            }}
+            onClick={handleGoogleContinue}
+            className="
+            mt-6
+            w-full
+            rounded-2xl
+            bg-white
+            text-black
+            font-bold
+            py-5
+            "
+          >
 
-              </p>
+            Continue With Google
 
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) =>
-                  setEmail(e.target.value)
-                }
-                className="
-                mt-6
-                w-full
-                rounded-2xl
-                border
-                border-white/10
-                bg-black/20
-                px-5
-                py-4
-                outline-none
-                text-white
-                "
-              />
+          </motion.button>
 
-              <motion.button
-                whileHover={{
-                  scale: 1.02
-                }}
-                whileTap={{
-                  scale: 0.98
-                }}
-                onClick={handleContinue}
-                disabled={loading}
-                className="
-                mt-5
-                w-full
-                rounded-2xl
-                bg-[#D4A43B]
-                text-black
-                font-bold
-                py-5
-                "
-              >
-
-                {
-
-                  loading
-
-                  ? "Preparing Your System..."
-
-                  : "Save & Continue"
-
-                }
-
-              </motion.button>
-
-            </div>
-
-          ) : (
-
-            <motion.div
-              initial={{
-                opacity: 0,
-                y: 20
-              }}
-              animate={{
-                opacity: 1,
-                y: 0
-              }}
-              className="
-              rounded-[30px]
-              border
-              border-[#D4A43B]/20
-              bg-[#D4A43B]/5
-              p-8
-              "
-            >
-
-              <div className="text-[#FCD34D] text-sm">
-
-                Magic Link Sent
-
-              </div>
-
-              <h3
-                className="
-                mt-3
-                text-4xl
-                font-black
-                text-white
-                "
-              >
-
-                Check Your Email
-
-              </h3>
-
-              <p
-                className="
-                mt-4
-                text-white/70
-                leading-relaxed
-                "
-              >
-
-                Your PipuPath operating environment
-                is ready.
-
-                Use the secure link sent to your email
-                to continue into your adaptive dashboard.
-
-              </p>
-
-            </motion.div>
-
-          )
-
-        }
+        </div>
 
       </div>
 
