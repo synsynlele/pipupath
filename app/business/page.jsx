@@ -4,7 +4,7 @@ import NavBar from "@/components/NavBar";
 
 import Link from "next/link";
 
-export default function MagicPenPage() {
+export default function BusinessPage() {
 
   return (
 
@@ -20,7 +20,7 @@ export default function MagicPenPage() {
 
           <div className="text-[#D4A43B] uppercase tracking-[0.35em] text-xs mb-6">
 
-            Intelligence Layer
+            Economic Intelligence Layer
 
           </div>
 
@@ -35,11 +35,11 @@ export default function MagicPenPage() {
             "
           >
 
-            Think Better.
+            Build Assets.
             <br />
-            Decide Smarter.
+            Create Leverage.
             <br />
-            Grow Faster.
+            Compound Wealth.
 
           </h1>
 
@@ -53,7 +53,7 @@ export default function MagicPenPage() {
             "
           >
 
-            MagicPen is your AI-powered strategic thinking environment for reflection, clarity, ideation and growth acceleration.
+            Business is not just about income. It is about systems, leverage, ownership and long-term economic positioning.
 
           </p>
 
@@ -128,18 +128,18 @@ export default function MagicPenPage() {
           >
 
             <div className="text-5xl mb-6">
-              ✍️
+              💡
             </div>
 
             <div className="text-2xl font-bold mb-5">
 
-              Strategic Journaling
+              Idea Validation
 
             </div>
 
             <p className="text-[#F7E8C5]/60 leading-relaxed">
 
-              Capture ideas, thoughts, goals and emotional patterns while AI extracts strategic insights over time.
+              Stress test ideas, identify leverage opportunities and validate strategic business directions.
 
             </p>
 
@@ -159,18 +159,18 @@ export default function MagicPenPage() {
           >
 
             <div className="text-5xl mb-6">
-              🧠
+              ⚙️
             </div>
 
             <div className="text-2xl font-bold mb-5">
 
-              Decision Intelligence
+              System Design
 
             </div>
 
             <p className="text-[#F7E8C5]/60 leading-relaxed">
 
-              Think through life and business decisions with structured AI-guided reasoning frameworks.
+              Build scalable systems, workflows and operational structures that grow beyond individual effort.
 
             </p>
 
@@ -190,18 +190,18 @@ export default function MagicPenPage() {
           >
 
             <div className="text-5xl mb-6">
-              🚀
+              📈
             </div>
 
             <div className="text-2xl font-bold mb-5">
 
-              Growth Acceleration
+              Wealth Architecture
 
             </div>
 
             <p className="text-[#F7E8C5]/60 leading-relaxed">
 
-              Turn ideas into execution systems, habits into leverage and reflection into measurable growth.
+              Understand ownership, assets, compounding and long-term economic positioning.
 
             </p>
 
@@ -209,7 +209,7 @@ export default function MagicPenPage() {
 
         </div>
 
-        {/* VISION SECTION */}
+        {/* STRATEGIC SECTION */}
 
         <div
           className="
@@ -226,7 +226,7 @@ export default function MagicPenPage() {
 
           <div className="text-[#D4A43B] uppercase tracking-[0.35em] text-xs mb-6">
 
-            Future Vision
+            Strategic Philosophy
 
           </div>
 
@@ -241,8 +241,9 @@ export default function MagicPenPage() {
             "
           >
 
-            Your Personal
-            Intelligence Operating System
+            Stop Trading Time.
+            <br />
+            Start Building Systems.
 
           </h2>
 
@@ -256,13 +257,13 @@ export default function MagicPenPage() {
             "
           >
 
-            MagicPen will evolve into a persistent intelligence layer that helps users think clearly, learn deeply, compound wisdom and make higher quality life decisions over time.
+            The future belongs to people who can think strategically, build leverage and design systems that compound value without requiring constant manual effort.
 
           </p>
 
         </div>
 
-        {/* TIMELINE */}
+        {/* FUTURE CAPABILITIES */}
 
         <div>
 
@@ -273,6 +274,8 @@ export default function MagicPenPage() {
           </div>
 
           <div className="space-y-6">
+
+            {/* ITEM */}
 
             <div
               className="
@@ -292,17 +295,19 @@ export default function MagicPenPage() {
 
               <div className="text-2xl font-bold mb-3">
 
-                AI Reflection Workspace
+                AI Business Strategist
 
               </div>
 
               <div className="text-[#F7E8C5]/60">
 
-                Daily reflection, journaling and structured thought capture.
+                Generate strategic business analysis, market positioning and leverage opportunities.
 
               </div>
 
             </div>
+
+            {/* ITEM */}
 
             <div
               className="
@@ -322,17 +327,19 @@ export default function MagicPenPage() {
 
               <div className="text-2xl font-bold mb-3">
 
-                AI Strategic Advisor
+                Opportunity Intelligence
 
               </div>
 
               <div className="text-[#F7E8C5]/60">
 
-                AI-assisted decision frameworks for life, business and growth.
+                Discover hidden market opportunities aligned with user strengths and growth archetypes.
 
               </div>
 
             </div>
+
+            {/* ITEM */}
 
             <div
               className="
@@ -352,13 +359,13 @@ export default function MagicPenPage() {
 
               <div className="text-2xl font-bold mb-3">
 
-                Persistent Growth Intelligence
+                Economic Operating System
 
               </div>
 
               <div className="text-[#F7E8C5]/60">
 
-                Long-term memory, behavioral analysis and personalized growth optimization.
+                AI-powered systems for wealth building, strategic planning and long-term economic leverage.
 
               </div>
 

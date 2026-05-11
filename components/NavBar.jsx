@@ -1,49 +1,78 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+
+import {
+  useState,
+  useEffect
+} from "react";
+
+import {
+  usePathname,
+  useRouter
+} from "next/navigation";
+
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 
 export default function NavBar() {
 
   const router = useRouter();
 
-  const [isGuide, setIsGuide] = useState(false);
+  const pathname =
+    usePathname();
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isGuide, setIsGuide] =
+    useState(false);
 
-  const [loading, setLoading] = useState(true);
+  const [mobileOpen, setMobileOpen] =
+    useState(false);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [user, setUser] =
+    useState(null);
 
   useEffect(() => {
 
-    async function checkGuide() {
+    async function loadUser() {
 
-      const { data: userData } =
+      const {
+        data: authData
+      } =
         await supabase.auth.getUser();
 
-      if (!userData?.user) {
+      if (!authData?.user) {
 
         setLoading(false);
 
         return;
+
       }
 
-      const { data } = await supabase
-        .from("guides")
-        .select("id")
-        .eq("user_id", userData.user.id)
-        .single();
+      setUser(authData.user);
+
+      const { data } =
+        await supabase
+          .from("guides")
+          .select("id")
+          .eq(
+            "user_id",
+            authData.user.id
+          )
+          .single();
 
       if (data) {
+
         setIsGuide(true);
+
       }
 
       setLoading(false);
 
     }
 
-    checkGuide();
+    loadUser();
 
   }, []);
 
@@ -56,181 +85,201 @@ export default function NavBar() {
   }
 
   const navLinks = [
+
     {
       href: "/dashboard",
       label: "Dashboard"
     },
+
     {
       href: "/discover",
       label: "Discover"
     },
+
     {
       href: "/magicpen",
       label: "MagicPen"
     },
+
     {
       href: "/business",
       label: "Business"
     },
+
     {
       href: "/guides",
       label: "Guides"
     }
+
   ];
+
+  function isActive(href) {
+
+    return pathname === href;
+
+  }
 
   return (
 
-    <div className="w-full border-b border-[#2a2112] bg-gradient-to-b from-[#050300] to-[#0c0903] sticky top-0 z-50 backdrop-blur-xl">
+    <header
+      className="
+        sticky
+        top-0
+        z-50
+        border-b
+        border-[#2a2112]
+        bg-[rgba(5,3,0,0.82)]
+        backdrop-blur-2xl
+      "
+    >
 
       <div className="max-w-7xl mx-auto px-4 md:px-6">
 
-        <div className="flex items-center justify-between py-4">
+        {/* TOP BAR */}
 
-          {/* LOGO */}
+        <div
+          className="
+            h-[82px]
+            flex
+            items-center
+            justify-between
+            gap-6
+          "
+        >
 
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-3"
-          >
+          {/* LEFT */}
 
-            <img
-              src="/logo.png"
-              alt="PipuPath"
-              className="w-10 h-10 md:w-12 md:h-12 rounded-2xl shadow-[0_8px_30px_rgba(212,164,59,0.18)]"
-            />
+          <div className="flex items-center gap-10">
 
-            <div>
+            {/* LOGO */}
 
-              <h1 className="text-[#F7E8C5] font-bold text-xl md:text-2xl tracking-tight">
-                PipuPath
-              </h1>
+            <Link
+              href="/dashboard"
 
-              <p className="text-[#D4A43B] text-[10px] md:text-xs tracking-[0.3em] uppercase">
-                Guided Growth OS
-              </p>
-
-            </div>
-
-          </Link>
-
-          {/* DESKTOP NAV */}
-
-          <div className="hidden lg:flex items-center gap-8 text-sm">
-
-            {
-              navLinks.map((link) => (
-
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-[#F7E8C5]/75 hover:text-[#D4A43B] transition"
-                >
-                  {link.label}
-                </Link>
-
-              ))
-            }
-
-            {
-              !loading && (
-
-                isGuide ? (
-
-                  <Link
-                    href="/guide-dashboard"
-                    className="text-[#F7E8C5]/75 hover:text-[#D4A43B] transition"
-                  >
-                    Guide Dashboard
-                  </Link>
-
-                ) : (
-
-                  <Link
-                    href="/become-guide"
-                    className="text-[#F7E8C5]/75 hover:text-[#D4A43B] transition"
-                  >
-                    Become a Guide
-                  </Link>
-
-                )
-
-              )
-            }
-
-            <button
-              onClick={logout}
               className="
-                px-4
-                py-2
-                rounded-xl
-                border
-                border-[#2a2112]
-                text-[#F7E8C5]/70
-                hover:text-[#D4A43B]
-                hover:border-[#D4A43B]/40
-                transition
+                flex
+                items-center
+                gap-4
+                group
               "
             >
-              Sign Out
-            </button>
 
-          </div>
+              <div
+                className="
+                  relative
+                  w-12
+                  h-12
+                  md:w-14
+                  md:h-14
+                  rounded-[20px]
+                  overflow-hidden
+                  border
+                  border-[#D4A43B]/20
+                  bg-[#120d06]
+                  shadow-[0_8px_40px_rgba(212,164,59,0.18)]
+                "
+              >
 
-          {/* MOBILE BUTTON */}
+                <img
+                  src="/logo.png"
+                  alt="PipuPath"
 
-          <button
-            onClick={() =>
-              setMobileMenuOpen(!mobileMenuOpen)
-            }
+                  className="
+                    w-full
+                    h-full
+                    object-cover
+                  "
+                />
 
-            className="
-              lg:hidden
-              text-[#F7E8C5]
-              text-3xl
-            "
-          >
-            {mobileMenuOpen ? "×" : "☰"}
-          </button>
+              </div>
 
-        </div>
+              <div>
 
-        {/* MOBILE MENU */}
+                <div
+                  className="
+                    text-[#F7E8C5]
+                    font-bold
+                    text-xl
+                    md:text-2xl
+                    tracking-tight
+                    group-hover:text-[#D4A43B]
+                    transition
+                  "
+                >
 
-        {
-          mobileMenuOpen && (
+                  PipuPath
 
-            <div
+                </div>
+
+                <div
+                  className="
+                    text-[#D4A43B]
+                    text-[10px]
+                    md:text-xs
+                    tracking-[0.35em]
+                    uppercase
+                  "
+                >
+
+                  Human OS
+
+                </div>
+
+              </div>
+
+            </Link>
+
+            {/* DESKTOP NAV */}
+
+            <nav
               className="
-                lg:hidden
-                pb-6
-                flex
-                flex-col
-                gap-4
+                hidden
+                xl:flex
+                items-center
+                gap-2
               "
             >
 
               {
-                navLinks.map((link) => (
+                navLinks.map((link) => {
 
-                  <Link
-                    key={link.href}
-                    href={link.href}
+                  const active =
+                    isActive(
+                      link.href
+                    );
 
-                    onClick={() =>
-                      setMobileMenuOpen(false)
-                    }
+                  return (
 
-                    className="
-                      text-[#F7E8C5]/80
-                      hover:text-[#D4A43B]
-                      transition
-                      py-2
-                    "
-                  >
-                    {link.label}
-                  </Link>
+                    <Link
+                      key={link.href}
 
-                ))
+                      href={link.href}
+
+                      className={`
+                        px-5
+                        py-3
+                        rounded-2xl
+                        text-sm
+                        font-medium
+                        transition
+
+                        ${
+                          active
+
+                            ? "bg-[#D4A43B] text-black"
+
+                            : "text-[#F7E8C5]/70 hover:text-[#D4A43B] hover:bg-white/[0.03]"
+                        }
+                      `}
+                    >
+
+                      {link.label}
+
+                    </Link>
+
+                  );
+
+                })
               }
 
               {
@@ -241,18 +290,26 @@ export default function NavBar() {
                     <Link
                       href="/guide-dashboard"
 
-                      onClick={() =>
-                        setMobileMenuOpen(false)
-                      }
-
-                      className="
-                        text-[#F7E8C5]/80
-                        hover:text-[#D4A43B]
+                      className={`
+                        px-5
+                        py-3
+                        rounded-2xl
+                        text-sm
+                        font-medium
                         transition
-                        py-2
-                      "
+
+                        ${
+                          pathname === "/guide-dashboard"
+
+                            ? "bg-[#D4A43B] text-black"
+
+                            : "text-[#F7E8C5]/70 hover:text-[#D4A43B] hover:bg-white/[0.03]"
+                        }
+                      `}
                     >
+
                       Guide Dashboard
+
                     </Link>
 
                   ) : (
@@ -260,18 +317,26 @@ export default function NavBar() {
                     <Link
                       href="/become-guide"
 
-                      onClick={() =>
-                        setMobileMenuOpen(false)
-                      }
-
-                      className="
-                        text-[#F7E8C5]/80
-                        hover:text-[#D4A43B]
+                      className={`
+                        px-5
+                        py-3
+                        rounded-2xl
+                        text-sm
+                        font-medium
                         transition
-                        py-2
-                      "
+
+                        ${
+                          pathname === "/become-guide"
+
+                            ? "bg-[#D4A43B] text-black"
+
+                            : "text-[#F7E8C5]/70 hover:text-[#D4A43B] hover:bg-white/[0.03]"
+                        }
+                      `}
                     >
-                      Become a Guide
+
+                      Become Guide
+
                     </Link>
 
                   )
@@ -279,25 +344,358 @@ export default function NavBar() {
                 )
               }
 
-              <button
-                onClick={logout}
+            </nav>
 
+          </div>
+
+          {/* RIGHT */}
+
+          <div className="flex items-center gap-4">
+
+            {/* USER */}
+
+            {
+              user && (
+
+                <div
+                  className="
+                    hidden
+                    lg:flex
+                    items-center
+                    gap-4
+                    px-4
+                    py-3
+                    rounded-2xl
+                    border
+                    border-[#2a2112]
+                    bg-white/[0.03]
+                  "
+                >
+
+                  <div
+                    className="
+                      w-10
+                      h-10
+                      rounded-xl
+                      bg-[#D4A43B]
+                      text-black
+                      flex
+                      items-center
+                      justify-center
+                      font-bold
+                    "
+                  >
+
+                    {
+                      user.email?.[0]
+                        ?.toUpperCase()
+                    }
+
+                  </div>
+
+                  <div>
+
+                    <div
+                      className="
+                        text-[#F7E8C5]
+                        text-sm
+                        font-medium
+                      "
+                    >
+
+                      {
+                        isGuide
+                          ? "Guide Account"
+                          : "Explorer Account"
+                      }
+
+                    </div>
+
+                    <div
+                      className="
+                        text-[#F7E8C5]/45
+                        text-xs
+                        max-w-[180px]
+                        truncate
+                      "
+                    >
+
+                      {user.email}
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              )
+            }
+
+            {/* LOGOUT */}
+
+            <button
+              onClick={logout}
+
+              className="
+                hidden
+                md:flex
+                px-5
+                py-3
+                rounded-2xl
+                border
+                border-[#2a2112]
+                text-[#F7E8C5]/70
+                hover:text-[#D4A43B]
+                hover:border-[#D4A43B]/40
+                transition
+              "
+            >
+
+              Sign Out
+
+            </button>
+
+            {/* MOBILE BUTTON */}
+
+            <button
+              onClick={() =>
+                setMobileOpen(
+                  !mobileOpen
+                )
+              }
+
+              className="
+                xl:hidden
+                w-12
+                h-12
+                rounded-2xl
+                border
+                border-[#2a2112]
+                flex
+                items-center
+                justify-center
+                text-2xl
+                text-[#F7E8C5]
+              "
+            >
+
+              {
+                mobileOpen
+                  ? "×"
+                  : "☰"
+              }
+
+            </button>
+
+          </div>
+
+        </div>
+
+        {/* MOBILE MENU */}
+
+        {
+          mobileOpen && (
+
+            <div
+              className="
+                xl:hidden
+                pb-6
+                animate-in
+                fade-in
+              "
+            >
+
+              <div
                 className="
-                  mt-4
-                  px-4
-                  py-3
-                  rounded-2xl
+                  rounded-[32px]
                   border
                   border-[#2a2112]
-                  text-[#F7E8C5]/70
-                  hover:text-[#D4A43B]
-                  hover:border-[#D4A43B]/40
-                  transition
-                  text-left
+                  bg-[#120d06]
+                  p-4
+                  space-y-2
                 "
               >
-                Sign Out
-              </button>
+
+                {
+                  navLinks.map(
+                    (link) => {
+
+                      const active =
+                        isActive(
+                          link.href
+                        );
+
+                      return (
+
+                        <Link
+                          key={link.href}
+
+                          href={link.href}
+
+                          onClick={() =>
+                            setMobileOpen(
+                              false
+                            )
+                          }
+
+                          className={`
+                            block
+                            px-5
+                            py-4
+                            rounded-2xl
+                            transition
+
+                            ${
+                              active
+
+                                ? "bg-[#D4A43B] text-black font-bold"
+
+                                : "text-[#F7E8C5]/75 hover:bg-white/[0.03]"
+                            }
+                          `}
+                        >
+
+                          {link.label}
+
+                        </Link>
+
+                      );
+
+                    }
+                  )
+                }
+
+                {
+                  !loading && (
+
+                    isGuide ? (
+
+                      <Link
+                        href="/guide-dashboard"
+
+                        onClick={() =>
+                          setMobileOpen(
+                            false
+                          )
+                        }
+
+                        className={`
+                          block
+                          px-5
+                          py-4
+                          rounded-2xl
+                          transition
+
+                          ${
+                            pathname === "/guide-dashboard"
+
+                              ? "bg-[#D4A43B] text-black font-bold"
+
+                              : "text-[#F7E8C5]/75 hover:bg-white/[0.03]"
+                          }
+                        `}
+                      >
+
+                        Guide Dashboard
+
+                      </Link>
+
+                    ) : (
+
+                      <Link
+                        href="/become-guide"
+
+                        onClick={() =>
+                          setMobileOpen(
+                            false
+                          )
+                        }
+
+                        className={`
+                          block
+                          px-5
+                          py-4
+                          rounded-2xl
+                          transition
+
+                          ${
+                            pathname === "/become-guide"
+
+                              ? "bg-[#D4A43B] text-black font-bold"
+
+                              : "text-[#F7E8C5]/75 hover:bg-white/[0.03]"
+                          }
+                        `}
+                      >
+
+                        Become Guide
+
+                      </Link>
+
+                    )
+
+                  )
+                }
+
+                {/* MOBILE USER */}
+
+                {
+                  user && (
+
+                    <div
+                      className="
+                        mt-5
+                        rounded-2xl
+                        border
+                        border-[#2a2112]
+                        bg-black/20
+                        p-5
+                      "
+                    >
+
+                      <div className="text-[#D4A43B] text-sm mb-2">
+
+                        Logged In As
+
+                      </div>
+
+                      <div className="text-[#F7E8C5] font-medium break-all">
+
+                        {user.email}
+
+                      </div>
+
+                    </div>
+
+                  )
+                }
+
+                {/* LOGOUT */}
+
+                <button
+                  onClick={logout}
+
+                  className="
+                    w-full
+                    mt-5
+                    px-5
+                    py-4
+                    rounded-2xl
+                    border
+                    border-[#2a2112]
+                    text-left
+                    text-[#F7E8C5]/75
+                    hover:text-[#D4A43B]
+                    hover:border-[#D4A43B]/40
+                    transition
+                  "
+                >
+
+                  Sign Out
+
+                </button>
+
+              </div>
 
             </div>
 
@@ -306,7 +704,7 @@ export default function NavBar() {
 
       </div>
 
-    </div>
+    </header>
 
   );
 
