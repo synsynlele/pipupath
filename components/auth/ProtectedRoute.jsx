@@ -1,10 +1,20 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useEffect }
 
-import { useEffect } from "react";
+from "react";
 
-import useAuth from "@/hooks/useAuth";
+import { useRouter }
+
+from "next/navigation";
+
+import useAuth
+
+from "@/hooks/useAuth";
+
+import { getDashboardRoute }
+
+from "@/lib/dashboardRouter";
 
 export default function ProtectedRoute({
 
@@ -14,28 +24,34 @@ export default function ProtectedRoute({
 
 }) {
 
-  const { user, loading } = useAuth();
-
   const router = useRouter();
+
+  const {
+    user,
+    loading
+  } = useAuth();
 
   useEffect(() => {
 
+    // WAIT FOR SESSION HYDRATION
     if(loading) return;
 
-    // NOT LOGGED IN
+    // NO USER
     if(!user){
 
-  return;
+      router.push("/");
 
-}
+      return;
 
-    // CHECK ONBOARDING
-    const selectedPath =
+    }
+
+    // CHECK IDENTITY
+    const identity =
       localStorage.getItem(
-        "pipupath_selected_path"
+        "pipupath_identity"
       );
 
-    if(!selectedPath){
+    if(!identity){
 
       router.push("/");
 
@@ -48,37 +64,14 @@ export default function ProtectedRoute({
 
       requiredPath &&
 
-      selectedPath !== requiredPath
+      identity !== requiredPath
 
     ){
 
-      switch(selectedPath){
+      const correctRoute =
+        getDashboardRoute(identity);
 
-        case "Student":
-          router.push("/dashboard/student");
-          break;
-
-        case "Founder":
-          router.push("/dashboard/founder");
-          break;
-
-        case "Professional":
-          router.push("/dashboard/professional");
-          break;
-
-        case "Creator":
-          router.push("/dashboard/creator");
-          break;
-
-        case "School Leader":
-          router.push("/dashboard/school");
-          break;
-
-        default:
-          router.push("/");
-          break;
-
-      }
+      router.push(correctRoute);
 
     }
 
@@ -94,11 +87,12 @@ export default function ProtectedRoute({
 
   ]);
 
+  // LOADING STATE
   if(loading){
 
     return (
 
-      <div
+      <main
         className="
         min-h-screen
         bg-[#050816]
@@ -109,14 +103,39 @@ export default function ProtectedRoute({
         "
       >
 
-        Loading PipuPath...
+        <div className="text-center">
 
-      </div>
+          <div
+            className="
+            text-4xl
+            font-black
+            "
+          >
+
+            Restoring PipuPath...
+
+          </div>
+
+          <p
+            className="
+            mt-4
+            text-white/60
+            "
+          >
+
+            Rebuilding your adaptive environment.
+
+          </p>
+
+        </div>
+
+      </main>
 
     );
 
   }
 
+  // NO USER AFTER LOADING
   if(!user){
 
     return null;

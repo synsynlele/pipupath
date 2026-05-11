@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { motion } from "framer-motion";
 
 import { supabase }
@@ -21,6 +23,13 @@ export default function IdentityResults({
   answers
 
 }) {
+
+  const [email, setEmail] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const [emailSuccess, setEmailSuccess] =
+    useState(false);
 
   function generateProfile() {
 
@@ -82,7 +91,8 @@ export default function IdentityResults({
 
   const profile = generateProfile();
 
-  async function handleGoogleContinue(){
+  // SAVE CONTINUITY
+  function saveContinuity(){
 
     localStorage.setItem(
       "pipupath_completed",
@@ -93,6 +103,13 @@ export default function IdentityResults({
       "pipupath_identity",
       selectedPath
     );
+
+  }
+
+  // GOOGLE LOGIN
+  async function handleGoogleContinue(){
+
+    saveContinuity();
 
     const { error } =
       await supabase.auth.signInWithOAuth({
@@ -113,6 +130,43 @@ export default function IdentityResults({
       alert(error.message);
 
     }
+
+  }
+
+  // EMAIL LOGIN
+  async function handleEmailContinue(){
+
+    if(!email) return;
+
+    setLoading(true);
+
+    saveContinuity();
+
+    const { error } =
+      await supabase.auth.signInWithOtp({
+
+        email,
+
+        options: {
+
+          emailRedirectTo:
+            `${window.location.origin}/auth/callback`
+
+        }
+
+      });
+
+    setLoading(false);
+
+    if(error){
+
+      alert(error.message);
+
+      return;
+
+    }
+
+    setEmailSuccess(true);
 
   }
 
@@ -203,7 +257,6 @@ export default function IdentityResults({
         "
       >
 
-        {/* CARD */}
         <div
           className="
           rounded-[28px]
@@ -233,7 +286,6 @@ export default function IdentityResults({
 
         </div>
 
-        {/* CARD */}
         <div
           className="
           rounded-[28px]
@@ -263,7 +315,6 @@ export default function IdentityResults({
 
         </div>
 
-        {/* CARD */}
         <div
           className="
           rounded-[28px]
@@ -350,20 +401,6 @@ export default function IdentityResults({
               {profile.recommendation}
 
             </div>
-
-            <p
-              className="
-              mt-4
-              text-white/70
-              leading-relaxed
-              "
-            >
-
-              Based on your behavioral responses,
-              this system will create the highest
-              leverage improvement in your trajectory.
-
-            </p>
 
           </div>
 
@@ -484,6 +521,7 @@ export default function IdentityResults({
 
           </p>
 
+          {/* GOOGLE */}
           <motion.button
             whileHover={{
               scale: 1.02
@@ -506,6 +544,106 @@ export default function IdentityResults({
             Continue With Google
 
           </motion.button>
+
+          {/* DIVIDER */}
+          <div
+            className="
+            mt-6
+            text-center
+            text-white/30
+            text-sm
+            "
+          >
+
+            OR CONTINUE WITH EMAIL
+
+          </div>
+
+          {/* EMAIL */}
+          {
+
+            !emailSuccess ? (
+
+              <>
+
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) =>
+                    setEmail(e.target.value)
+                  }
+                  className="
+                  mt-5
+                  w-full
+                  rounded-2xl
+                  border
+                  border-white/10
+                  bg-black/20
+                  px-5
+                  py-4
+                  outline-none
+                  text-white
+                  "
+                />
+
+                <motion.button
+                  whileHover={{
+                    scale: 1.02
+                  }}
+                  whileTap={{
+                    scale: 0.98
+                  }}
+                  onClick={handleEmailContinue}
+                  disabled={loading}
+                  className="
+                  mt-4
+                  w-full
+                  rounded-2xl
+                  border
+                  border-white/10
+                  text-white
+                  font-semibold
+                  py-5
+                  "
+                >
+
+                  {
+
+                    loading
+
+                    ? "Sending Link..."
+
+                    : "Continue With Email"
+
+                  }
+
+                </motion.button>
+
+              </>
+
+            ) : (
+
+              <div
+                className="
+                mt-5
+                rounded-2xl
+                border
+                border-[#D4A43B]/20
+                bg-[#D4A43B]/5
+                p-5
+                text-white/70
+                "
+              >
+
+                Magic link sent successfully.
+                Check your email to continue.
+
+              </div>
+
+            )
+
+          }
 
         </div>
 
