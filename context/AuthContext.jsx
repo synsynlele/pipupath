@@ -9,14 +9,16 @@ import {
 
 import { supabase } from "../lib/supabase";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+
   const [user, setUser] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+
     async function getSession() {
 
       const {
@@ -39,6 +41,7 @@ export function AuthProvider({ children }) {
     );
 
     return () => subscription.unsubscribe();
+
   }, []);
 
   return (
@@ -54,5 +57,14 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error(
+      "useAuth must be used inside AuthProvider"
+    );
+  }
+
+  return context;
 }
