@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -14,6 +14,8 @@ export default function DashboardPage() {
 
   const { user, loading } = useAuth();
 
+  const [profile, setProfile] = useState(null);
+
   useEffect(() => {
 
     if (!loading && !user) {
@@ -21,6 +23,26 @@ export default function DashboardPage() {
     }
 
   }, [user, loading, router]);
+
+  useEffect(() => {
+
+    async function loadProfile() {
+
+      if (!user) return;
+
+      const { data } =
+        await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+      setProfile(data);
+    }
+
+    loadProfile();
+
+  }, [user]);
 
   async function handleLogout() {
 
@@ -77,7 +99,7 @@ export default function DashboardPage() {
           </p>
 
           <h2 className="mt-2 text-4xl font-bold text-[#0F172A]">
-            0 XP
+            {profile?.xp || 0} XP
           </h2>
 
         </div>
@@ -90,7 +112,7 @@ export default function DashboardPage() {
           </p>
 
           <h2 className="mt-2 text-4xl font-bold text-[#D4A017]">
-            0 Days
+            {profile?.streak || 0} Days
           </h2>
 
         </div>

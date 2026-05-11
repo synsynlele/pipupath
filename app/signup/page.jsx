@@ -26,19 +26,34 @@ export default function SignupPage() {
 
     setLoading(true);
 
-    const { error } =
-      await supabase.auth.signUp({
-        email,
-        password,
-      });
+    const {
+      data,
+      error,
+    } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (!error && data?.user) {
+
+      await supabase
+        .from("profiles")
+        .insert([
+          {
+            id: data.user.id,
+            email: data.user.email,
+          },
+        ]);
+
+      router.push("/dashboard");
+
+    } else if (error) {
+
+      alert(error.message);
+
+    }
 
     setLoading(false);
-
-    if (!error) {
-      router.push("/dashboard");
-    } else {
-      alert(error.message);
-    }
   }
 
   async function handleGoogleSignup() {
@@ -107,9 +122,7 @@ export default function SignupPage() {
         </div>
 
         {/* Email Signup */}
-        <form
-          onSubmit={handleSignup}
-        >
+        <form onSubmit={handleSignup}>
 
           <div className="space-y-4">
 
