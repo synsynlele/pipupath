@@ -10,6 +10,9 @@ import { useAuth } from "../../context/AuthContext";
 
 import { supabase } from "../../lib/supabase";
 
+import Navigation
+from "../../components/Navigation";
+
 import { saveReflection } from "../../lib/reflections";
 
 import { generateMission } from "../../lib/missions";
@@ -75,6 +78,15 @@ export default function DashboardPage() {
           .single();
 
       if (!error && data) {
+
+if (
+  !data?.onboarding_completed
+) {
+
+  router.push("/onboarding");
+
+  return;
+}
 
         setProfile(data);
       }
@@ -359,6 +371,8 @@ export default function DashboardPage() {
   return (
 
     <main className="min-h-screen bg-[#F5F7FA] text-[#0F172A] overflow-x-hidden">
+
+<Navigation />
 
       {/* Ambient Glow */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">

@@ -8,6 +8,9 @@ import { useRouter } from "next/navigation";
 
 import { useAuth } from "../../context/AuthContext";
 
+import Navigation
+from "../../components/Navigation";
+
 import { getReflectionHistory }
 from "../../lib/reflections";
 
@@ -125,6 +128,8 @@ export default function ReflectionsPage() {
   return (
 
     <main className="min-h-screen bg-[#F5F7FA] overflow-x-hidden text-[#0F172A]">
+
+<Navigation />
 
       {/* Ambient Glow */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">

@@ -14,6 +14,9 @@ from "../../context/AuthContext";
 import { supabase }
 from "../../lib/supabase";
 
+import Navigation
+from "../../components/Navigation";
+
 const ARCHETYPE_DATA = {
 
   "The Builder": {
@@ -209,6 +212,8 @@ export default function ResultsPage() {
   return (
 
     <main className="min-h-screen bg-[#F5F7FA] overflow-x-hidden text-[#0F172A]">
+
+<Navigation />
 
       {/* Ambient Glow */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
