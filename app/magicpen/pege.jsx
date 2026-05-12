@@ -1,4 +1,4 @@
-export default function MagicPenPage() {
+export default function MagicpenPage() {
 
   return (
 
