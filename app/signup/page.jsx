@@ -1,24 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState }
+from "react";
 
 import Link from "next/link";
 
 import Image from "next/image";
 
-import { useRouter } from "next/navigation";
+import { useRouter }
+from "next/navigation";
 
-import { supabase } from "../../lib/supabase";
+import { supabase }
+from "../../lib/supabase";
+
+import { useAuth }
+from "../../context/AuthContext";
 
 export default function SignupPage() {
 
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
+  const { user, loading: authLoading } =
+    useAuth();
 
-  const [password, setPassword] = useState("");
+  const [email, setEmail] =
+    useState("");
 
-  const [loading, setLoading] = useState(false);
+  const [password, setPassword] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  // Redirect logged-in users
+  useEffect(() => {
+
+    if (!authLoading && user) {
+
+      router.push("/dashboard");
+    }
+
+  }, [user, authLoading, router]);
 
   async function handleSignup(e) {
 
@@ -45,12 +67,11 @@ export default function SignupPage() {
           },
         ]);
 
-      router.push("/dashboard");
+      router.push("/discover");
 
     } else if (error) {
 
       alert(error.message);
-
     }
 
     setLoading(false);
@@ -59,18 +80,35 @@ export default function SignupPage() {
   async function handleGoogleSignup() {
 
     const { error } =
-      await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo:
-            `${window.location.origin}/auth/callback`,
-        },
-      });
+      await supabase.auth
+        .signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo:
+              `${window.location.origin}/auth/callback`,
+          },
+        });
 
     if (error) {
+
       alert(error.message);
     }
   }
+
+  if (authLoading) {
+
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+
+        <p className="text-gray-600">
+          Loading...
+        </p>
+
+      </main>
+    );
+  }
+
+  if (user) return null;
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#F8FAFC] px-4">
@@ -121,7 +159,7 @@ export default function SignupPage() {
 
         </div>
 
-        {/* Email Signup */}
+        {/* Form */}
         <form onSubmit={handleSignup}>
 
           <div className="space-y-4">
@@ -155,12 +193,16 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full mt-6 border border-[#0F172A] text-[#0F172A] py-3 rounded-xl font-medium hover:bg-gray-50 transition"
           >
-            {loading ? "Loading..." : "Sign up with Email"}
+
+            {loading
+              ? "Loading..."
+              : "Sign up with Email"}
+
           </button>
 
         </form>
 
-        {/* Login Link */}
+        {/* Login */}
         <p className="mt-6 text-center text-sm text-gray-600">
 
           Already have an account?{" "}

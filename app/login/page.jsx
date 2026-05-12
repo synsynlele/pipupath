@@ -1,24 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState }
+from "react";
 
 import Link from "next/link";
 
 import Image from "next/image";
 
-import { useRouter } from "next/navigation";
+import { useRouter }
+from "next/navigation";
 
-import { supabase } from "../../lib/supabase";
+import { supabase }
+from "../../lib/supabase";
+
+import { useAuth }
+from "../../context/AuthContext";
 
 export default function LoginPage() {
 
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
+  const { user, loading: authLoading } =
+    useAuth();
 
-  const [password, setPassword] = useState("");
+  const [email, setEmail] =
+    useState("");
 
-  const [loading, setLoading] = useState(false);
+  const [password, setPassword] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  // Redirect logged in users
+  useEffect(() => {
+
+    if (!authLoading && user) {
+
+      router.push("/dashboard");
+    }
+
+  }, [user, authLoading, router]);
 
   async function handleLogin(e) {
 
@@ -27,16 +49,20 @@ export default function LoginPage() {
     setLoading(true);
 
     const { error } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      await supabase.auth
+        .signInWithPassword({
+          email,
+          password,
+        });
 
     setLoading(false);
 
     if (!error) {
+
       router.push("/dashboard");
+
     } else {
+
       alert(error.message);
     }
   }
@@ -44,18 +70,35 @@ export default function LoginPage() {
   async function handleGoogleLogin() {
 
     const { error } =
-      await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-         redirectTo:
-  `${window.location.origin}/auth/callback`
-        },
-      });
+      await supabase.auth
+        .signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo:
+              `${window.location.origin}/auth/callback`,
+          },
+        });
 
     if (error) {
+
       alert(error.message);
     }
   }
+
+  if (authLoading) {
+
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+
+        <p className="text-gray-600">
+          Loading...
+        </p>
+
+      </main>
+    );
+  }
+
+  if (user) return null;
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#F8FAFC] px-4">
@@ -84,7 +127,7 @@ export default function LoginPage() {
 
         </div>
 
-        {/* Google Login Primary */}
+        {/* Google Login */}
         <button
           type="button"
           onClick={handleGoogleLogin}
@@ -106,10 +149,8 @@ export default function LoginPage() {
 
         </div>
 
-        {/* Email Form */}
-        <form
-          onSubmit={handleLogin}
-        >
+        {/* Form */}
+        <form onSubmit={handleLogin}>
 
           <div className="space-y-4">
 
@@ -142,7 +183,11 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full mt-6 border border-[#0F172A] text-[#0F172A] py-3 rounded-xl font-medium hover:bg-gray-50 transition"
           >
-            {loading ? "Loading..." : "Login with Email"}
+
+            {loading
+              ? "Loading..."
+              : "Login with Email"}
+
           </button>
 
         </form>
