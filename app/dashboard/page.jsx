@@ -2,58 +2,133 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState }
+from "react";
 
-import { useRouter } from "next/navigation";
+import { useRouter }
+from "next/navigation";
 
-import { useAuth } from "../../context/AuthContext";
+import { useAuth }
+from "../../context/AuthContext";
 
-import { supabase } from "../../lib/supabase";
+import { supabase }
+from "../../lib/supabase";
 
 import Navigation
 from "../../components/Navigation";
 
-import { saveReflection } from "../../lib/reflections";
+import Hero
+from "../../components/dashboard/Hero";
 
-import { generateMission } from "../../lib/missions";
+import AdaptiveMission
+from "../../components/dashboard/AdaptiveMission";
+
+import Signals
+from "../../components/dashboard/Signals";
+
+import Orchestration
+from "../../components/dashboard/Orchestration";
+
+import Memory
+from "../../components/dashboard/Memory";
+
+import Evolution
+from "../../components/dashboard/Evolution";
+
+import Drift
+from "../../components/dashboard/Drift";
+
+import { generateMission }
+from "../../lib/missions";
+
+import {
+  generateBehavioralSignals,
+}
+from "../../lib/behavior";
+
+import {
+  detectBehaviorPatterns,
+}
+from "../../lib/memory";
+
+import {
+  generateEvolutionInsights,
+}
+from "../../lib/evolution";
+
+import {
+  detectBehavioralDrift,
+}
+from "../../lib/drift";
+
+import {
+  orchestrateAdaptiveState,
+}
+from "../../lib/orchestrator";
 
 export default function DashboardPage() {
 
   const router = useRouter();
 
-  const { user, loading } = useAuth();
+  const { user, loading } =
+    useAuth();
 
   const [profile, setProfile] =
     useState(null);
 
-  const [completing, setCompleting] =
-    useState(false);
+  const [signals, setSignals] =
+    useState([]);
 
-  const [activeMission,
-    setActiveMission] =
-    useState(null);
+  const [patterns, setPatterns] =
+    useState([]);
 
-  const [reflection,
-    setReflection] =
-    useState("");
+  const [
+    evolutionInsights,
+    setEvolutionInsights,
+  ] = useState([]);
 
-  const [difficulty,
-    setDifficulty] =
-    useState("");
+  const [
+    driftSignals,
+    setDriftSignals,
+  ] = useState([]);
 
-  const [feeling,
-    setFeeling] =
-    useState("");
+  const [
+    orchestration,
+    setOrchestration,
+  ] = useState(null);
 
-  const [aiInsight,
-    setAiInsight] =
-    useState("");
+  const [
+    activeMission,
+    setActiveMission,
+  ] = useState(null);
 
-  const [analyzing,
-    setAnalyzing] =
-    useState(false);
+const [
+  interventionHistory,
+  setInterventionHistory,
+] = useState([]);
 
-  // Redirect unauthenticated users
+const environmentDensity =
+
+  orchestration?.environmentDensity ||
+
+  "normal";
+
+const isMinimalDensity =
+
+  environmentDensity === "minimal";
+
+const isReducedDensity =
+
+  environmentDensity === "reduced";
+
+const isExpandedDensity =
+
+  environmentDensity === "expanded";
+
+  // =========================
+  // AUTH
+  // =========================
+
   useEffect(() => {
 
     if (!loading && !user) {
@@ -63,7 +138,10 @@ export default function DashboardPage() {
 
   }, [user, loading, router]);
 
-  // Load profile
+  // =========================
+  // LOAD PROFILE
+  // =========================
+
   useEffect(() => {
 
     async function loadProfile() {
@@ -77,289 +155,372 @@ export default function DashboardPage() {
           .eq("id", user.id)
           .single();
 
-      if (!error && data) {
-
-if (
-  !data?.onboarding_completed
-) {
-
-  router.push("/onboarding");
-
-  return;
-}
-
-        setProfile(data);
-      }
-    }
-
-    loadProfile();
-
-  }, [user]);
-
-  // Generate adaptive mission
-  useEffect(() => {
-
-    if (!profile) return;
-
-    const mission =
-      generateMission(profile);
-
-    setActiveMission(mission);
-
-  }, [profile]);
-
-  // Momentum decay
-  useEffect(() => {
-
-    if (
-      !profile?.last_completed_at
-    ) return;
-
-    const last =
-      new Date(
-        profile.last_completed_at
-      );
-
-    const now = new Date();
-
-    const diff =
-      (now - last) /
-      (1000 * 60 * 60 * 24);
-
-    if (diff > 3) {
-
-      setProfile((prev) => {
-
-        if (!prev) return prev;
-
-        return {
-          ...prev,
-          momentum: Math.max(
-            (prev.momentum || 0) - 10,
-            0
-          ),
-        };
-      });
-    }
-
-  }, [profile?.last_completed_at]);
-
-  // Logout
-  async function handleLogout() {
-
-    await supabase.auth.signOut();
-
-    router.push("/login");
-  }
-
-  // AI reflection analysis
-  async function analyzeReflection() {
-
-    if (
-      !reflection &&
-      !difficulty &&
-      !feeling
-    ) return "";
-
-    setAnalyzing(true);
-
-    try {
-
-      const response =
-        await fetch(
-          "/api/reflection",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-
-            body: JSON.stringify({
-              reflection,
-              difficulty,
-              feeling,
-            }),
-          }
-        );
-
-      const data =
-        await response.json();
-
-      const insight =
-        data?.insight || "";
-
-      setAiInsight(insight);
-
-      return insight;
-
-    } catch (error) {
-
-      console.error(error);
-
-      return "";
-
-    } finally {
-
-      setAnalyzing(false);
-    }
-  }
-
-  // Mission completion
-  async function completeMission() {
-
-    if (
-      !user ||
-      !profile ||
-      !activeMission ||
-      completing
-    ) return;
-
-    setCompleting(true);
-
-    try {
-
-      // =========================
-      // AI ANALYSIS
-      // =========================
-
-      const insightText =
-        await analyzeReflection();
-
-      const now = new Date();
-
-      const reward =
-        activeMission.xpReward || 10;
-
-      const updates = {
-
-        xp:
-          (profile.xp || 0) + reward,
-
-        missions_completed:
-          (profile.missions_completed || 0) + 1,
-
-        momentum:
-          Math.min(
-            (profile.momentum || 0) + 5,
-            100
-          ),
-
-        streak:
-          (profile.streak || 0) + 1,
-
-        last_completed_at:
-          now.toISOString(),
-      };
-
-      // Legacy reflection save
-      await supabase
-        .from("reflections")
-        .insert([
-          {
-            user_id: user.id,
-
-            mission:
-              activeMission?.title || "",
-
-            difficulty,
-
-            feeling,
-          },
-        ]);
-
-      // Behavioral memory save
-      await saveReflection({
-
-        missionText:
-          activeMission?.title || "",
-
-        reflectionText:
-          reflection || "",
-
-        aiSummary:
-          insightText || "",
-
-        aiSentiment:
-          feeling || "neutral",
-
-        aiEnergyScore:
-          reflection.length > 120
-            ? 8
-            : reflection.length > 40
-            ? 5
-            : 2,
-
-        aiConsistencyScore:
-          profile?.streak >= 7
-            ? 8
-            : profile?.streak >= 3
-            ? 5
-            : 2,
-
-        xpEarned: reward
-
-      });
-
-      // Update profile
-      const { error } =
-        await supabase
-          .from("profiles")
-          .update(updates)
-          .eq("id", user.id);
-
       if (error) {
 
         console.error(error);
 
-        alert(
-          "Failed to complete mission."
-        );
+        return;
+      }
 
-        setCompleting(false);
+      if (
+        !data?.onboarding_completed
+      ) {
+
+        router.push(
+          "/onboarding"
+        );
 
         return;
       }
 
-      setProfile((prev) => ({
-        ...prev,
-        ...updates,
-      }));
+      setProfile(data);
 
-      // Reset inputs
-      setReflection("");
+if (data?.intervention_history) {
 
-      setDifficulty("");
+  setInterventionHistory(
+    data.intervention_history
+  );
+}
 
-      setFeeling("");
+if (data?.adaptive_state) {
 
-      setCompleting(false);
+  setOrchestration(
+    (prev) => ({
 
-    } catch (error) {
+      ...prev,
 
-      console.error(error);
+      ...data.adaptive_state,
+    }))
+}
 
-      alert(
-        "Something went wrong."
+      // =========================
+      // SIGNALS
+      // =========================
+
+      const generatedSignals =
+        await generateBehavioralSignals({
+
+          reflectionCount:
+            data?.reflection_count || 0,
+
+          averageReflectionDepth:
+            data?.reflection_depth || 5,
+
+          momentum:
+            data?.momentum || 0,
+
+          cognitiveState:
+            data?.last_cognitive_state || "",
+
+          clarityScore:
+            data?.clarity_score || 5,
+        });
+
+      setSignals(
+        generatedSignals
       );
 
-      setCompleting(false);
-    }
-  }
+      // =========================
+      // MEMORY
+      // =========================
 
-  // Loading state
+      const detectedPatterns =
+        await detectBehaviorPatterns({
+
+          momentumHistory:
+            data?.momentum_history || [],
+
+          cognitiveHistory:
+            data?.cognitive_history || [],
+
+          reflectionDepthHistory:
+            data?.reflection_depth_history || [],
+        });
+
+      setPatterns(
+        detectedPatterns
+      );
+
+      // =========================
+      // EVOLUTION
+      // =========================
+
+      const generatedEvolution =
+        await generateEvolutionInsights({
+
+          momentumHistory:
+            data?.momentum_history || [],
+
+          cognitiveHistory:
+            data?.cognitive_history || [],
+
+          reflectionDepthHistory:
+            data?.reflection_depth_history || [],
+
+          consistencyHistory:
+            data?.consistency_history || [],
+        });
+
+      setEvolutionInsights(
+        generatedEvolution
+      );
+
+      // =========================
+      // DRIFT
+      // =========================
+
+      const fatigueCount =
+
+        (
+          data?.cognitive_history || []
+        ).filter(
+          (state) =>
+            state ===
+            "Cognitive Fatigue"
+        ).length;
+
+      const detectedDrift =
+        await detectBehavioralDrift({
+
+          currentMomentum:
+            data?.momentum || 0,
+
+          averageMomentum:
+
+            (
+              data
+                ?.momentum_history || []
+            ).length > 0
+
+              ?
+
+              (
+                data
+                  .momentum_history
+                  .reduce(
+                    (a, b) =>
+                      a + b,
+                    0
+                  ) /
+
+                data
+                  .momentum_history
+                  .length
+              )
+
+              : 0,
+
+          currentReflectionDepth:
+            data?.reflection_depth || 5,
+
+          averageReflectionDepth:
+
+            (
+              data
+                ?.reflection_depth_history || []
+            ).length > 0
+
+              ?
+
+              (
+                data
+                  .reflection_depth_history
+                  .reduce(
+                    (a, b) =>
+                      a + b,
+                    0
+                  ) /
+
+                data
+                  .reflection_depth_history
+                  .length
+              )
+
+              : 0,
+
+          recentCognitiveState:
+            data?.last_cognitive_state || "",
+
+          historicalFatigueCount:
+            fatigueCount,
+        });
+
+      setDriftSignals(
+        detectedDrift
+      );
+
+      // =========================
+      // ORCHESTRATION
+      // =========================
+
+      const orchestratedState =
+        await orchestrateAdaptiveState({
+
+          signals:
+            generatedSignals,
+
+          patterns:
+            detectedPatterns,
+
+          evolutionInsights:
+            generatedEvolution,
+
+          driftSignals:
+            detectedDrift,
+        });
+
+      setOrchestration(
+        orchestratedState
+      );
+
+const generatedHistory = [
+
+  ...(data?.intervention_history || []),
+
+  {
+    missionMode:
+      orchestratedState?.missionMode,
+
+    guidanceMode:
+      orchestratedState?.guidanceMode,
+
+    timestamp:
+      Date.now(),
+  },
+
+].slice(-20);
+
+setInterventionHistory(
+  generatedHistory
+);
+
+const recoveryCycles =
+
+  generatedHistory.filter(
+    (entry) =>
+      entry.missionMode ===
+      "recovery"
+  ).length;
+
+const expansionCycles =
+
+  generatedHistory.filter(
+    (entry) =>
+      entry.missionMode ===
+      "expanded"
+  ).length;
+
+const stabilizationCycles =
+
+  generatedHistory.filter(
+    (entry) =>
+      entry.missionMode ===
+      "simplified"
+  ).length;
+
+const pacingProfile = {
+
+  recoveryFrequency:
+    recoveryCycles,
+
+  expansionFrequency:
+    expansionCycles,
+
+  stabilizationFrequency:
+    stabilizationCycles,
+
+  resilienceScore:
+
+    Math.max(
+      1,
+
+      expansionCycles -
+
+      recoveryCycles
+    ),
+
+};
+
+await supabase
+  .from("profiles")
+  .update({
+
+    intervention_history:
+      generatedHistory,
+
+    adaptive_state: {
+
+      missionMode:
+        orchestratedState?.missionMode,
+
+      guidanceMode:
+        orchestratedState?.guidanceMode,
+
+      guidanceEscalation:
+        orchestratedState?.guidanceEscalation,
+
+      environmentIntensity:
+        orchestratedState?.environmentIntensity,
+
+      environmentDensity:
+        orchestratedState?.environmentDensity,
+
+      stabilizationRequired:
+        orchestratedState?.stabilizationRequired,
+
+      updatedAt:
+        Date.now(),
+    },
+
+behavioral_pacing:
+  pacingProfile,
+
+  })
+  .eq("id", user.id);
+
+      // =========================
+      // MISSION
+      // =========================
+
+     const mission =
+  generateMission(
+
+    data,
+
+    orchestratedState,
+
+    generatedSignals,
+
+    generatedHistory
+  );
+
+      setActiveMission(
+        mission
+      );
+    }
+
+    loadProfile();
+
+  }, [user, router]);
+
+  // =========================
+  // LOADING
+  // =========================
+
   if (loading || !user) {
 
     return (
-      <main className="min-h-screen bg-[#F5F7FA] flex items-center justify-center px-6">
 
-        <div className="flex flex-col items-center gap-5">
+      <main className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+
+        <div className="flex flex-col items-center gap-4">
 
           <div className="w-14 h-14 rounded-full border-2 border-[#D4AF37]/20 border-t-[#D4AF37] animate-spin" />
 
-          <p className="text-[#64748B] text-sm tracking-wide">
-            Preparing your growth environment...
+          <p className="text-sm text-[#64748B]">
+
+            Preparing your environment...
+
           </p>
 
         </div>
@@ -372,9 +533,10 @@ if (
 
     <main className="min-h-screen bg-[#F5F7FA] text-[#0F172A] overflow-x-hidden">
 
-<Navigation />
+      <Navigation />
 
-      {/* Ambient Glow */}
+      {/* BACKGROUND */}
+
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
 
         <div className="absolute top-[-120px] left-[-120px] w-[320px] h-[320px] bg-[#D4AF37]/10 rounded-full blur-3xl" />
@@ -383,317 +545,98 @@ if (
 
       </div>
 
-      <div className="relative max-w-6xl mx-auto px-4 py-6 md:px-6 md:py-8">
+      <div className={`relative max-w-6xl mx-auto transition-all duration-700
 
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4 mb-8">
+${isMinimalDensity
+  ? "px-4 py-4 md:px-5 md:py-5"
+  : isReducedDensity
+  ? "px-4 py-5 md:px-6 md:py-6"
+  : isExpandedDensity
+  ? "px-5 py-8 md:px-8 md:py-10"
+  : "px-4 py-6 md:px-6 md:py-8"
+}`}>
 
-          <div>
+        {/* HEADER */}
 
-            <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
-              PipuPath OS
-            </p>
+        <div className={`transition-all duration-700
 
-            <h1 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight leading-tight text-[#0F172A]">
-              Build your future
-              <br />
-              intentionally.
-            </h1>
+${isMinimalDensity
+  ? "mb-4"
+  : isReducedDensity
+  ? "mb-6"
+  : isExpandedDensity
+  ? "mb-10"
+  : "mb-8"
+}`}>
 
-          </div>
+          <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8]">
 
-          <button
-            onClick={handleLogout}
-            className="border border-[#E2E8F0] bg-white/80 backdrop-blur-sm text-[#0F172A] px-5 py-3 rounded-2xl text-sm font-medium hover:bg-white transition-all duration-300"
-          >
-            Logout
-          </button>
+            PipuPath OS
 
-        </div>
-
-        {/* Identity Hero */}
-        <div className="relative overflow-hidden rounded-[32px] border border-white/60 bg-white/70 backdrop-blur-xl p-6 md:p-8 shadow-[0_10px_50px_rgba(15,23,42,0.06)]">
-
-          <div className="absolute inset-0 bg-gradient-to-br from-[#FFFFFF] via-[#FAFAF9] to-[#F8FAFC]" />
-
-          <div className="relative z-10">
-
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
-
-              <div className="max-w-2xl">
-
-                <p className="text-sm uppercase tracking-[0.25em] text-[#94A3B8]">
-                  Your Identity
-                </p>
-
-                <h2 className="mt-4 text-4xl md:text-6xl font-semibold tracking-tight leading-none text-[#0F172A]">
-                  {profile?.archetype || "Explorer"}
-                </h2>
-
-                <p className="mt-6 text-lg text-[#475569] leading-relaxed max-w-xl">
-                  Growth compounds when identity, action and reflection stay aligned.
-                </p>
-
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 md:min-w-[320px]">
-
-                <div className="rounded-3xl bg-[#0F172A] text-white p-5">
-
-                  <p className="text-xs uppercase tracking-[0.2em] text-white/60">
-                    XP
-                  </p>
-
-                  <h3 className="mt-3 text-3xl font-semibold">
-                    {profile?.xp || 0}
-                  </h3>
-
-                </div>
-
-                <div className="rounded-3xl bg-white border border-[#E2E8F0] p-5">
-
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#94A3B8]">
-                    Streak
-                  </p>
-
-                  <h3 className="mt-3 text-3xl font-semibold text-[#D4AF37]">
-                    {profile?.streak || 0}
-                  </h3>
-
-                </div>
-
-                <div className="rounded-3xl bg-white border border-[#E2E8F0] p-5">
-
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#94A3B8]">
-                    Momentum
-                  </p>
-
-                  <h3 className="mt-3 text-3xl font-semibold text-[#16A34A]">
-                    {profile?.momentum || 0}%
-                  </h3>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
+          </p>
 
         </div>
 
-        {/* Main Grid */}
-        <div className="grid lg:grid-cols-[1.25fr_0.75fr] gap-6 mt-6">
+        {/* HERO */}
 
-          {/* Mission Column */}
-          <div className="space-y-6">
+<Hero
 
-            {/* Mission Card */}
-            <div className="rounded-[32px] border border-white/60 bg-white/80 backdrop-blur-xl p-6 md:p-8 shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
+  profile={profile}
 
-              <div className="flex items-center justify-between gap-4">
+  orchestration={orchestration}
 
-                <div>
+/>
 
-                  <p className="text-sm uppercase tracking-[0.25em] text-[#94A3B8]">
-                    Active Mission
-                  </p>
+{/* ADAPTIVE MISSION */}
 
-                  <h2 className="mt-4 text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-[#0F172A] max-w-2xl">
-                    {activeMission?.title ||
-                      "No mission"}
-                  </h2>
+<AdaptiveMission
 
-                </div>
+  activeMission={activeMission}
 
-                <div className="hidden md:flex items-center justify-center w-16 h-16 rounded-3xl bg-[#0F172A] text-white text-lg font-semibold">
-                  +{activeMission?.xpReward || 10}
-                </div>
+  orchestration={orchestration}
 
-              </div>
+/>
 
-              <p className="mt-6 text-lg leading-relaxed text-[#475569] max-w-2xl">
+<Signals
 
-                {activeMission?.description ||
-                  "No mission available."}
+  signals={signals}
 
-              </p>
+  orchestration={orchestration}
 
-              <div className="mt-8 border-t border-[#E2E8F0] pt-8">
+/>
 
-                <p className="text-sm uppercase tracking-[0.2em] text-[#94A3B8] mb-4">
-                  Reflection
-                </p>
+<Orchestration
 
-                <div className="space-y-4">
+  orchestration={orchestration}
 
-                  <textarea
-                    placeholder="What meaningful progress did you make today?"
-                    value={reflection}
-                    onChange={(e) =>
-                      setReflection(
-                        e.target.value
-                      )
-                    }
-                    className="w-full rounded-3xl border border-[#E2E8F0] bg-[#FAFAFA] px-5 py-5 text-[#0F172A] outline-none min-h-[160px] resize-none placeholder:text-[#94A3B8] focus:border-[#D4AF37]/40 transition-all duration-300"
-                  />
+/>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+<Memory
 
-                    <input
-                      type="text"
-                      placeholder="What challenged you?"
-                      value={difficulty}
-                      onChange={(e) =>
-                        setDifficulty(
-                          e.target.value
-                        )
-                      }
-                      className="w-full rounded-2xl border border-[#E2E8F0] bg-[#FAFAFA] px-5 py-4 text-[#0F172A] outline-none placeholder:text-[#94A3B8] focus:border-[#D4AF37]/40 transition-all duration-300"
-                    />
+  patterns={patterns}
 
-                    <input
-                      type="text"
-                      placeholder="How do you feel now?"
-                      value={feeling}
-                      onChange={(e) =>
-                        setFeeling(
-                          e.target.value
-                        )
-                      }
-                      className="w-full rounded-2xl border border-[#E2E8F0] bg-[#FAFAFA] px-5 py-4 text-[#0F172A] outline-none placeholder:text-[#94A3B8] focus:border-[#D4AF37]/40 transition-all duration-300"
-                    />
+  orchestration={orchestration}
 
-                  </div>
+/>
 
-                </div>
+<Evolution
 
-                {/* AI Insight */}
-                {aiInsight && (
+  evolutionInsights={evolutionInsights}
 
-                  <div className="mt-6 rounded-3xl border border-[#FDE68A]/40 bg-gradient-to-br from-[#FEFCE8] to-[#FFFBEB] p-6">
+  orchestration={orchestration}
 
-                    <p className="text-xs uppercase tracking-[0.25em] text-[#92400E] font-medium">
-                      AI Reflection Insight
-                    </p>
+/>
 
-                    <p className="mt-4 text-[#78350F] leading-relaxed whitespace-pre-wrap text-[15px]">
+<Drift
 
-                      {aiInsight}
+  driftSignals={driftSignals}
 
-                    </p>
+  orchestration={orchestration}
 
-                  </div>
-                )}
+/>
 
-                <button
-                  onClick={completeMission}
-                  disabled={
-                    completing || analyzing
-                  }
-                  className="mt-8 w-full rounded-3xl bg-[#0F172A] text-white px-6 py-5 text-[15px] font-medium tracking-wide hover:opacity-95 transition-all duration-300 disabled:opacity-50"
-                >
+</div>
 
-                  {completing || analyzing
-                    ? "Processing Growth..."
-                    : "Complete Mission"}
-
-                </button>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* Side Column */}
-          <div className="space-y-6">
-
-            {/* Future Self */}
-            <div className="rounded-[32px] border border-white/60 bg-white/80 backdrop-blur-xl p-6 shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
-
-              <p className="text-sm uppercase tracking-[0.25em] text-[#94A3B8]">
-                Future Self
-              </p>
-
-              <h3 className="mt-5 text-2xl font-semibold leading-tight text-[#0F172A]">
-                Discipline compounds into identity.
-              </h3>
-
-              <p className="mt-5 text-[#475569] leading-relaxed">
-                Small aligned actions repeated consistently create irreversible transformation.
-              </p>
-
-            </div>
-
-            {/* Growth Stats */}
-            <div className="rounded-[32px] border border-white/60 bg-white/80 backdrop-blur-xl p-6 shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
-
-              <p className="text-sm uppercase tracking-[0.25em] text-[#94A3B8]">
-                Growth State
-              </p>
-
-              <div className="mt-6 space-y-5">
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-[#475569]">
-                      Momentum
-                    </span>
-                    <span className="text-sm font-medium text-[#0F172A]">
-                      {profile?.momentum || 0}%
-                    </span>
-                  </div>
-
-                  <div className="h-3 bg-[#E2E8F0] rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[#16A34A] rounded-full transition-all duration-500"
-                      style={{
-                        width: `${profile?.momentum || 0}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-5 border-t border-[#E2E8F0] flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-[#94A3B8]">
-                      Missions Completed
-                    </p>
-
-                    <h3 className="mt-2 text-4xl font-semibold text-[#0F172A]">
-                      {profile?.missions_completed || 0}
-                    </h3>
-                  </div>
-
-                  <div className="w-16 h-16 rounded-3xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center text-2xl">
-                    ✦
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* Quiet Insight */}
-            <div className="rounded-[32px] bg-[#0F172A] text-white p-6 shadow-[0_10px_50px_rgba(15,23,42,0.15)]">
-
-              <p className="text-xs uppercase tracking-[0.25em] text-white/50">
-                Behavioral Principle
-              </p>
-
-              <p className="mt-5 text-xl leading-relaxed text-white/90">
-                Reflection turns experience into intelligence.
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </main>
+</main>
   );
 }

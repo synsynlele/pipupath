@@ -5,6 +5,9 @@ import Link from "next/link";
 import { usePathname }
 from "next/navigation";
 
+import BrandLogo
+from "./BrandLogo";
+
 export default function Navigation() {
 
   const pathname =
@@ -49,12 +52,28 @@ export default function Navigation() {
     <>
 
       {/* =========================
-         DESKTOP FLOATING NAV
+         DESKTOP NAVIGATION
       ========================== */}
 
-      <div className="hidden md:flex fixed top-6 left-1/2 -translate-x-1/2 z-50">
+      <div className="hidden md:flex fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl justify-between items-center">
 
-        <div className="flex items-center gap-2 rounded-full border border-white/50 bg-white/70 backdrop-blur-2xl shadow-[0_10px_50px_rgba(15,23,42,0.08)] px-3 py-3">
+        {/* LOGO */}
+
+        <div className="rounded-full border border-white/50 bg-white/75 backdrop-blur-2xl shadow-[0_10px_50px_rgba(15,23,42,0.08)] px-4 py-3">
+
+          <BrandLogo
+
+            size={38}
+
+            gold={false}
+
+          />
+
+        </div>
+
+        {/* NAV */}
+
+        <div className="flex items-center gap-2 rounded-full border border-white/50 bg-white/75 backdrop-blur-2xl shadow-[0_10px_50px_rgba(15,23,42,0.08)] px-3 py-3">
 
           {navItems.map((item) => {
 
@@ -98,6 +117,24 @@ export default function Navigation() {
       {/* =========================
          MOBILE NAVIGATION
       ========================== */}
+
+      <div className="md:hidden fixed top-4 left-4 z-50">
+
+        <div className="rounded-2xl border border-white/50 bg-white/80 backdrop-blur-2xl shadow-[0_10px_50px_rgba(15,23,42,0.08)] px-3 py-2">
+
+          <BrandLogo
+
+            size={34}
+
+            label={false}
+
+            gold={false}
+
+          />
+
+        </div>
+
+      </div>
 
       <div className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-md">
 
