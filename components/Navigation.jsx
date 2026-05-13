@@ -1,185 +1,345 @@
 "use client";
 
-import Link from "next/link";
+import Link
+from "next/link";
 
 import { usePathname }
 from "next/navigation";
 
-import BrandLogo
-from "./BrandLogo";
+import { useRouter }
+from "next/navigation";
+
+import { useState }
+from "react";
+
+import { Menu, X }
+from "lucide-react";
+
+import { supabase }
+from "../lib/supabase";
+
+const NAV_ITEMS = [
+
+  {
+    label:
+      "Dashboard",
+
+    href:
+      "/dashboard",
+  },
+
+  {
+    label:
+      "Cognitive Forge",
+
+    href:
+      "/magicpen",
+  },
+
+  {
+    label:
+      "Guide",
+
+    href:
+      "/guide",
+  },
+
+];
 
 export default function Navigation() {
 
   const pathname =
     usePathname();
 
-  const navItems = [
+  const router =
+    useRouter();
 
-    {
-      label: "Home",
-      href: "/dashboard",
-      icon: "◉",
-    },
+  const [
+    mobileMenu,
+    setMobileMenu,
+  ] = useState(false);
 
-    {
-      label: "Evolution",
-      href: "/reflections",
-      icon: "◎",
-    },
+  // =========================
+  // LOGOUT
+  // =========================
 
-    {
-      label: "Identity",
-      href: "/identity",
-      icon: "◌",
-    },
+  async function handleLogout() {
 
-    {
-      label: "MagicPen",
-      href: "/magicpen",
-      icon: "✦",
-    },
+    try {
 
-    {
-      label: "Guide",
-      href: "/guide",
-      icon: "◈",
-    },
+      await supabase.auth.signOut();
 
-  ];
+      router.push("/login");
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+    }
+
+  }
 
   return (
 
-    <>
+    <nav className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/40 bg-white/70">
 
-      {/* =========================
-         DESKTOP NAVIGATION
-      ========================== */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
 
-      <div className="hidden md:flex fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl justify-between items-center">
+        <div className="h-[78px] flex items-center justify-between">
 
-        {/* LOGO */}
+          {/* LEFT */}
 
-        <div className="rounded-full border border-white/50 bg-white/75 backdrop-blur-2xl shadow-[0_10px_50px_rgba(15,23,42,0.08)] px-4 py-3">
+          <div className="flex items-center gap-10">
 
-          <BrandLogo
+            {/* LOGO */}
 
-            size={38}
+            <Link
+              href="/dashboard"
+              className="flex flex-col"
+            >
 
-            gold={false}
+              <span className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
 
-          />
+                PipuPath
+
+              </span>
+
+              <span className="text-[20px] font-semibold tracking-tight text-[#0F172A]">
+
+                Development OS
+
+              </span>
+
+            </Link>
+
+            {/* DESKTOP NAV */}
+
+            <div className="hidden md:flex items-center gap-2">
+
+              {
+
+                NAV_ITEMS.map((item) => {
+
+                  const active =
+
+                    pathname ===
+                    item.href;
+
+                  return (
+
+                    <Link
+
+                      key={item.href}
+
+                      href={item.href}
+
+                      className={`
+
+px-5
+py-3
+rounded-2xl
+text-sm
+font-medium
+transition-all
+duration-300
+
+${
+
+  active
+
+    ?
+
+    "bg-[#0F172A] text-white shadow-[0_10px_30px_rgba(15,23,42,0.12)]"
+
+    :
+
+    "text-[#64748B] hover:bg-white hover:text-[#0F172A]"
+
+}
+
+`}
+
+                    >
+
+                      {item.label}
+
+                    </Link>
+
+                  );
+
+                })
+
+              }
+
+            </div>
+
+          </div>
+
+          {/* RIGHT */}
+
+          <div className="hidden md:flex items-center gap-4">
+
+            {/* STATUS */}
+
+            <div className="px-4 py-2 rounded-full bg-[#F8FAFC] border border-[#E2E8F0]">
+
+              <p className="text-xs uppercase tracking-[0.2em] text-[#94A3B8]">
+
+                Adaptive Environment Active
+
+              </p>
+
+            </div>
+
+            {/* LOGOUT */}
+
+            <button
+
+              onClick={
+                handleLogout
+              }
+
+              className="px-5 py-3 rounded-2xl bg-[#0F172A] text-white text-sm font-medium hover:opacity-90 transition-all"
+
+            >
+
+              Logout
+
+            </button>
+
+          </div>
+
+          {/* MOBILE BUTTON */}
+
+          <button
+
+            onClick={() =>
+              setMobileMenu(
+                !mobileMenu
+              )
+            }
+
+            className="md:hidden w-11 h-11 rounded-2xl bg-white border border-[#E2E8F0] flex items-center justify-center"
+
+          >
+
+            {
+
+              mobileMenu
+
+                ?
+
+                <X size={20} />
+
+                :
+
+                <Menu size={20} />
+
+            }
+
+          </button>
 
         </div>
 
-        {/* NAV */}
+      </div>
 
-        <div className="flex items-center gap-2 rounded-full border border-white/50 bg-white/75 backdrop-blur-2xl shadow-[0_10px_50px_rgba(15,23,42,0.08)] px-3 py-3">
+      {/* MOBILE MENU */}
 
-          {navItems.map((item) => {
+      {
 
-            const active =
-              pathname === item.href;
+        mobileMenu && (
 
-            return (
+          <div className="md:hidden border-t border-[#E2E8F0] bg-white/95 backdrop-blur-xl">
 
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`group relative flex items-center gap-2 rounded-full px-5 py-3 text-sm transition-all duration-300
+            <div className="px-4 py-5 space-y-3">
 
-                ${active
-                  ? "bg-[#0F172A] text-white"
-                  : "text-[#64748B] hover:bg-white hover:text-[#0F172A]"
-                }`}
+              {
+
+                NAV_ITEMS.map((item) => {
+
+                  const active =
+
+                    pathname ===
+                    item.href;
+
+                  return (
+
+                    <Link
+
+                      key={item.href}
+
+                      href={item.href}
+
+                      onClick={() =>
+                        setMobileMenu(false)
+                      }
+
+                      className={`
+
+block
+px-5
+py-4
+rounded-2xl
+text-sm
+font-medium
+transition-all
+
+${
+
+  active
+
+    ?
+
+    "bg-[#0F172A] text-white"
+
+    :
+
+    "bg-[#F8FAFC] text-[#64748B]"
+
+}
+
+`}
+
+                    >
+
+                      {item.label}
+
+                    </Link>
+
+                  );
+
+                })
+
+              }
+
+              {/* MOBILE LOGOUT */}
+
+              <button
+
+                onClick={
+                  handleLogout
+                }
+
+                className="w-full mt-3 px-5 py-4 rounded-2xl bg-[#0F172A] text-white text-sm font-medium"
+
               >
 
-                <span className="text-xs">
+                Logout
 
-                  {item.icon}
+              </button>
 
-                </span>
+            </div>
 
-                <span className="font-medium tracking-wide">
+          </div>
 
-                  {item.label}
+        )
 
-                </span>
+      }
 
-              </Link>
-
-            );
-          })}
-
-        </div>
-
-      </div>
-
-      {/* =========================
-         MOBILE NAVIGATION
-      ========================== */}
-
-      <div className="md:hidden fixed top-4 left-4 z-50">
-
-        <div className="rounded-2xl border border-white/50 bg-white/80 backdrop-blur-2xl shadow-[0_10px_50px_rgba(15,23,42,0.08)] px-3 py-2">
-
-          <BrandLogo
-
-            size={34}
-
-            label={false}
-
-            gold={false}
-
-          />
-
-        </div>
-
-      </div>
-
-      <div className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-md">
-
-        <div className="flex items-center justify-between rounded-[28px] border border-white/50 bg-white/80 backdrop-blur-2xl shadow-[0_10px_50px_rgba(15,23,42,0.08)] px-2 py-2">
-
-          {navItems.map((item) => {
-
-            const active =
-              pathname === item.href;
-
-            return (
-
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 min-w-[58px] transition-all duration-300
-
-                ${active
-                  ? "bg-[#0F172A] text-white"
-                  : "text-[#64748B]"
-                }`}
-              >
-
-                <span className="text-sm">
-
-                  {item.icon}
-
-                </span>
-
-                <span className="text-[10px] font-medium">
-
-                  {item.label}
-
-                </span>
-
-              </Link>
-
-            );
-          })}
-
-        </div>
-
-      </div>
-
-    </>
+    </nav>
 
   );
+
 }

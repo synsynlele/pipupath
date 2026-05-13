@@ -116,6 +116,11 @@ export default function DashboardPage() {
   ] = useState("");
 
   const [
+    reflectionInsight,
+    setReflectionInsight,
+  ] = useState("");
+
+  const [
     submittingReflection,
     setSubmittingReflection,
   ] = useState(false);
@@ -206,10 +211,6 @@ export default function DashboardPage() {
 
       if (!user) return;
 
-      // =========================
-      // PROFILE
-      // =========================
-
       const {
 
         data,
@@ -235,10 +236,6 @@ export default function DashboardPage() {
         return;
 
       }
-
-      // =========================
-      // ONBOARDING
-      // =========================
 
       if (
         !data?.onboarding_completed
@@ -317,10 +314,6 @@ export default function DashboardPage() {
           user.id
         );
 
-      // =========================
-      // USE EXISTING
-      // =========================
-
       if (
         existingMission
       ) {
@@ -342,10 +335,6 @@ export default function DashboardPage() {
         });
 
       }
-
-      // =========================
-      // GENERATE NEW
-      // =========================
 
       else {
 
@@ -380,10 +369,6 @@ export default function DashboardPage() {
         setActiveMission(
           mission
         );
-
-        // =========================
-        // SAVE ACTIVE
-        // =========================
 
         await saveActiveMission({
 
@@ -434,83 +419,110 @@ export default function DashboardPage() {
       );
 
       // =========================
-      // SUBMIT REFLECTION
+      // STORE REFLECTION
       // =========================
 
-      const result =
-        await submitReflection({
+      await submitReflection({
+
+        userId:
+          user.id,
+
+        reflection,
+
+        profile,
+
+      });
+
+      // =========================
+      // AI ANALYSIS
+      // =========================
+
+      const response =
+        await fetch(
+
+          "/api/reflection",
+
+          {
+
+            method: "POST",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+            },
+
+            body:
+              JSON.stringify({
+
+                reflection,
+
+                archetype:
+                  profile?.archetype ||
+
+                  "Builder",
+
+                momentum:
+                  profile?.momentum ||
+
+                  50,
+
+                missionMode:
+                  orchestration?.missionMode ||
+
+                  "standard",
+
+              }),
+
+          }
+
+        );
+
+      const data =
+        await response.json();
+
+      // =========================
+      // SET INSIGHT
+      // =========================
+
+      setReflectionInsight(
+
+        data?.insight ||
+
+        "Your reflection suggests an active internal transition toward greater clarity and intentional movement."
+
+      );
+
+      // =========================
+      // REFRESH MEMORIES
+      // =========================
+
+      const updatedMemories =
+        await getRecentMemories({
 
           userId:
             user.id,
 
-          reflection,
-
-          profile,
+          limit: 10,
 
         });
 
-      if (
-        result?.success
-      ) {
-
-        // =========================
-        // GUIDANCE
-        // =========================
-
-        if (
-          result.analysis
-            ?.guidanceDirection
-        ) {
-
-          setGuidance(
-
-            result.analysis
-              .guidanceDirection
-
-          );
-
-        }
-
-        // =========================
-        // REFRESH MEMORIES
-        // =========================
-
-        const updatedMemories =
-          await getRecentMemories({
-
-            userId:
-              user.id,
-
-            limit: 10,
-
-          });
-
-        setRecentMemories(
-          updatedMemories
-        );
-
-        // =========================
-        // REFRESH MISSIONS
-        // =========================
-
-        const updatedMissionHistory =
-          await getRecentMissions(
-            user.id
-          );
-
-        setRecentMissions(
-          updatedMissionHistory
-        );
-
-      }
+      setRecentMemories(
+        updatedMemories
+      );
 
       setReflection("");
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
       console.error(error);
 
-    } finally {
+    }
+
+    finally {
 
       setSubmittingReflection(
         false
@@ -555,8 +567,6 @@ export default function DashboardPage() {
   return (
 
     <main className="min-h-screen bg-[#F5F7FA] text-[#0F172A] overflow-x-hidden">
-
-      {/* NAVIGATION */}
 
       <Navigation />
 
@@ -612,7 +622,7 @@ ${adaptiveEnvironment.containerSpacing}
 
         />
 
-        {/* DAILY MISSION */}
+        {/* MISSION */}
 
         <AdaptiveMission
 
@@ -660,36 +670,12 @@ ${
 backdrop-blur-2xl
 p-8
 shadow-[0_10px_50px_rgba(15,23,42,0.04)]
-transition-all
-duration-700
-
-${
-
-  isRecoveryState
-
-    ?
-
-    "opacity-90"
-
-    :
-
-  isMomentumState
-
-    ?
-
-    "scale-[1.01]"
-
-    :
-
-    ""
-
-}
 
 `}>
 
           <p className="text-xs uppercase tracking-[0.3em] text-[#B88A00] mb-5">
 
-            Adaptive Guidance
+            Strategic Guidance
 
           </p>
 
@@ -721,7 +707,7 @@ ${
 
           <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8] mb-5">
 
-            Reflection
+            Strategic Reflection
 
           </p>
 
@@ -739,7 +725,7 @@ ${
 
             }
 
-            placeholder="What feels most important about today?"
+            placeholder="What did you notice about yourself, your direction, your resistance or your momentum today?"
 
             className={`
 
@@ -799,11 +785,37 @@ duration-500
 
                 :
 
-                "Submit Reflection"
+                "Analyze Reflection"
 
             }
 
           </button>
+
+          {/* AI INSIGHT */}
+
+          {
+
+            reflectionInsight && (
+
+              <div className="mt-8 rounded-[28px] border border-[#E2E8F0] bg-[#F8FAFC] p-6">
+
+                <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8] mb-4">
+
+                  Adaptive Insight
+
+                </p>
+
+                <p className="text-[#334155] leading-relaxed text-lg">
+
+                  {reflectionInsight}
+
+                </p>
+
+              </div>
+
+            )
+
+          }
 
         </div>
 

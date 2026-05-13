@@ -1,0 +1,132 @@
+Folder PATH listing for volume New Volume
+Volume serial number is B6A8-46AD
+D:\PROJECTS\PIPUPATH\APP
+³   favicon.ico
+³   globals.css
+³   layout.jsx
+³   New Text Document.txt
+³   page.jsx
+³   page.module.css
+³   
+ÃÄÄÄapi
+³   ÃÄÄÄinsight
+³   ³       route.js
+³   ³       
+³   ÀÄÄÄmission
+³           route.js
+³           
+ÃÄÄÄauth
+³   ÀÄÄÄcallback
+³           page.jsx
+³           
+ÃÄÄÄdashboard
+³       page.jsx
+³       
+ÃÄÄÄdiscover
+³       page.jsx
+³       
+ÃÄÄÄguide
+³       page.jsx
+³       
+ÃÄÄÄidentity
+³       page.jsx
+³       
+ÃÄÄÄlogin
+³       page.jsx
+³       
+ÃÄÄÄmagicpen
+³       page.jsx
+³       
+ÃÄÄÄonboarding
+³       page.jsx
+³       
+ÃÄÄÄreflections
+³       page.jsx
+³       
+ÃÄÄÄresults
+³       page.jsx
+³       
+ÀÄÄÄsignup
+        page.jsx
+        
+Folder PATH listing for volume New Volume
+Volume serial number is B6A8-46AD
+D:\PROJECTS\PIPUPATH\COMPONENTS
+³   AdaptiveStates.jsx
+³   BehavioralContinuity.jsx
+³   BrandLogo.jsx
+³   FinalCTA.jsx
+³   Hero.jsx
+³   HumanGuidance.jsx
+³   Navbar.jsx
+³   Navigation.jsx
+³   
+ÀÄÄÄdashboard
+        AdaptiveMission.jsx
+        Drift.jsx
+        Evolution.jsx
+        Hero.jsx
+        Memory.jsx
+        Orchestration.jsx
+        Signals.jsx
+        
+Folder PATH listing for volume New Volume
+Volume serial number is B6A8-46AD
+D:\PROJECTS\PIPUPATH\LIB
+³   ai.js
+³   archetypes.js
+³   behavior.js
+³   drift.js
+³   evolution.js
+³   insightEngine.js
+³   magicpen.js
+³   memory.js
+³   missions.js
+³   orchestrator.js
+³   reflections.js
+³   supabase.js
+³   
+ÃÄÄÄai
+³       analyzeReflection.js
+³       generateAdaptiveInsight.js
+³       generateAdaptiveMission.js
+³       
+ÃÄÄÄdashboard
+³       getDashboardData.js
+³       
+ÃÄÄÄguidance
+³       getGuidance.js
+³       synthesizeBehavior.js
+³       
+ÃÄÄÄidentity
+³       archetypes.js
+³       
+ÃÄÄÄmemory
+³       getRecentMemories.js
+³       getRelevantMemories.js
+³       storeMemory.js
+³       
+ÃÄÄÄmissions
+³       completeMission.js
+³       generateDailyMissions.js
+³       getActiveMission.js
+³       getRecentMissions.js
+³       saveActiveMission.js
+³       storeGeneratedMission.js
+³       
+ÃÄÄÄorchestrator
+³       getPacingState.js
+³       
+ÃÄÄÄreflection
+³       submitReflection.js
+³       
+ÀÄÄÄxp
+        awardXP.js
+        
+Folder PATH listing for volume New Volume
+Volume serial number is B6A8-46AD
+D:\PROJECTS\PIPUPATH\HOOKS
+    useAdaptiveEnvironment.js
+    
+No subfolders exist 
+

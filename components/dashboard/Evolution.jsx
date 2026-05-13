@@ -1,90 +1,20 @@
+"use client";
+
 export default function Evolution({
-
-  evolutionInsights = [],
-
-  orchestration,
 
   recentMemories = [],
 
   recentMissions = [],
 
+  orchestration,
+
 }) {
 
   // =========================
-  // ORCHESTRATION
+  // COUNTS
   // =========================
 
-  const missionMode =
-    orchestration?.missionMode ||
-
-    "standard";
-
-  const isRecovery =
-    missionMode === "recovery";
-
-  const isExpanded =
-    missionMode === "expanded";
-
-  const isSimplified =
-    missionMode === "simplified";
-
-  // =========================
-  // CARD STYLE
-  // =========================
-
-  const cardStyle = `
-
-rounded-[28px]
-border
-backdrop-blur-xl
-p-6
-shadow-[0_10px_50px_rgba(15,23,42,0.05)]
-transition-all
-duration-700
-
-${
-
-  isRecovery
-
-    ?
-
-    "border-[#CBD5E1] bg-[#F8FAFC]/90"
-
-    :
-
-  isExpanded
-
-    ?
-
-    "border-[#F4E7B8] bg-gradient-to-br from-[#FFFDF7] to-[#FFFFFF]"
-
-    :
-
-  isSimplified
-
-    ?
-
-    "border-[#E5E7EB] bg-white/90"
-
-    :
-
-    "border-white/60 bg-gradient-to-br from-[#FFFFFF] to-[#F8FAFC]"
-
-}
-
-`;
-
-  // =========================
-  // BEHAVIORAL INSIGHTS
-  // =========================
-
-  const behavioralSignals = [];
-
-  // =========================
-  // MISSION PATTERNS
-  // =========================
-
-  const completedCount =
+  const completions =
 
     recentMemories.filter(
 
@@ -95,7 +25,7 @@ ${
 
     ).length;
 
-  const struggleCount =
+  const struggles =
 
     recentMemories.filter(
 
@@ -106,83 +36,18 @@ ${
 
     ).length;
 
-  const skipCount =
+  const reflections =
 
     recentMemories.filter(
 
       (memory) =>
 
         memory.memory_type ===
-        "mission_skip"
+        "reflection"
 
     ).length;
 
-  // =========================
-  // DETECT PATTERNS
-  // =========================
-
-  if (
-    completedCount >= 3
-  ) {
-
-    behavioralSignals.push({
-
-      type:
-        "Momentum",
-
-      title:
-        "Consistent mission execution detected",
-
-      message:
-        "Your recent behavioral patterns suggest growing consistency and execution stability.",
-
-    });
-
-  }
-
-  if (
-    struggleCount >= 2
-  ) {
-
-    behavioralSignals.push({
-
-      type:
-        "Recovery",
-
-      title:
-        "Cognitive resistance patterns detected",
-
-      message:
-        "Recent behavioral activity suggests periods of mental friction and execution resistance.",
-
-    });
-
-  }
-
-  if (
-    skipCount >= 2
-  ) {
-
-    behavioralSignals.push({
-
-      type:
-        "Pacing",
-
-      title:
-        "Adaptive pacing recalibration emerging",
-
-      message:
-        "The system is detecting patterns suggesting reduced pressure and simplified pacing may improve consistency.",
-
-    });
-
-  }
-
-  // =========================
-  // MAGICPEN PATTERNS
-  // =========================
-
-  const magicPenSignals =
+  const cognitiveSignals =
 
     recentMemories.filter(
 
@@ -191,209 +56,286 @@ ${
         memory.memory_type ===
         "magicpen_signal"
 
-    );
+    ).length;
+
+  // =========================
+  // EVOLUTION NARRATIVE
+  // =========================
+
+  let trajectory =
+    "Identity Formation";
+
+  let trajectoryDescription =
+
+    "Your recent behavioral activity suggests active internal development and increasing self-awareness.";
+
+  // =========================
+  // EXECUTION
+  // =========================
 
   if (
-    magicPenSignals.length >= 3
+    completions >= 3
   ) {
 
-    behavioralSignals.push({
+    trajectory =
+      "Execution Momentum";
 
-      type:
-        "Clarity",
+    trajectoryDescription =
 
-      title:
-        "Reflective cognition increasing",
-
-      message:
-        "Your recent writing patterns suggest deeper self-awareness and stronger reflective processing.",
-
-    });
+      "Your recent behavior suggests growing consistency, stronger execution patterns and increasing behavioral reliability.";
 
   }
 
   // =========================
-  // COMBINED INSIGHTS
+  // COGNITIVE EXPANSION
   // =========================
 
-  const combinedInsights = [
+  if (
+    cognitiveSignals >= 3
+  ) {
 
-    ...behavioralSignals,
+    trajectory =
+      "Cognitive Expansion";
 
-    ...evolutionInsights,
+    trajectoryDescription =
 
-  ];
+      "Your thinking patterns suggest increasing depth, stronger internal processing and expanding strategic awareness.";
+
+  }
+
+  // =========================
+  // REFLECTIVE CLARITY
+  // =========================
+
+  if (
+    reflections >= 3
+  ) {
+
+    trajectory =
+      "Clarity Development";
+
+    trajectoryDescription =
+
+      "Your recent reflections suggest active identity refinement and increasing directional clarity.";
+
+  }
+
+  // =========================
+  // STRUGGLE
+  // =========================
+
+  if (
+    struggles >= 3
+  ) {
+
+    trajectory =
+      "Adaptive Recalibration";
+
+    trajectoryDescription =
+
+      "Your current behavioral signals suggest recalibration between ambition, cognitive load and sustainable execution.";
+
+  }
+
+  // =========================
+  // SCORE
+  // =========================
+
+  const evolutionScore =
+
+    Math.min(
+
+      100,
+
+      (
+
+        completions * 12 +
+
+        reflections * 8 +
+
+        cognitiveSignals * 10
+
+      ) -
+
+      struggles * 6
+
+    );
+
+  // =========================
+  // STAGE
+  // =========================
+
+  let stage =
+    "Emerging Builder";
+
+  if (
+    evolutionScore >= 25
+  ) {
+
+    stage =
+      "Strategic Explorer";
+
+  }
+
+  if (
+    evolutionScore >= 50
+  ) {
+
+    stage =
+      "Capability Architect";
+
+  }
+
+  if (
+    evolutionScore >= 75
+  ) {
+
+    stage =
+      "Momentum Builder";
+
+  }
 
   return (
 
-    <section className="mt-10">
+    <section className="mt-8 rounded-[40px] border border-[#E2E8F0] bg-white/80 backdrop-blur-2xl p-8 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
 
       {/* HEADER */}
 
-      <div>
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
 
-        <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
+        <div>
 
-          Evolution Intelligence
+          <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
 
-        </p>
+            Evolution Trajectory
 
-        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#0F172A]">
+          </p>
 
-          {
+          <h2 className="mt-5 text-4xl md:text-5xl font-semibold tracking-tight leading-tight text-[#0F172A]">
 
-            isRecovery
+            {trajectory}
 
-              ?
+          </h2>
 
-              "Stabilization trajectory"
+          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-[#475569]">
 
-              :
+            {trajectoryDescription}
 
-            isExpanded
+          </p>
 
-              ?
+        </div>
 
-              "Expansion trajectory"
+        {/* SCORE */}
 
-              :
+        <div className="rounded-[32px] bg-[#0F172A] text-white px-7 py-6 min-w-[220px]">
 
-            isSimplified
+          <p className="text-xs uppercase tracking-[0.25em] text-white/50">
 
-              ?
+            Growth Index
 
-              "Consistency trajectory"
+          </p>
 
-              :
+          <p className="mt-4 text-5xl font-semibold">
 
-              "Behavioral trajectory"
+            {evolutionScore}
 
-          }
+          </p>
 
-        </h2>
+          <p className="mt-3 text-white/70">
 
-        <p className="mt-4 text-[#64748B] leading-relaxed max-w-2xl">
+            {stage}
 
-          Your adaptive environment is continuously learning from patterns, momentum, cognition and behavioral movement over time.
+          </p>
 
-        </p>
+        </div>
 
       </div>
 
-      {/* EVOLUTION FEED */}
+      {/* GRID */}
 
-      <div className="grid gap-4 mt-8">
+      <div className="grid md:grid-cols-4 gap-4 mt-10">
 
-        {
+        {/* EXECUTION */}
 
-          combinedInsights.length === 0
+        <div className="rounded-3xl border border-[#E2E8F0] bg-[#FAFAFA] p-5">
 
-            ?
+          <p className="text-xs uppercase tracking-[0.2em] text-[#94A3B8]">
 
-            (
+            Missions Completed
 
-              <div className={cardStyle}>
+          </p>
 
-                <h3 className="text-2xl font-semibold tracking-tight text-[#0F172A]">
+          <p className="mt-4 text-4xl font-semibold text-[#0F172A]">
 
-                  Your evolution timeline is beginning.
+            {completions}
 
-                </h3>
+          </p>
 
-                <p className="mt-4 text-[#475569] leading-relaxed">
+        </div>
 
-                  As you reflect, write, complete missions and interact with the adaptive ecosystem, the platform will begin detecting meaningful behavioral patterns and long-term growth signals.
+        {/* REFLECTIONS */}
 
-                </p>
+        <div className="rounded-3xl border border-[#E2E8F0] bg-[#FAFAFA] p-5">
 
-              </div>
+          <p className="text-xs uppercase tracking-[0.2em] text-[#94A3B8]">
 
-            )
+            Strategic Reflections
 
-            :
+          </p>
 
-            (
+          <p className="mt-4 text-4xl font-semibold text-[#0F172A]">
 
-              combinedInsights.map(
+            {reflections}
 
-                (insight, index) => (
+          </p>
 
-                  <div
-                    key={index}
-                    className={cardStyle}
-                  >
+        </div>
 
-                    {/* TYPE */}
+        {/* COGNITIVE */}
 
-                    <span className="text-xs px-3 py-1 rounded-full border bg-[#F8FAFC] text-[#475467] border-[#E2E8F0]">
+        <div className="rounded-3xl border border-[#E2E8F0] bg-[#FAFAFA] p-5">
 
-                      {insight.type}
+          <p className="text-xs uppercase tracking-[0.2em] text-[#94A3B8]">
 
-                    </span>
+            Cognitive Expansions
 
-                    {/* TITLE */}
+          </p>
 
-                    <h3 className="mt-5 text-2xl font-semibold tracking-tight text-[#0F172A] leading-tight">
+          <p className="mt-4 text-4xl font-semibold text-[#0F172A]">
 
-                      {insight.title}
+            {cognitiveSignals}
 
-                    </h3>
+          </p>
 
-                    {/* MESSAGE */}
+        </div>
 
-                    <p className="mt-4 text-[#475569] leading-relaxed">
+        {/* RESISTANCE */}
 
-                      {
+        <div className="rounded-3xl border border-[#E2E8F0] bg-[#FAFAFA] p-5">
 
-                        isRecovery
+          <p className="text-xs uppercase tracking-[0.2em] text-[#94A3B8]">
 
-                          ?
+            Resistance Signals
 
-                          `${insight.message} Sustainable growth often requires intentional stabilization periods.`
+          </p>
 
-                          :
+          <p className="mt-4 text-4xl font-semibold text-[#0F172A]">
 
-                        isExpanded
+            {struggles}
 
-                          ?
+          </p>
 
-                          `${insight.message} Your recent trajectory suggests readiness for expanded challenge and growth.`
-
-                          :
-
-                        isSimplified
-
-                          ?
-
-                          `${insight.message} Simpler systems may strengthen long-term consistency and alignment.`
-
-                          :
-
-                          insight.message
-
-                      }
-
-                    </p>
-
-                  </div>
-
-                )
-
-              )
-
-            )
-
-        }
+        </div>
 
       </div>
 
-      {/* SYSTEM FOOTNOTE */}
+      {/* STRATEGIC NOTE */}
 
-      <div className="mt-8 rounded-[24px] border border-[#E2E8F0] bg-white/70 backdrop-blur-xl p-5">
+      <div className="mt-8 rounded-[32px] bg-[#F8FAFC] border border-[#E2E8F0] p-6">
 
-        <p className="text-sm leading-relaxed text-[#64748B]">
+        <p className="text-sm leading-relaxed text-[#475569]">
 
-          Evolution Intelligence detects long-term behavioral movement patterns using reflections, cognitive writing, mission outcomes and adaptive pacing signals.
+          Evolution is not measuring perfection. It is tracking increasing clarity, capability, execution consistency and cognitive expansion over time.
 
         </p>
 

@@ -28,13 +28,11 @@ export async function POST(
 
     const {
 
+      reflection,
+
       archetype,
 
-      aspirations,
-
       momentum,
-
-      emotionalState,
 
       missionMode,
 
@@ -46,48 +44,36 @@ export async function POST(
 
     const prompt = `
 
-You are an elite developmental strategist helping ambitious young people sharpen direction, build capability and move their lives forward strategically.
+You are an elite adaptive developmental strategist.
 
-Generate ONE strategic adaptive mission.
+A young ambitious user is reflecting on their current state.
 
-The mission should:
-- feel psychologically intelligent
-- feel ambitious but realistic
-- create momentum
-- increase capability
-- sharpen direction
-- encourage meaningful execution
+Your job is to:
+- interpret the reflection
+- identify behavioral patterns
+- identify emotional trajectory
+- identify momentum shifts
+- give grounded strategic insight
 - avoid therapy tone
-- avoid generic productivity advice
-- avoid cliché motivation
+- avoid generic self-help
+- sound intelligent, calm and sharp
+- help the user move forward
 
-The mission should feel like:
-- a meaningful strategic move
-- identity expansion
-- future construction
-- personal evolution
-
-User State:
-
-Archetype:
+User Archetype:
 ${archetype}
-
-Aspirations:
-${aspirations}
 
 Momentum:
 ${momentum}
 
-Emotional State:
-${emotionalState}
-
 Mission Mode:
 ${missionMode}
 
-Return ONLY the mission text.
-No numbering.
-No markdown.
-No explanations.
+Reflection:
+${reflection}
+
+Return ONLY:
+
+1 short adaptive insight paragraph.
 
 `;
 
@@ -109,7 +95,7 @@ No explanations.
 
             content:
 
-              "You generate strategic developmental missions.",
+              "You generate adaptive developmental insights.",
 
           },
 
@@ -124,7 +110,7 @@ No explanations.
 
         ],
 
-        temperature: 0.9,
+        temperature: 0.8,
 
       });
 
@@ -132,18 +118,18 @@ No explanations.
     // RESULT
     // =========================
 
-    const mission =
+    const insight =
 
       response.choices?.[0]
         ?.message?.content ||
 
-      "Identify one meaningful action that would strengthen your future direction and complete it before the day ends.";
+      "Your reflection suggests an active transition between internal evaluation and meaningful forward movement.";
 
     return Response.json({
 
       success: true,
 
-      mission,
+      insight,
 
     });
 
@@ -160,7 +146,7 @@ No explanations.
         success: false,
 
         error:
-          "Mission generation failed",
+          "Reflection analysis failed",
 
       },
 

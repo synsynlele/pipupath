@@ -19,34 +19,35 @@ import {
 } from "../../lib/magicpen";
 
 import {
-  interpretMagicWriting,
-}
-from "../../lib/ai";
-
-import {
   storeMemory
 }
 from "../../lib/memory/storeMemory";
 
-const PROMPTS = [
+const THINKING_PROMPTS = [
 
-  "What is creating the most mental friction in your life right now?",
+  "What kind of future would feel meaningful enough to dedicate your life to?",
 
-  "What are you avoiding that would change your future if confronted?",
+  "What capability would most transform your future if mastered deeply?",
 
-  "What kind of person are you becoming through your daily behavior?",
+  "Where are you underestimating your potential because of fear or uncertainty?",
 
-  "What feels unclear in your thinking right now?",
+  "What problem in the world feels important enough for you to help solve?",
 
-  "What decision keeps repeating in your mind lately?",
+  "What kind of person would your future self respect?",
 
-  "Where are you performing instead of being authentic?",
+  "What ambition feels too large to say out loud?",
 
-  "What would your future self want you to focus on right now?",
+  "What keeps repeating in your thinking lately and why?",
+
+  "What tension currently exists between your potential and your behavior?",
 
 ];
 
 export default function MagicPenPage() {
+
+  // =========================
+  // STATE
+  // =========================
 
   const [entries, setEntries] =
     useState([]);
@@ -79,22 +80,27 @@ export default function MagicPenPage() {
   ] = useState("");
 
   const [
-    aiInsight,
-    setAiInsight,
+    cognitiveInsight,
+    setCognitiveInsight,
   ] = useState("");
 
   const [
-    aiState,
-    setAiState,
+    cognitiveState,
+    setCognitiveState,
   ] = useState("");
 
   const [
-    aiClarity,
-    setAiClarity,
+    clarityScore,
+    setClarityScore,
   ] = useState(0);
 
+  const [
+    generatingInsight,
+    setGeneratingInsight,
+  ] = useState(false);
+
   // =========================
-  // LOAD ENTRIES
+  // LOAD
   // =========================
 
   useEffect(() => {
@@ -108,11 +114,15 @@ export default function MagicPenPage() {
 
         setEntries(data);
 
-      } catch (error) {
+      }
+
+      catch (error) {
 
         console.error(error);
 
-      } finally {
+      }
+
+      finally {
 
         setLoading(false);
 
@@ -127,11 +137,14 @@ export default function MagicPenPage() {
     // =========================
 
     const randomPrompt =
-      PROMPTS[
+
+      THINKING_PROMPTS[
+
         Math.floor(
           Math.random() *
-          PROMPTS.length
+          THINKING_PROMPTS.length
         )
+
       ];
 
     setActivePrompt(
@@ -155,12 +168,187 @@ export default function MagicPenPage() {
 
         handleAutoSave();
 
-      }, 2000);
+      }, 2500);
 
     return () =>
       clearTimeout(timeout);
 
   }, [content, title]);
+
+  // =========================
+  // COGNITIVE ANALYSIS
+  // =========================
+
+  async function generateCognitiveInsight() {
+
+    if (
+      !content.trim()
+    ) return;
+
+    try {
+
+      setGeneratingInsight(
+        true
+      );
+
+      const response =
+        await fetch(
+
+          "/api/cognitive",
+
+          {
+
+            method: "POST",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+            },
+
+            body:
+              JSON.stringify({
+
+                writing:
+                  content,
+
+                archetype:
+                  "Builder",
+
+              }),
+
+          }
+
+        );
+
+      const data =
+        await response.json();
+
+      const insight =
+
+        data?.insight ||
+
+        "Your thinking suggests tension between ambition and clarity. Greater specificity may unlock stronger execution momentum.";
+
+      setCognitiveInsight(
+        insight
+      );
+
+      // =========================
+      // SYNTHETIC CLARITY
+      // =========================
+
+      const syntheticClarity =
+
+        Math.min(
+
+          10,
+
+          Math.max(
+
+            3,
+
+            Math.floor(
+
+              content.length / 220
+
+            )
+
+          )
+
+        );
+
+      setClarityScore(
+        syntheticClarity
+      );
+
+      // =========================
+      // COGNITIVE STATE
+      // =========================
+
+      let state =
+        "Strategic Reflection";
+
+      if (
+        content.length > 1200
+      ) {
+
+        state =
+          "Deep Cognitive Processing";
+
+      }
+
+      if (
+        content.includes("?")
+      ) {
+
+        state =
+          "Exploratory Thinking";
+
+      }
+
+      if (
+        content.toLowerCase().includes(
+          "future"
+        )
+      ) {
+
+        state =
+          "Future-Oriented Expansion";
+
+      }
+
+      setCognitiveState(
+        state
+      );
+
+      // =========================
+      // MEMORY
+      // =========================
+
+      await storeMemory({
+
+        userId:
+          selectedEntry?.user_id,
+
+        memoryType:
+          "magicpen_signal",
+
+        content:
+          insight,
+
+        importance:
+
+          syntheticClarity >= 8
+
+            ?
+
+            5
+
+            :
+
+            3,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+    }
+
+    finally {
+
+      setGeneratingInsight(
+        false
+      );
+
+    }
+
+  }
 
   // =========================
   // AUTO SAVE FUNCTION
@@ -173,72 +361,7 @@ export default function MagicPenPage() {
       setSaving(true);
 
       // =========================
-      // AI INTERPRETATION
-      // =========================
-
-      const interpretation =
-        await interpretMagicWriting(
-          content
-        );
-
-      const clarityScore =
-        interpretation.clarity;
-
-      const emotionalState =
-        interpretation.state;
-
-      const aiSummary =
-        interpretation.insight;
-
-      setAiInsight(
-        aiSummary
-      );
-
-      setAiState(
-        emotionalState
-      );
-
-      setAiClarity(
-        clarityScore
-      );
-
-      // =========================
-      // STORE MEMORY
-      // =========================
-
-      if (
-        aiSummary
-      ) {
-
-        await storeMemory({
-
-          userId:
-            selectedEntry?.user_id,
-
-          memoryType:
-            "magicpen_signal",
-
-          content:
-            aiSummary,
-
-          importance:
-
-            clarityScore >= 8
-
-              ?
-
-              5
-
-              :
-
-              3,
-
-        });
-
-      }
-
-      // =========================
-      // UPDATE EXISTING
+      // UPDATE
       // =========================
 
       if (
@@ -253,17 +376,18 @@ export default function MagicPenPage() {
 
             title:
               title ||
-              "Untitled Session",
+              "Untitled Thinking Session",
 
             content,
 
-            aiSummary,
+            aiSummary:
+              cognitiveInsight,
 
             aiClarityScore:
               clarityScore,
 
             aiEmotionalState:
-              emotionalState,
+              cognitiveState,
 
           });
 
@@ -271,10 +395,12 @@ export default function MagicPenPage() {
           updated
         );
 
-      } else {
+      }
+
+      else {
 
         // =========================
-        // CREATE NEW
+        // CREATE
         // =========================
 
         const saved =
@@ -282,17 +408,18 @@ export default function MagicPenPage() {
 
             title:
               title ||
-              "Untitled Session",
+              "Untitled Thinking Session",
 
             content,
 
-            aiSummary,
+            aiSummary:
+              cognitiveInsight,
 
             aiClarityScore:
               clarityScore,
 
             aiEmotionalState:
-              emotionalState,
+              cognitiveState,
 
           });
 
@@ -321,11 +448,15 @@ export default function MagicPenPage() {
         new Date()
       );
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
       console.error(error);
 
-    } finally {
+    }
+
+    finally {
 
       setSaving(false);
 
@@ -351,6 +482,18 @@ export default function MagicPenPage() {
       entry.content || ""
     );
 
+    setCognitiveInsight(
+      entry.ai_summary || ""
+    );
+
+    setClarityScore(
+      entry.ai_clarity_score || 0
+    );
+
+    setCognitiveState(
+      entry.ai_emotional_state || ""
+    );
+
   }
 
   return (
@@ -359,7 +502,7 @@ export default function MagicPenPage() {
 
       <Navigation />
 
-      {/* AMBIENT GLOW */}
+      {/* BACKGROUND */}
 
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
 
@@ -369,6 +512,8 @@ export default function MagicPenPage() {
 
       </div>
 
+      {/* CONTENT */}
+
       <div className="relative max-w-7xl mx-auto px-4 py-8 md:px-6 md:py-10">
 
         {/* HEADER */}
@@ -377,41 +522,41 @@ export default function MagicPenPage() {
 
           <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
 
-            MagicPen
+            Cognitive Forge
 
           </p>
 
           <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-none text-[#0F172A]">
 
-            Think clearly.
+            Sharpen your thinking.
             <br />
-            Understand deeply.
+            Expand your direction.
 
           </h1>
 
-          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-[#475569]">
+          <p className="mt-8 max-w-3xl text-lg leading-relaxed text-[#475569]">
 
-            MagicPen is your adaptive cognition environment for clarity, reflection and behavioral insight.
+            Cognitive Forge is a strategic thinking environment designed to help ambitious people organize ideas, sharpen direction, challenge assumptions and develop greater mental clarity.
 
           </p>
 
         </div>
 
-        {/* MAIN GRID */}
+        {/* GRID */}
 
         <div className="grid lg:grid-cols-[320px_1fr] gap-6 mt-12">
 
-          {/* LEFT SIDEBAR */}
+          {/* SIDEBAR */}
 
           <div className="space-y-5">
 
-            {/* PROMPT */}
+            {/* THINKING PROMPT */}
 
             <div className="rounded-[32px] border border-white/60 bg-white/80 backdrop-blur-xl p-6 shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
 
               <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8]">
 
-                Reflection Prompt
+                Expansion Prompt
 
               </p>
 
@@ -431,7 +576,7 @@ export default function MagicPenPage() {
 
                 <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8]">
 
-                  Sessions
+                  Thinking Sessions
 
                 </p>
 
@@ -446,6 +591,8 @@ export default function MagicPenPage() {
                     setTitle("");
 
                     setContent("");
+
+                    setCognitiveInsight("");
 
                   }}
 
@@ -487,7 +634,7 @@ export default function MagicPenPage() {
 
                       <p className="text-sm text-[#64748B] leading-relaxed">
 
-                        Your thinking sessions will appear here.
+                        Your strategic thinking sessions will appear here.
 
                       </p>
 
@@ -543,7 +690,7 @@ export default function MagicPenPage() {
 
           </div>
 
-          {/* WRITING AREA */}
+          {/* MAIN */}
 
           <div className="space-y-6">
 
@@ -551,7 +698,7 @@ export default function MagicPenPage() {
 
             <div className="rounded-[40px] border border-white/60 bg-white/85 backdrop-blur-xl p-6 md:p-8 shadow-[0_10px_60px_rgba(15,23,42,0.06)]">
 
-              {/* TOP BAR */}
+              {/* TOP */}
 
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
@@ -559,7 +706,7 @@ export default function MagicPenPage() {
 
                   type="text"
 
-                  placeholder="Untitled Session"
+                  placeholder="Untitled Thinking Session"
 
                   value={title}
 
@@ -601,7 +748,7 @@ export default function MagicPenPage() {
 
               </div>
 
-              {/* WRITING AREA */}
+              {/* TEXTAREA */}
 
               <textarea
 
@@ -613,37 +760,69 @@ export default function MagicPenPage() {
                   )
                 }
 
-                placeholder="Begin thinking..."
+                placeholder="Explore ideas, direction, ambition, conflict, strategy or possibility..."
 
                 className="mt-8 w-full min-h-[500px] bg-transparent resize-none outline-none text-[18px] leading-[1.9] text-[#334155] placeholder:text-[#94A3B8]"
 
               />
 
+              {/* BUTTON */}
+
+              <button
+
+                onClick={
+                  generateCognitiveInsight
+                }
+
+                disabled={
+                  generatingInsight
+                }
+
+                className="mt-8 px-6 py-4 rounded-2xl bg-[#0F172A] text-white font-medium hover:opacity-90 transition-all disabled:opacity-50"
+
+              >
+
+                {
+
+                  generatingInsight
+
+                    ?
+
+                    "Expanding Thinking..."
+
+                    :
+
+                    "Expand Thinking"
+
+                }
+
+              </button>
+
             </div>
 
-            {/* AI INSIGHT */}
+            {/* COGNITIVE INSIGHT */}
 
             <div className="rounded-[32px] border border-[#FDE68A]/30 bg-gradient-to-br from-[#FEFCE8] to-[#FFFBEB] p-6 md:p-7 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
 
               <p className="text-xs uppercase tracking-[0.25em] text-[#92400E]">
 
-                Cognitive Insight
+                Cognitive Expansion
 
               </p>
 
-              <p className="mt-5 text-[#78350F] leading-relaxed">
+              <p className="mt-5 text-[#78350F] leading-relaxed text-lg">
 
                 {
 
-                  aiInsight ||
+                  cognitiveInsight ||
 
-                  "Write deeply and the system will begin detecting behavioral patterns, emotional signals and cognitive clarity."
+                  "Write deeply and the system will begin expanding your thinking, exposing patterns and sharpening strategic clarity."
 
                 }
 
               </p>
 
-              {/* INSIGHT GRID */}
+              {/* GRID */}
 
               <div className="grid md:grid-cols-2 gap-4 mt-6">
 
@@ -651,13 +830,13 @@ export default function MagicPenPage() {
 
                   <p className="text-xs uppercase tracking-[0.2em] text-[#92400E]">
 
-                    Clarity
+                    Clarity Level
 
                   </p>
 
                   <p className="mt-3 text-3xl font-semibold text-[#78350F]">
 
-                    {aiClarity}/10
+                    {clarityScore}/10
 
                   </p>
 
@@ -667,7 +846,7 @@ export default function MagicPenPage() {
 
                   <p className="text-xs uppercase tracking-[0.2em] text-[#92400E]">
 
-                    Cognitive State
+                    Thinking State
 
                   </p>
 
@@ -675,9 +854,9 @@ export default function MagicPenPage() {
 
                     {
 
-                      aiState ||
+                      cognitiveState ||
 
-                      "Reflective Processing"
+                      "Strategic Reflection"
 
                     }
 

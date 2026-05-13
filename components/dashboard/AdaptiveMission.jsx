@@ -1,12 +1,17 @@
 "use client";
 
-import { useState }
+import { useEffect, useState }
 from "react";
 
 import {
   storeMemory
 }
 from "../../lib/memory/storeMemory";
+
+import {
+  saveActiveMission
+}
+from "../../lib/missions/saveActiveMission";
 
 export default function AdaptiveMission({
 
@@ -40,6 +45,24 @@ export default function AdaptiveMission({
   ] = useState("");
 
   // =========================
+  // SYNC ACTIVE MISSION
+  // =========================
+
+  useEffect(() => {
+
+    if (
+      activeMission
+    ) {
+
+      setGeneratedMission(
+        activeMission
+      );
+
+    }
+
+  }, [activeMission]);
+
+  // =========================
   // ORCHESTRATION
   // =========================
 
@@ -58,7 +81,7 @@ export default function AdaptiveMission({
     missionMode === "simplified";
 
   // =========================
-  // GENERATE AI MISSION
+  // GENERATE MISSION
   // =========================
 
   async function handleGenerateMission() {
@@ -89,26 +112,25 @@ export default function AdaptiveMission({
                 archetype:
                   profile?.archetype ||
 
-                  "Explorer",
+                  "Builder",
 
                 aspirations:
                   profile?.aspirations ||
 
-                  "The user wants to build a more successful and organized life.",
+                  "Build a meaningful and impactful future.",
 
                 momentum:
                   profile?.momentum ||
 
-                  "Rebuilding",
+                  50,
 
                 emotionalState:
                   profile?.last_cognitive_state ||
 
-                  "Uncertain",
+                  "Focused",
 
                 missionMode:
-                  orchestration
-                    ?.missionMode ||
+                  orchestration?.missionMode ||
 
                   "standard",
 
@@ -121,26 +143,57 @@ export default function AdaptiveMission({
       const data =
         await response.json();
 
-      setGeneratedMission({
+      const mission = {
 
         title:
-          "Adaptive Mission",
+          "Strategic Mission",
 
         description:
 
           data?.mission ||
 
-          "Clarify one meaningful direction you want your life to move toward this week and take one visible action toward it today.",
+          "Identify one difficult but meaningful action that would move your future forward and complete it before the day ends.",
 
         type:
-          orchestration
-            ?.missionMode ||
+          missionMode,
 
-          "adaptive",
+        xpReward:
+          isExpanded
 
-        xpReward: 120,
+            ?
+
+            250
+
+            :
+
+          isRecovery
+
+            ?
+
+            100
+
+            :
+
+            180,
+
+      };
+
+      // =========================
+      // SAVE
+      // =========================
+
+      await saveActiveMission({
+
+        userId:
+          profile?.id,
+
+        mission,
 
       });
+
+      setGeneratedMission(
+        mission
+      );
 
       setOutcomeState("");
 
@@ -161,7 +214,7 @@ export default function AdaptiveMission({
   }
 
   // =========================
-  // COMPLETE MISSION
+  // COMPLETE
   // =========================
 
   async function handleCompleteMission() {
@@ -197,7 +250,7 @@ export default function AdaptiveMission({
   }
 
   // =========================
-  // STRUGGLE WITH MISSION
+  // STRUGGLE
   // =========================
 
   async function handleStruggleMission() {
@@ -233,7 +286,7 @@ export default function AdaptiveMission({
   }
 
   // =========================
-  // SKIP MISSION
+  // SKIP
   // =========================
 
   async function handleSkipMission() {
@@ -268,10 +321,6 @@ export default function AdaptiveMission({
 
   }
 
-  // =========================
-  // UI
-  // =========================
-
   return (
 
     <section className={`
@@ -279,38 +328,30 @@ export default function AdaptiveMission({
 mt-10
 relative
 overflow-hidden
-rounded-[36px]
+rounded-[40px]
 p-8
 md:p-10
 shadow-[0_10px_60px_rgba(15,23,42,0.15)]
-transition-all
-duration-700
 
-${isRecovery
+${
 
-  ?
+  isExpanded
 
-  "bg-[#1E293B] text-white"
+    ?
 
-  :
+    "bg-gradient-to-br from-[#0F172A] via-[#111827] to-[#1E293B] text-white"
 
-isExpanded
+    :
 
-  ?
+  isRecovery
 
-  "bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#2B3445] text-white"
+    ?
 
-  :
+    "bg-[#111827] text-white"
 
-isSimplified
+    :
 
-  ?
-
-  "bg-[#111827] text-white"
-
-  :
-
-  "bg-[#0F172A] text-white"
+    "bg-[#0F172A] text-white"
 
 }
 
@@ -320,65 +361,19 @@ isSimplified
 
       <div className="absolute inset-0 bg-gradient-to-br from-[#0F172A] via-[#111827] to-[#1E293B]" />
 
-      <div className={`
-
-absolute
-top-[-120px]
-right-[-120px]
-w-[260px]
-h-[260px]
-rounded-full
-blur-3xl
-
-${isRecovery
-
-  ?
-
-  "bg-[#CBD5E1]/10"
-
-  :
-
-isExpanded
-
-  ?
-
-  "bg-[#D4AF37]/20"
-
-  :
-
-isSimplified
-
-  ?
-
-  "bg-[#64748B]/10"
-
-  :
-
-  "bg-[#D4AF37]/10"
-
-}
-
-`} />
+      <div className="absolute top-[-120px] right-[-120px] w-[260px] h-[260px] bg-[#D4AF37]/10 rounded-full blur-3xl" />
 
       {/* CONTENT */}
 
       <div className="relative z-10">
 
-        {/* TOP TAGS */}
+        {/* LABELS */}
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap gap-3">
 
           <div className="px-4 py-2 rounded-full bg-white/10 text-sm font-medium">
 
             {
-
-              isRecovery
-
-                ?
-
-                "Recovery Mission"
-
-                :
 
               isExpanded
 
@@ -388,7 +383,7 @@ isSimplified
 
                 :
 
-              isSimplified
+              isRecovery
 
                 ?
 
@@ -396,7 +391,7 @@ isSimplified
 
                 :
 
-                "Adaptive Mission"
+                "Strategic Mission"
 
             }
 
@@ -404,13 +399,7 @@ isSimplified
 
           <div className="px-4 py-2 rounded-full bg-[#D4AF37] text-[#0F172A] text-sm font-semibold">
 
-            +{generatedMission?.xpReward || 120} XP
-
-          </div>
-
-          <div className="px-4 py-2 rounded-full bg-white/10 text-sm capitalize">
-
-            {orchestration?.missionMode || "standard"} mode
+            +{generatedMission?.xpReward || 180} XP
 
           </div>
 
@@ -418,13 +407,13 @@ isSimplified
 
         {/* TITLE */}
 
-        <h2 className="mt-8 text-4xl md:text-5xl font-semibold tracking-tight leading-tight max-w-3xl">
+        <h2 className="mt-8 text-4xl md:text-5xl font-semibold tracking-tight leading-tight max-w-4xl">
 
           {
 
             generatedMission?.title ||
 
-            "Generate Your Next Mission"
+            "Your next strategic move."
 
           }
 
@@ -432,21 +421,21 @@ isSimplified
 
         {/* DESCRIPTION */}
 
-        <p className="mt-6 text-white/70 leading-relaxed text-lg max-w-2xl whitespace-pre-line">
+        <p className="mt-6 text-white/75 text-lg leading-relaxed whitespace-pre-line max-w-3xl">
 
           {
 
             generatedMission?.description ||
 
-            "Request an adaptive mission designed to help you regain clarity, build momentum and move your life forward intentionally."
+            "Generate a mission designed to sharpen your direction, increase capability and move your life forward meaningfully."
 
           }
 
         </p>
 
-        {/* ACTIONS */}
+        {/* BUTTONS */}
 
-        <div className="mt-10 flex flex-wrap items-center gap-4">
+        <div className="mt-10 flex flex-wrap gap-4">
 
           <button
 
@@ -456,7 +445,7 @@ isSimplified
 
             disabled={loading}
 
-            className="px-7 py-4 rounded-2xl bg-[#D4AF37] text-[#0F172A] font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+            className="px-7 py-4 rounded-2xl bg-[#D4AF37] text-[#0F172A] font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
 
           >
 
@@ -470,7 +459,7 @@ isSimplified
 
                 :
 
-                "Generate Mission"
+                "Generate New Mission"
 
             }
 
@@ -482,7 +471,7 @@ isSimplified
               handleCompleteMission
             }
 
-            className="px-6 py-4 rounded-2xl bg-white/10 border border-white/10 text-white transition-all duration-300 hover:bg-white/20"
+            className="px-6 py-4 rounded-2xl bg-white/10 border border-white/10 text-white hover:bg-white/20 transition-all"
 
           >
 
@@ -496,7 +485,7 @@ isSimplified
               handleStruggleMission
             }
 
-            className="px-6 py-4 rounded-2xl bg-white/10 border border-white/10 text-white transition-all duration-300 hover:bg-white/20"
+            className="px-6 py-4 rounded-2xl bg-white/10 border border-white/10 text-white hover:bg-white/20 transition-all"
 
           >
 
@@ -510,7 +499,7 @@ isSimplified
               handleSkipMission
             }
 
-            className="px-6 py-4 rounded-2xl bg-white/10 border border-white/10 text-white transition-all duration-300 hover:bg-white/20"
+            className="px-6 py-4 rounded-2xl bg-white/10 border border-white/10 text-white hover:bg-white/20 transition-all"
 
           >
 
@@ -520,15 +509,15 @@ isSimplified
 
         </div>
 
-        {/* OUTCOME FEEDBACK */}
+        {/* FEEDBACK */}
 
         {
 
           outcomeState && (
 
-            <div className="mt-6 rounded-2xl bg-white/10 border border-white/10 p-5">
+            <div className="mt-8 rounded-3xl bg-white/10 border border-white/10 p-5">
 
-              <p className="text-sm text-white/80 leading-relaxed">
+              <p className="text-white/80 leading-relaxed">
 
                 {
 
@@ -537,7 +526,7 @@ isSimplified
 
                     ?
 
-                    "Mission completion recorded. The system will adapt future pacing and progression intelligently."
+                    "Execution recorded. Your adaptive system is recognizing increasing behavioral momentum and capability growth."
 
                     :
 
@@ -546,11 +535,11 @@ isSimplified
 
                     ?
 
-                    "Behavioral resistance detected. Future missions may reduce cognitive pressure and stabilize momentum."
+                    "Resistance detected. Future missions may rebalance complexity while preserving meaningful forward movement."
 
                     :
 
-                    "Mission skip recorded. The system will recalibrate pacing and execution intensity."
+                    "Mission skipped. The system will recalibrate challenge intensity and execution pacing."
 
                 }
 
@@ -561,78 +550,6 @@ isSimplified
           )
 
         }
-
-        {/* ADAPTIVE STATE */}
-
-        <div className="mt-10 grid md:grid-cols-3 gap-4">
-
-          <div className="rounded-3xl bg-white/5 border border-white/10 p-5">
-
-            <p className="text-xs uppercase tracking-[0.2em] text-white/40">
-
-              Mission Type
-
-            </p>
-
-            <h3 className="mt-3 text-2xl font-semibold capitalize">
-
-              {
-
-                generatedMission?.type ||
-
-                "adaptive"
-
-              }
-
-            </h3>
-
-          </div>
-
-          <div className="rounded-3xl bg-white/5 border border-white/10 p-5">
-
-            <p className="text-xs uppercase tracking-[0.2em] text-white/40">
-
-              Guidance
-
-            </p>
-
-            <h3 className="mt-3 text-2xl font-semibold capitalize">
-
-              {
-
-                orchestration?.guidanceMode ||
-
-                "balanced"
-
-              }
-
-            </h3>
-
-          </div>
-
-          <div className="rounded-3xl bg-white/5 border border-white/10 p-5">
-
-            <p className="text-xs uppercase tracking-[0.2em] text-white/40">
-
-              Cognitive Load
-
-            </p>
-
-            <h3 className="mt-3 text-2xl font-semibold capitalize">
-
-              {
-
-                orchestration?.cognitiveLoad ||
-
-                "normal"
-
-              }
-
-            </h3>
-
-          </div>
-
-        </div>
 
       </div>
 
