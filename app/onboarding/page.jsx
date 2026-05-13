@@ -16,28 +16,42 @@ const QUESTIONS = [
     id: 1,
 
     question:
-      "When facing a difficult goal, what usually drives you most?",
+      "What kind of future feels most meaningful to you?",
 
     options: [
+
       {
-        text: "Building something meaningful",
-        type: "Builder",
+        text:
+          "Building ideas, systems or creations that impact the world",
+
+        type:
+          "Builder",
       },
 
       {
-        text: "Winning and achieving excellence",
-        type: "Commander",
+        text:
+          "Leading people toward growth, change or progress",
+
+        type:
+          "Leader",
       },
 
       {
-        text: "Learning and understanding deeply",
-        type: "Scholar",
+        text:
+          "Understanding life deeply and developing wisdom",
+
+        type:
+          "Thinker",
       },
 
       {
-        text: "Helping and inspiring people",
-        type: "Guide",
+        text:
+          "Helping people heal, grow and become better",
+
+        type:
+          "Guide",
       },
+
     ],
   },
 
@@ -45,28 +59,42 @@ const QUESTIONS = [
     id: 2,
 
     question:
-      "Which environment helps you perform at your best?",
+      "What frustrates you most about your current life direction?",
 
     options: [
+
       {
-        text: "Structured systems and plans",
-        type: "Commander",
+        text:
+          "I have ideas and ambition but struggle with consistent execution",
+
+        type:
+          "Builder",
       },
 
       {
-        text: "Creative freedom and experimentation",
-        type: "Builder",
+        text:
+          "I know I can do more but feel scattered or unfocused",
+
+        type:
+          "Leader",
       },
 
       {
-        text: "Quiet reflection and thinking",
-        type: "Scholar",
+        text:
+          "I overthink decisions and delay meaningful action",
+
+        type:
+          "Thinker",
       },
 
       {
-        text: "Collaboration and human connection",
-        type: "Guide",
+        text:
+          "I care deeply about others but neglect my own growth",
+
+        type:
+          "Guide",
       },
+
     ],
   },
 
@@ -74,28 +102,42 @@ const QUESTIONS = [
     id: 3,
 
     question:
-      "What frustrates you most about yourself?",
+      "What gives you the strongest sense of purpose?",
 
     options: [
+
       {
-        text: "Overthinking instead of executing",
-        type: "Scholar",
+        text:
+          "Creating meaningful things that outlive me",
+
+        type:
+          "Builder",
       },
 
       {
-        text: "Starting too many ideas",
-        type: "Builder",
+        text:
+          "Helping people organize and move forward",
+
+        type:
+          "Leader",
       },
 
       {
-        text: "Being impatient with others",
-        type: "Commander",
+        text:
+          "Discovering deeper understanding and insight",
+
+        type:
+          "Thinker",
       },
 
       {
-        text: "Neglecting my own needs",
-        type: "Guide",
+        text:
+          "Helping people become healthier and stronger",
+
+        type:
+          "Guide",
       },
+
     ],
   },
 
@@ -103,28 +145,42 @@ const QUESTIONS = [
     id: 4,
 
     question:
-      "How do you usually respond to uncertainty?",
+      "When life becomes uncertain, what do you naturally rely on?",
 
     options: [
+
       {
-        text: "Create a strategy immediately",
-        type: "Commander",
+        text:
+          "Experimenting, building and adapting quickly",
+
+        type:
+          "Builder",
       },
 
       {
-        text: "Experiment and adapt",
-        type: "Builder",
+        text:
+          "Creating structure, plans and direction",
+
+        type:
+          "Leader",
       },
 
       {
-        text: "Research and analyze",
-        type: "Scholar",
+        text:
+          "Thinking deeply before acting",
+
+        type:
+          "Thinker",
       },
 
       {
-        text: "Seek perspective from people",
-        type: "Guide",
+        text:
+          "Seeking perspective through human connection",
+
+        type:
+          "Guide",
       },
+
     ],
   },
 
@@ -132,28 +188,42 @@ const QUESTIONS = [
     id: 5,
 
     question:
-      "What kind of impact matters most to you?",
+      "Which capability do you most want to strengthen right now?",
 
     options: [
+
       {
-        text: "Building systems that last",
-        type: "Builder",
+        text:
+          "Execution and turning ideas into reality",
+
+        type:
+          "Builder",
       },
 
       {
-        text: "Leading transformation",
-        type: "Commander",
+        text:
+          "Discipline, leadership and consistency",
+
+        type:
+          "Leader",
       },
 
       {
-        text: "Sharing wisdom and insight",
-        type: "Scholar",
+        text:
+          "Clarity, thinking and intelligent decision-making",
+
+        type:
+          "Thinker",
       },
 
       {
-        text: "Improving people's lives directly",
-        type: "Guide",
+        text:
+          "Communication, empathy and helping others effectively",
+
+        type:
+          "Guide",
       },
+
     ],
   },
 
@@ -161,90 +231,76 @@ const QUESTIONS = [
     id: 6,
 
     question:
-      "Which statement feels most true about you?",
+      "What kind of person do you ultimately want to become?",
 
     options: [
+
       {
-        text: "I naturally organize people and direction",
-        type: "Commander",
+        text:
+          "Someone who builds meaningful things for the future",
+
+        type:
+          "Builder",
       },
 
       {
-        text: "I constantly imagine new possibilities",
-        type: "Builder",
+        text:
+          "Someone capable of leading meaningful progress",
+
+        type:
+          "Leader",
       },
 
       {
-        text: "I search for deeper understanding",
-        type: "Scholar",
+        text:
+          "Someone known for wisdom and intelligent thinking",
+
+        type:
+          "Thinker",
       },
 
       {
-        text: "I care deeply about human growth",
-        type: "Guide",
+        text:
+          "Someone who helps people grow meaningfully",
+
+        type:
+          "Guide",
       },
+
     ],
   },
+
 ];
 
-const ARCHETYPE_DATA = {
+const REFLECTION_QUESTIONS = [
 
-  Builder: {
+  {
+    id: 1,
 
-    title: "The Builder",
-
-    description:
-      "You are driven to create, improve and bring ideas into reality.",
-
-    strength:
-      "Visionary execution",
-
-    weakness:
-      "Scattered focus",
+    prompt:
+      "What feels hardest about your life right now?",
   },
 
-  Commander: {
+  {
+    id: 2,
 
-    title: "The Commander",
-
-    description:
-      "You thrive through direction, discipline and strategic action.",
-
-    strength:
-      "Leadership and execution",
-
-    weakness:
-      "Impatience and pressure",
+    prompt:
+      "What kind of person do you want to become?",
   },
 
-  Scholar: {
+  {
+    id: 3,
 
-    title: "The Scholar",
-
-    description:
-      "You seek understanding, depth and intelligent growth.",
-
-    strength:
-      "Deep thinking",
-
-    weakness:
-      "Overanalysis",
+    prompt:
+      "If your life became much better in the next few years, what would likely change most?",
   },
 
-  Guide: {
+];
 
-    title: "The Guide",
+import {
+  ARCHETYPES
+} from "../../lib/identity/archetypes";
 
-    description:
-      "You are motivated by helping others evolve and flourish.",
-
-    strength:
-      "Human connection",
-
-    weakness:
-      "Self-neglect",
-  },
-};
 
 export default function OnboardingPage() {
 
@@ -257,8 +313,39 @@ export default function OnboardingPage() {
   const [answers, setAnswers] =
     useState([]);
 
+const [
+
+  reflectionStep,
+
+  setReflectionStep,
+
+] = useState(0);
+
+const [
+
+  reflectionAnswers,
+
+  setReflectionAnswers,
+
+] = useState({
+
+    struggle: "",
+
+    futureSelf: "",
+
+    futureChange: "",
+});
+
   const [submitting, setSubmitting] =
     useState(false);
+
+const [
+
+  reflectionMode,
+
+  setReflectionMode,
+
+] = useState(false);
 
   // Redirect unauthenticated users
   useEffect(() => {
@@ -293,22 +380,24 @@ export default function OnboardingPage() {
     setAnswers(updated);
 
     if (
-      step < QUESTIONS.length - 1
-    ) {
+  step < QUESTIONS.length - 1
+) {
 
-      setTimeout(() => {
+  setTimeout(() => {
 
-        setStep(step + 1);
+    setStep(step + 1);
 
-      }, 250);
+  }, 250);
 
-    } else {
+} else {
 
-      completeOnboarding(updated);
-    }
+  setReflectionMode(true);
+}
   }
 
-  async function completeOnboarding(finalAnswers) {
+  async function completeOnboarding(
+  finalAnswers
+) {
 
     if (!user) return;
 
@@ -337,7 +426,7 @@ export default function OnboardingPage() {
     });
 
     const archetypeData =
-      ARCHETYPE_DATA[topType];
+  ARCHETYPES[topType];
 
     try {
 
@@ -354,6 +443,9 @@ export default function OnboardingPage() {
 
             onboarding_completed_at:
               new Date().toISOString(),
+             
+            identity_reflections:
+  reflectionAnswers,
           })
           .eq("id", user.id);
 
@@ -402,6 +494,47 @@ export default function OnboardingPage() {
       </main>
     );
   }
+
+function handleReflectionChange(
+  value
+) {
+
+  if (reflectionStep === 0) {
+
+    setReflectionAnswers(
+      (prev) => ({
+
+        ...prev,
+
+        struggle: value,
+      })
+    );
+  }
+
+  if (reflectionStep === 1) {
+
+    setReflectionAnswers(
+      (prev) => ({
+
+        ...prev,
+
+        futureSelf: value,
+      })
+    );
+  }
+
+  if (reflectionStep === 2) {
+
+    setReflectionAnswers(
+      (prev) => ({
+
+        ...prev,
+
+        futureChange: value,
+      })
+    );
+  }
+}
 
   return (
 
@@ -473,61 +606,168 @@ export default function OnboardingPage() {
 
             <>
 
-              <div className="max-w-3xl">
+  {!reflectionMode ? (
 
-                <p className="text-sm uppercase tracking-[0.25em] text-[#94A3B8]">
-                  Identity Question
+    <>
+
+      <div className="max-w-3xl">
+
+        <p className="text-sm uppercase tracking-[0.25em] text-[#94A3B8]">
+
+          Identity Question
+
+        </p>
+
+        <h1 className="mt-8 text-4xl md:text-6xl font-semibold tracking-tight leading-[1.1] text-[#0F172A]">
+
+          {currentQuestion.question}
+
+        </h1>
+
+      </div>
+
+      <div className="mt-14 grid gap-4">
+
+        {currentQuestion.options.map((option, index) => (
+
+          <button
+            key={index}
+            onClick={() =>
+              handleAnswer(
+                option.type
+              )
+            }
+            className="group text-left rounded-[28px] border border-white/60 bg-white/80 backdrop-blur-xl p-6 md:p-7 shadow-[0_10px_50px_rgba(15,23,42,0.04)] hover:translate-y-[-2px] hover:border-[#D4AF37]/30 transition-all duration-300"
+          >
+
+            <div className="flex items-center justify-between gap-4">
+
+              <div>
+
+                <p className="text-xl md:text-2xl font-medium tracking-tight text-[#0F172A] leading-relaxed">
+
+                  {option.text}
+
                 </p>
 
-                <h1 className="mt-8 text-4xl md:text-6xl font-semibold tracking-tight leading-[1.1] text-[#0F172A]">
+              </div>
 
-                  {currentQuestion.question}
+              <div className="w-12 h-12 rounded-2xl border border-[#E2E8F0] bg-[#FAFAFA] flex items-center justify-center group-hover:bg-[#0F172A] group-hover:text-white transition-all duration-300">
 
-                </h1>
+                →
 
               </div>
 
-              {/* Options */}
-              <div className="mt-14 grid gap-4">
+            </div>
 
-                {currentQuestion.options.map((option, index) => (
+          </button>
 
-                  <button
-                    key={index}
-                    onClick={() =>
-                      handleAnswer(
-                        option.type
-                      )
-                    }
-                    className="group text-left rounded-[28px] border border-white/60 bg-white/80 backdrop-blur-xl p-6 md:p-7 shadow-[0_10px_50px_rgba(15,23,42,0.04)] hover:translate-y-[-2px] hover:border-[#D4AF37]/30 transition-all duration-300"
-                  >
+        ))}
 
-                    <div className="flex items-center justify-between gap-4">
+      </div>
 
-                      <div>
+    </>
 
-                        <p className="text-xl md:text-2xl font-medium tracking-tight text-[#0F172A] leading-relaxed">
+  ) : (
 
-                          {option.text}
+    <>
 
-                        </p>
+      <div className="max-w-3xl">
 
-                      </div>
+        <p className="text-sm uppercase tracking-[0.25em] text-[#94A3B8]">
 
-                      <div className="w-12 h-12 rounded-2xl border border-[#E2E8F0] bg-[#FAFAFA] flex items-center justify-center group-hover:bg-[#0F172A] group-hover:text-white transition-all duration-300">
-                        →
-                      </div>
+          A Little More About You
 
-                    </div>
+        </p>
 
-                  </button>
+        <h1 className="mt-8 text-4xl md:text-6xl font-semibold tracking-tight leading-[1.1] text-[#0F172A]">
 
-                ))}
+          {
+            REFLECTION_QUESTIONS[
+              reflectionStep
+            ].prompt
+          }
 
-              </div>
+        </h1>
 
-            </>
+      </div>
 
+      <div className="mt-12">
+
+        <textarea
+
+          rows={6}
+
+          value={
+
+            reflectionStep === 0
+
+              ? reflectionAnswers.struggle
+
+              : reflectionStep === 1
+
+              ? reflectionAnswers.futureSelf
+
+              : reflectionAnswers.futureChange
+          }
+
+          onChange={(e) =>
+            handleReflectionChange(
+              e.target.value
+            )
+          }
+
+          placeholder="Write whatever feels true for you..."
+
+          className="w-full rounded-[32px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-6 text-lg text-[#0F172A] outline-none resize-none shadow-[0_10px_50px_rgba(15,23,42,0.04)] focus:border-[#D4AF37]/40"
+        />
+
+        <div className="mt-8 flex items-center justify-between">
+
+          <p className="text-sm text-[#94A3B8]">
+
+            There are no right or wrong answers.
+
+          </p>
+
+          <button
+
+            onClick={() => {
+
+              if (
+                reflectionStep <
+
+                REFLECTION_QUESTIONS.length - 1
+              ) {
+
+                setReflectionStep(
+                  reflectionStep + 1
+                );
+
+              } else {
+
+                completeOnboarding(
+                  answers
+                );
+              }
+            }}
+
+            className="rounded-2xl bg-[#0F172A] px-7 py-4 text-white font-medium hover:translate-y-[-2px] transition-all duration-300"
+          >
+
+            Continue
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </>
+
+  )}
+
+</>
           )}
 
         </div>

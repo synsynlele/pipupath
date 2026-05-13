@@ -17,49 +17,53 @@ export default function HumanGuidance() {
 
             <p className="text-sm font-medium text-[#B88A00]">
 
-              Human + AI Guidance
+              Direction + Development
 
             </p>
 
             <h2 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight leading-tight text-[#0F172A]">
 
-              Growth should feel guided, not isolating.
+              Building your future should not feel confusing and isolating.
 
             </h2>
 
             <p className="mt-6 text-lg text-[#64748B] leading-relaxed">
 
-              PipuPath combines adaptive intelligence with human-centered guidance to help people evolve sustainably through reflection, behavioral awareness and intentional support.
+              Most ambitious young people are trying to figure out life without structure, direction or developmental support. PipuPath helps organize growth through adaptive missions, reflective guidance and capability-building systems designed to help people become stronger, clearer and more effective over time.
 
             </p>
+
+            {/* TAGS */}
 
             <div className="mt-8 flex flex-wrap gap-3">
 
               <div className="px-4 py-2 rounded-full border border-[#E2E8F0] bg-white/80 text-sm text-[#475569]">
 
-                Adaptive Missions
+                Discover Direction
 
               </div>
 
               <div className="px-4 py-2 rounded-full border border-[#E2E8F0] bg-white/80 text-sm text-[#475569]">
 
-                Behavioral Feedback
+                Build Capability
 
               </div>
 
               <div className="px-4 py-2 rounded-full border border-[#E2E8F0] bg-white/80 text-sm text-[#475569]">
 
-                Personal Guidance
+                Regain Momentum
 
               </div>
 
               <div className="px-4 py-2 rounded-full border border-[#E2E8F0] bg-white/80 text-sm text-[#475569]">
 
-                Long-Term Evolution
+                Create Meaningful Work
 
               </div>
 
             </div>
+
+            {/* CTA */}
 
             <div className="mt-10">
 
@@ -68,7 +72,7 @@ export default function HumanGuidance() {
                 className="inline-flex items-center justify-center rounded-2xl bg-[#0F172A] px-7 py-4 text-sm font-medium text-white shadow-[0_10px_30px_rgba(15,23,42,0.18)] transition-all duration-300 hover:translate-y-[-2px]"
               >
 
-                Start Your Journey
+                Begin Building Your Future
 
               </Link>
 
@@ -90,7 +94,7 @@ export default function HumanGuidance() {
 
                   <p className="text-sm font-medium text-[#0F172A]">
 
-                    Adaptive Recovery
+                    Direction Recovery
 
                   </p>
 
@@ -100,7 +104,7 @@ export default function HumanGuidance() {
 
                 <p className="mt-4 text-[#64748B] leading-relaxed">
 
-                  The environment softens during overload and helps reduce cognitive pressure before burnout escalates.
+                  When confusion, pressure or inconsistency rise, the environment adapts to help users regain clarity, emotional steadiness and forward movement without collapsing under overwhelm.
 
                 </p>
 
@@ -112,19 +116,19 @@ export default function HumanGuidance() {
 
                 <p className="text-sm font-medium text-white/70">
 
-                  Behavioral Continuity
+                  Capability Development
 
                 </p>
 
-                <h3 className="mt-4 text-2xl font-semibold">
+                <h3 className="mt-4 text-2xl font-semibold leading-snug">
 
-                  The system remembers your growth rhythm.
+                  Growth becomes organized into real-world capability.
 
                 </h3>
 
                 <p className="mt-4 text-white/70 leading-relaxed">
 
-                  Guidance evolves based on your behavioral history, stabilization cycles and long-term momentum.
+                  Missions evolve beyond productivity into communication, execution, learning, leadership, financial growth and the ability to build meaningful things over time.
 
                 </p>
 

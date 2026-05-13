@@ -23,53 +23,21 @@ from "../../components/dashboard/Hero";
 import AdaptiveMission
 from "../../components/dashboard/AdaptiveMission";
 
-import Signals
-from "../../components/dashboard/Signals";
-
-import Orchestration
-from "../../components/dashboard/Orchestration";
-
-import Memory
-from "../../components/dashboard/Memory";
-
-import Evolution
-from "../../components/dashboard/Evolution";
-
-import Drift
-from "../../components/dashboard/Drift";
-
-import { generateMission }
-from "../../lib/missions";
+import {
+  orchestrateAdaptiveState
+} from "../../lib/orchestrator";
 
 import {
-  generateBehavioralSignals,
-}
-from "../../lib/behavior";
+  getGuidance
+} from "../../lib/guidance/getGuidance";
 
 import {
-  detectBehaviorPatterns,
-}
-from "../../lib/memory";
+  generateAdaptiveMission
+} from "../../lib/ai/generateAdaptiveMission";
 
 import {
-  generateEvolutionInsights,
-}
-from "../../lib/evolution";
-
-import {
-  detectBehavioralDrift,
-}
-from "../../lib/drift";
-
-import {
-  generateAdaptiveInsight,
-}
-from "../../lib/insightEngine";
-
-import {
-  orchestrateAdaptiveState,
-}
-from "../../lib/orchestrator";
+  submitReflection
+} from "../../lib/reflection/submitReflection";
 
 export default function DashboardPage() {
 
@@ -81,34 +49,10 @@ export default function DashboardPage() {
     loading,
   } = useAuth();
 
-  // =========================
-  // STATE
-  // =========================
-
   const [
     profile,
     setProfile,
   ] = useState(null);
-
-  const [
-    signals,
-    setSignals,
-  ] = useState([]);
-
-  const [
-    patterns,
-    setPatterns,
-  ] = useState([]);
-
-  const [
-    evolutionInsights,
-    setEvolutionInsights,
-  ] = useState([]);
-
-  const [
-    driftSignals,
-    setDriftSignals,
-  ] = useState([]);
 
   const [
     orchestration,
@@ -121,42 +65,32 @@ export default function DashboardPage() {
   ] = useState(null);
 
   const [
-    adaptiveInsight,
-    setAdaptiveInsight,
-  ] = useState(
-    "Organizing your behavioral environment..."
-  );
+    guidance,
+    setGuidance,
+  ] = useState("");
 
   const [
-    interventionHistory,
-    setInterventionHistory,
-  ] = useState([]);
+    reflection,
+    setReflection,
+  ] = useState("");
+
+  const [
+    submittingReflection,
+    setSubmittingReflection,
+  ] = useState(false);
 
   // =========================
-  // ENVIRONMENT DENSITY
+  // ADAPTIVE ENVIRONMENT
   // =========================
 
-  const environmentDensity =
+  const streak =
+    profile?.streak || 0;
 
-    orchestration
-      ?.environmentDensity ||
+  const isRecoveryState =
+    streak < 3;
 
-    "normal";
-
-  const isMinimalDensity =
-
-    environmentDensity ===
-    "minimal";
-
-  const isReducedDensity =
-
-    environmentDensity ===
-    "reduced";
-
-  const isExpandedDensity =
-
-    environmentDensity ===
-    "expanded";
+  const isMomentumState =
+    streak >= 7;
 
   // =========================
   // AUTH
@@ -181,17 +115,17 @@ export default function DashboardPage() {
   ]);
 
   // =========================
-  // LOAD PROFILE
+  // LOAD DASHBOARD
   // =========================
 
   useEffect(() => {
 
-    async function loadProfile() {
+    async function loadDashboard() {
 
       if (!user) return;
 
       // =========================
-      // FETCH PROFILE
+      // PROFILE
       // =========================
 
       const {
@@ -228,434 +162,70 @@ export default function DashboardPage() {
       setProfile(data);
 
       // =========================
-      // INTERVENTION HISTORY
-      // =========================
-
-      if (
-        data?.intervention_history
-      ) {
-
-        setInterventionHistory(
-          data.intervention_history
-        );
-      }
-
-      // =========================
-      // RESTORE ADAPTIVE STATE
-      // =========================
-
-      if (
-        data?.adaptive_state
-      ) {
-
-        setOrchestration(
-          (prev) => ({
-
-            ...prev,
-
-            ...data.adaptive_state,
-          })
-        );
-      }
-
-      // =========================
-      // SIGNALS
-      // =========================
-
-      const generatedSignals =
-        await generateBehavioralSignals({
-
-          reflectionCount:
-            data
-              ?.reflection_count || 0,
-
-          averageReflectionDepth:
-            data
-              ?.reflection_depth || 5,
-
-          momentum:
-            data?.momentum || 0,
-
-          cognitiveState:
-            data
-              ?.last_cognitive_state || "",
-
-          clarityScore:
-            data
-              ?.clarity_score || 5,
-        });
-
-      setSignals(
-        generatedSignals
-      );
-
-      // =========================
-      // MEMORY
-      // =========================
-
-      const detectedPatterns =
-        await detectBehaviorPatterns({
-
-          momentumHistory:
-            data
-              ?.momentum_history || [],
-
-          cognitiveHistory:
-            data
-              ?.cognitive_history || [],
-
-          reflectionDepthHistory:
-            data
-              ?.reflection_depth_history || [],
-        });
-
-      setPatterns(
-        detectedPatterns
-      );
-
-      // =========================
-      // EVOLUTION
-      // =========================
-
-      const generatedEvolution =
-        await generateEvolutionInsights({
-
-          momentumHistory:
-            data
-              ?.momentum_history || [],
-
-          cognitiveHistory:
-            data
-              ?.cognitive_history || [],
-
-          reflectionDepthHistory:
-            data
-              ?.reflection_depth_history || [],
-
-          consistencyHistory:
-            data
-              ?.consistency_history || [],
-        });
-
-      setEvolutionInsights(
-        generatedEvolution
-      );
-
-      // =========================
-      // DRIFT
-      // =========================
-
-      const fatigueCount =
-
-        (
-          data
-            ?.cognitive_history || []
-        ).filter(
-          (state) =>
-
-            state ===
-            "Cognitive Fatigue"
-        ).length;
-
-      const detectedDrift =
-        await detectBehavioralDrift({
-
-          currentMomentum:
-            data?.momentum || 0,
-
-          averageMomentum:
-
-            (
-              data
-                ?.momentum_history || []
-            ).length > 0
-
-              ?
-
-              (
-                data
-                  .momentum_history
-                  .reduce(
-                    (a, b) => a + b,
-                    0
-                  ) /
-
-                data
-                  .momentum_history
-                  .length
-              )
-
-              : 0,
-
-          currentReflectionDepth:
-            data
-              ?.reflection_depth || 5,
-
-          averageReflectionDepth:
-
-            (
-              data
-                ?.reflection_depth_history || []
-            ).length > 0
-
-              ?
-
-              (
-                data
-                  .reflection_depth_history
-                  .reduce(
-                    (a, b) => a + b,
-                    0
-                  ) /
-
-                data
-                  .reflection_depth_history
-                  .length
-              )
-
-              : 0,
-
-          recentCognitiveState:
-            data
-              ?.last_cognitive_state || "",
-
-          historicalFatigueCount:
-            fatigueCount,
-        });
-
-      setDriftSignals(
-        detectedDrift
-      );
-
-      // =========================
       // ORCHESTRATION
       // =========================
 
-      const orchestratedState =
+      const adaptiveState =
         await orchestrateAdaptiveState({
 
-          signals:
-            generatedSignals,
+          signals: [],
 
-          patterns:
-            detectedPatterns,
+          patterns: [],
 
-          evolutionInsights:
-            generatedEvolution,
+          evolutionInsights: [],
 
-          driftSignals:
-            detectedDrift,
+          driftSignals: [],
+
         });
 
       setOrchestration(
-        orchestratedState
+        adaptiveState
       );
 
       // =========================
-      // INTERVENTION HISTORY
-      // =========================
-
-      const generatedHistory = [
-
-        ...(data
-          ?.intervention_history || []),
-
-        {
-          missionMode:
-            orchestratedState
-              ?.missionMode,
-
-          guidanceMode:
-            orchestratedState
-              ?.guidanceMode,
-
-          timestamp:
-            Date.now(),
-        },
-
-      ].slice(-20);
-
-      setInterventionHistory(
-        generatedHistory
-      );
-
-      // =========================
-      // PACING PROFILE
-      // =========================
-
-      const recoveryCycles =
-
-        generatedHistory.filter(
-          (entry) =>
-
-            entry.missionMode ===
-            "recovery"
-        ).length;
-
-      const expansionCycles =
-
-        generatedHistory.filter(
-          (entry) =>
-
-            entry.missionMode ===
-            "expanded"
-        ).length;
-
-      const stabilizationCycles =
-
-        generatedHistory.filter(
-          (entry) =>
-
-            entry.missionMode ===
-            "simplified"
-        ).length;
-
-      const pacingProfile = {
-
-        recoveryFrequency:
-          recoveryCycles,
-
-        expansionFrequency:
-          expansionCycles,
-
-        stabilizationFrequency:
-          stabilizationCycles,
-
-        resilienceScore:
-
-          Math.max(
-            1,
-
-            expansionCycles -
-
-            recoveryCycles
-          ),
-      };
-
-      // =========================
-      // SAVE ADAPTIVE STATE
-      // =========================
-
-      await supabase
-        .from("profiles")
-        .update({
-
-          intervention_history:
-            generatedHistory,
-
-          adaptive_state: {
-
-            missionMode:
-              orchestratedState
-                ?.missionMode,
-
-            guidanceMode:
-              orchestratedState
-                ?.guidanceMode,
-
-            guidanceEscalation:
-              orchestratedState
-                ?.guidanceEscalation,
-
-            environmentIntensity:
-              orchestratedState
-                ?.environmentIntensity,
-
-            environmentDensity:
-              orchestratedState
-                ?.environmentDensity,
-
-            stabilizationRequired:
-              orchestratedState
-                ?.stabilizationRequired,
-
-            updatedAt:
-              Date.now(),
-          },
-
-          behavioral_pacing:
-            pacingProfile,
-        })
-        .eq("id", user.id);
-
-      // =========================
-      // MISSION
+      // AI MISSION
       // =========================
 
       const mission =
-        generateMission(
+        await generateAdaptiveMission({
 
-          data,
+          archetype:
+            data.archetype,
 
-          orchestratedState,
+          streak:
+            data.streak,
 
-          generatedSignals,
+          identitySummary:
+            data.identity_summary,
 
-          generatedHistory
-        );
+          currentFocus:
+            data.current_focus,
+
+          recentReflection:
+            data.last_reflection,
+
+          recentMemories: [],
+
+        });
 
       setActiveMission(
         mission
       );
 
       // =========================
-      // AI SYNTHESIS
+      // GUIDANCE
       // =========================
 
-      const insight =
-        await generateAdaptiveInsight({
+      const adaptiveGuidance =
+        getGuidance(data);
 
-          archetype:
-            data?.archetype ||
-
-            "Explorer",
-
-          missionMode:
-            orchestratedState
-              ?.missionMode ||
-
-            "Standard",
-
-          guidanceMode:
-            orchestratedState
-              ?.guidanceMode ||
-
-            "Balanced",
-
-          cognitiveLoad:
-            orchestratedState
-              ?.cognitiveLoad ||
-
-            "Normal",
-
-          momentum:
-            data?.momentum ||
-
-            "Rebuilding",
-
-          reflections:
-            data?.latest_reflection ||
-
-            "The user is attempting to regain direction and stability.",
-
-          aspirations:
-            data?.aspirations ||
-
-            "The user wants a more successful and organized life.",
-
-          emotionalState:
-            data
-              ?.last_cognitive_state ||
-
-            "Uncertain",
-        });
-
-      setAdaptiveInsight(
-        insight
+      setGuidance(
+        adaptiveGuidance
       );
+
     }
 
-    loadProfile();
+    loadDashboard();
 
   }, [
     user,
@@ -663,12 +233,118 @@ export default function DashboardPage() {
   ]);
 
   // =========================
+  // REFLECTION SUBMIT
+  // =========================
+
+  async function handleReflectionSubmit() {
+
+    if (
+      !reflection ||
+      !profile
+    ) return;
+
+    try {
+
+      setSubmittingReflection(
+        true
+      );
+
+      // =========================
+      // SUBMIT REFLECTION
+      // =========================
+
+      const result =
+        await submitReflection({
+
+          userId:
+            user.id,
+
+          reflection,
+
+          profile,
+
+        });
+
+      if (
+        result?.success
+      ) {
+
+        // =========================
+        // UPDATE GUIDANCE
+        // =========================
+
+        if (
+          result.analysis
+            ?.guidanceDirection
+        ) {
+
+          setGuidance(
+
+            result.analysis
+              .guidanceDirection
+          );
+        }
+
+        // =========================
+        // REGENERATE MISSION
+        // =========================
+
+        const updatedMission =
+          await generateAdaptiveMission({
+
+            archetype:
+              profile.archetype,
+
+            streak:
+              profile.streak,
+
+            identitySummary:
+              profile.identity_summary,
+
+            currentFocus:
+              profile.current_focus,
+
+            recentReflection:
+              reflection,
+
+            recentMemories: [],
+
+          });
+
+        setActiveMission(
+          updatedMission
+        );
+
+        // =========================
+        // CLEAR INPUT
+        // =========================
+
+        setReflection("");
+
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+    } finally {
+
+      setSubmittingReflection(
+        false
+      );
+
+    }
+
+  }
+
+  // =========================
   // LOADING
   // =========================
 
   if (
     loading ||
-    !user
+    !user ||
+    !profile
   ) {
 
     return (
@@ -691,13 +367,11 @@ export default function DashboardPage() {
     );
   }
 
-  // =========================
-  // UI
-  // =========================
-
   return (
 
     <main className="min-h-screen bg-[#F5F7FA] text-[#0F172A] overflow-x-hidden">
+
+      {/* NAVIGATION */}
 
       <Navigation />
 
@@ -713,53 +387,45 @@ export default function DashboardPage() {
 
       {/* CONTENT */}
 
-      <div className={`relative max-w-6xl mx-auto transition-all duration-700
+      <div className={`
 
-${isMinimalDensity
-  ? "px-4 py-4 md:px-5 md:py-5"
-  : isReducedDensity
-  ? "px-4 py-5 md:px-6 md:py-6"
-  : isExpandedDensity
-  ? "px-5 py-8 md:px-8 md:py-10"
-  : "px-4 py-6 md:px-6 md:py-8"
-}`}>
+relative
+max-w-5xl
+mx-auto
+transition-all
+duration-700
+
+${
+  isRecoveryState
+
+    ?
+
+    "px-4 py-5 md:px-5 md:py-6"
+
+    :
+
+  isMomentumState
+
+    ?
+
+    "px-5 py-10 md:px-8 md:py-12"
+
+    :
+
+    "px-4 py-6 md:px-6 md:py-8"
+}
+
+`}>
 
         {/* HEADER */}
 
-        <div className={`transition-all duration-700
-
-${isMinimalDensity
-  ? "mb-4"
-  : isReducedDensity
-  ? "mb-6"
-  : isExpandedDensity
-  ? "mb-10"
-  : "mb-8"
-}`}>
+        <div className="mb-8">
 
           <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8]">
 
             PipuPath OS
 
           </p>
-
-        </div>
-
-        {/* AI INSIGHT */}
-
-        <div className="mb-8 rounded-[32px] border border-[#E2E8F0] bg-white/80 backdrop-blur-2xl p-8 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
-
-          <p className="text-xs uppercase tracking-[0.3em] text-[#B88A00] mb-5">
-
-            Adaptive Intelligence
-
-          </p>
-
-          <h2 className="text-2xl md:text-3xl font-semibold leading-relaxed text-[#0F172A]">
-
-            {adaptiveInsight}
-
-          </h2>
 
         </div>
 
@@ -773,7 +439,7 @@ ${isMinimalDensity
 
         />
 
-        {/* MISSION */}
+        {/* DAILY MISSION */}
 
         <AdaptiveMission
 
@@ -781,58 +447,129 @@ ${isMinimalDensity
 
           orchestration={orchestration}
 
-        />
-
-        {/* SIGNALS */}
-
-        <Signals
-
-          signals={signals}
-
-          orchestration={orchestration}
+          profile={profile}
 
         />
 
-        {/* ORCHESTRATION */}
+        {/* GUIDANCE */}
 
-        <Orchestration
+        <div
 
-          orchestration={orchestration}
+          className={`
 
-        />
+          mt-8
+          rounded-[32px]
+          border
+          border-[#E2E8F0]
+          bg-white/80
+          backdrop-blur-2xl
+          p-8
+          shadow-[0_10px_50px_rgba(15,23,42,0.04)]
+          transition-all
+          duration-700
 
-        {/* MEMORY */}
+          ${
+            isRecoveryState
 
-        <Memory
+              ?
 
-          patterns={patterns}
+              "opacity-90"
 
-          orchestration={orchestration}
+              :
 
-        />
+            isMomentumState
 
-        {/* EVOLUTION */}
+              ?
 
-        <Evolution
+              "scale-[1.01]"
 
-          evolutionInsights={evolutionInsights}
+              :
 
-          orchestration={orchestration}
+              ""
+          }
 
-        />
+          `}
 
-        {/* DRIFT */}
+        >
 
-        <Drift
+          <p className="text-xs uppercase tracking-[0.3em] text-[#B88A00] mb-5">
 
-          driftSignals={driftSignals}
+            Adaptive Guidance
 
-          orchestration={orchestration}
+          </p>
 
-        />
+          <h2 className="text-2xl md:text-3xl font-semibold leading-relaxed text-[#0F172A]">
+
+            {guidance}
+
+          </h2>
+
+        </div>
+
+        {/* REFLECTION */}
+
+        <div className="mt-8 rounded-[32px] border border-[#E2E8F0] bg-white/80 backdrop-blur-2xl p-8 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
+
+          <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8] mb-5">
+
+            Reflection
+
+          </p>
+
+          <textarea
+
+            rows={5}
+
+            value={reflection}
+
+            onChange={(e) =>
+              setReflection(
+                e.target.value
+              )
+            }
+
+            placeholder="What feels most important about today?"
+
+            className="w-full rounded-[24px] border border-[#E2E8F0] bg-[#FAFAFA] p-5 text-[#0F172A] outline-none resize-none focus:border-[#D4AF37]/40"
+
+          />
+
+          <button
+
+            onClick={
+              handleReflectionSubmit
+            }
+
+            disabled={
+              submittingReflection
+            }
+
+            className="mt-5 px-6 py-3 rounded-[18px] bg-[#0F172A] text-white text-sm font-medium transition-all hover:opacity-90 disabled:opacity-50"
+
+          >
+
+            {
+
+              submittingReflection
+
+                ?
+
+                "Analyzing Reflection..."
+
+                :
+
+                "Submit Reflection"
+
+            }
+
+          </button>
+
+        </div>
 
       </div>
 
     </main>
+
   );
+
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import Link
+from "next/link";
 
 import BrandLogo
 from "./BrandLogo";
@@ -43,7 +44,7 @@ export default function Hero() {
 
         <div className="mb-7 px-5 py-2 rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/10 text-[#B88A00] text-sm font-semibold backdrop-blur-xl">
 
-          Adaptive Human Development
+          For Ambitious People Building Meaningful Lives
 
         </div>
 
@@ -51,11 +52,11 @@ export default function Hero() {
 
         <h1 className="max-w-5xl text-5xl md:text-7xl font-semibold tracking-tight leading-[1.02] text-[#0F172A]">
 
-          Become who you are
+          Organize your potential
 
           <span className="block mt-2">
 
-            capable of becoming.
+            into a meaningful life.
 
           </span>
 
@@ -63,9 +64,9 @@ export default function Hero() {
 
         {/* DESCRIPTION */}
 
-        <p className="mt-8 max-w-2xl text-lg md:text-xl text-[#64748B] leading-relaxed">
+        <p className="mt-8 max-w-3xl text-lg md:text-xl text-[#64748B] leading-relaxed">
 
-          PipuPath is a psychologically intelligent growth environment designed to help people evolve through adaptive guidance, behavioral awareness and intentional progress.
+          PipuPath helps ambitious young people discover direction, build capability, regain momentum and develop themselves into people capable of building meaningful things for the world — one mission at a time.
 
         </p>
 
@@ -78,7 +79,7 @@ export default function Hero() {
             className="inline-flex items-center justify-center rounded-2xl bg-[#0F172A] px-7 py-4 text-sm font-medium text-white shadow-[0_10px_30px_rgba(15,23,42,0.18)] transition-all duration-300 hover:translate-y-[-2px]"
           >
 
-            Begin Your Evolution
+            Start Building Yourself
 
           </Link>
 
@@ -87,7 +88,7 @@ export default function Hero() {
             className="inline-flex items-center justify-center rounded-2xl border border-[#E2E8F0] bg-white/80 backdrop-blur-xl px-7 py-4 text-sm font-medium text-[#0F172A] transition-all duration-300 hover:bg-white"
           >
 
-            Continue Journey
+            Continue Your Journey
 
           </Link>
 
@@ -99,27 +100,39 @@ export default function Hero() {
 
           <span className="px-4 py-2 rounded-full bg-white/70 border border-[#E2E8F0]">
 
-            Adaptive Guidance
+            Discover Direction
 
           </span>
 
           <span className="px-4 py-2 rounded-full bg-white/70 border border-[#E2E8F0]">
 
-            Behavioral Intelligence
+            Build Capability
 
           </span>
 
           <span className="px-4 py-2 rounded-full bg-white/70 border border-[#E2E8F0]">
 
-            Human + AI Support
+            Regain Momentum
 
           </span>
 
           <span className="px-4 py-2 rounded-full bg-white/70 border border-[#E2E8F0]">
 
-            Long-Term Growth
+            Become a Builder
 
           </span>
+
+        </div>
+
+        {/* BOTTOM MESSAGE */}
+
+        <div className="mt-16 max-w-2xl">
+
+          <p className="text-sm md:text-base leading-relaxed text-[#94A3B8]">
+
+            Most people are not failing because they lack potential. They are failing because their ambition is fragmented, unsupported and directionless. PipuPath exists to help people organize themselves into capable humans who can build meaningful futures for themselves and others.
+
+          </p>
 
         </div>
 

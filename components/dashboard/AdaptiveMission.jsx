@@ -1,22 +1,148 @@
+"use client";
+
+import { useState }
+from "react";
+
 export default function AdaptiveMission({
 
   activeMission,
 
   orchestration,
 
+  profile,
+
 }) {
 
-const missionMode =
-  orchestration?.missionMode || "standard";
+  // =========================
+  // STATE
+  // =========================
 
-const isRecovery =
-  missionMode === "recovery";
+  const [
+    generatedMission,
+    setGeneratedMission,
+  ] = useState(
+    activeMission
+  );
 
-const isExpanded =
-  missionMode === "expanded";
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
 
-const isSimplified =
-  missionMode === "simplified";
+  // =========================
+  // ORCHESTRATION
+  // =========================
+
+  const missionMode =
+    orchestration?.missionMode ||
+
+    "standard";
+
+  const isRecovery =
+    missionMode === "recovery";
+
+  const isExpanded =
+    missionMode === "expanded";
+
+  const isSimplified =
+    missionMode === "simplified";
+
+  // =========================
+  // GENERATE AI MISSION
+  // =========================
+
+  async function handleGenerateMission() {
+
+    try {
+
+      setLoading(true);
+
+      const response =
+        await fetch(
+
+          "/api/mission",
+
+          {
+
+            method: "POST",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+
+                archetype:
+                  profile?.archetype ||
+
+                  "Explorer",
+
+                aspirations:
+                  profile?.aspirations ||
+
+                  "The user wants to build a more successful and organized life.",
+
+                momentum:
+                  profile?.momentum ||
+
+                  "Rebuilding",
+
+                emotionalState:
+                  profile?.last_cognitive_state ||
+
+                  "Uncertain",
+
+                missionMode:
+                  orchestration
+                    ?.missionMode ||
+
+                  "standard",
+              }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      setGeneratedMission({
+
+        title:
+          "Adaptive Mission",
+
+        description:
+          data?.mission ||
+
+          "Clarify one meaningful direction you want your life to move toward this week and take one visible action toward it today.",
+
+        type:
+          orchestration
+            ?.missionMode ||
+
+          "adaptive",
+
+        xpReward: 120,
+      });
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+    }
+
+    finally {
+
+      setLoading(false);
+    }
+  }
+
+  // =========================
+  // UI
+  // =========================
 
   return (
 
@@ -51,6 +177,8 @@ ${isRecovery
 
       <div className="relative z-10">
 
+        {/* TOP TAGS */}
+
         <div className="flex flex-wrap items-center gap-3">
 
           <div className="px-4 py-2 rounded-full bg-white/10 text-sm font-medium">
@@ -67,7 +195,7 @@ ${isRecovery
 
           <div className="px-4 py-2 rounded-full bg-[#D4AF37] text-[#0F172A] text-sm font-semibold">
 
-            +{activeMission?.xpReward} XP
+            +{generatedMission?.xpReward || 120} XP
 
           </div>
 
@@ -79,23 +207,56 @@ ${isRecovery
 
         </div>
 
+        {/* TITLE */}
+
         <h2 className="mt-8 text-4xl md:text-5xl font-semibold tracking-tight leading-tight max-w-3xl">
 
-          {activeMission?.title}
+          {generatedMission?.title ||
+
+            "Generate Your Next Mission"}
 
         </h2>
 
-        <p className="mt-6 text-white/70 leading-relaxed text-lg max-w-2xl">
+        {/* DESCRIPTION */}
 
-          {isRecovery
-  ? `${activeMission?.description} Prioritize sustainability over pressure.`
-  : isExpanded
-  ? `${activeMission?.description} You appear ready for greater intentional growth.`
-  : isSimplified
-  ? `${activeMission?.description} Reduce friction and focus on consistency.`
-  : activeMission?.description}
+        <p className="mt-6 text-white/70 leading-relaxed text-lg max-w-2xl whitespace-pre-line">
+
+          {generatedMission?.description ||
+
+            "Request an adaptive mission designed to help you regain clarity, build momentum and move your life forward intentionally."}
 
         </p>
+
+        {/* ACTIONS */}
+
+        <div className="mt-10 flex flex-wrap items-center gap-4">
+
+          <button
+
+            onClick={
+              handleGenerateMission
+            }
+
+            disabled={loading}
+
+            className="px-7 py-4 rounded-2xl bg-[#D4AF37] text-[#0F172A] font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+          >
+
+            {loading
+
+              ? "Generating..."
+
+              : "Generate Mission"}
+
+          </button>
+
+          <p className="text-sm text-white/40 max-w-md leading-relaxed">
+
+            Adaptive missions are generated intentionally to help organize your momentum, capability and direction.
+
+          </p>
+
+        </div>
 
         {/* ADAPTIVE STATE */}
 
@@ -109,9 +270,11 @@ ${isRecovery
 
             </p>
 
-            <h3 className="mt-3 text-2xl font-semibold">
+            <h3 className="mt-3 text-2xl font-semibold capitalize">
 
-              {activeMission?.type}
+              {generatedMission?.type ||
+
+                "adaptive"}
 
             </h3>
 
@@ -127,7 +290,9 @@ ${isRecovery
 
             <h3 className="mt-3 text-2xl font-semibold capitalize">
 
-              {orchestration?.guidanceMode || "balanced"}
+              {orchestration?.guidanceMode ||
+
+                "balanced"}
 
             </h3>
 
@@ -143,7 +308,9 @@ ${isRecovery
 
             <h3 className="mt-3 text-2xl font-semibold capitalize">
 
-              {orchestration?.cognitiveLoad || "normal"}
+              {orchestration?.cognitiveLoad ||
+
+                "normal"}
 
             </h3>
 

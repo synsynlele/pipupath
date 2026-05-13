@@ -46,23 +46,29 @@ export default function FinalCTA() {
 
             <div className="px-5 py-2 rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/10 text-[#B88A00] text-sm font-semibold">
 
-              Adaptive Human Development
+              For Builders of Meaningful Futures
 
             </div>
 
             {/* HEADING */}
 
-            <h2 className="mt-8 text-4xl md:text-6xl font-semibold tracking-tight leading-tight text-[#0F172A] max-w-4xl">
+            <h2 className="mt-8 text-4xl md:text-6xl font-semibold tracking-tight leading-tight text-[#0F172A] max-w-5xl">
 
-              Your evolution deserves a more intelligent environment.
+              The world does not only need more consumers.
+
+              <span className="block mt-3">
+
+                It needs more capable builders.
+
+              </span>
 
             </h2>
 
             {/* DESCRIPTION */}
 
-            <p className="mt-8 max-w-2xl text-lg text-[#64748B] leading-relaxed">
+            <p className="mt-8 max-w-3xl text-lg text-[#64748B] leading-relaxed">
 
-              PipuPath helps people grow through adaptive guidance, behavioral awareness and long-term intentional development.
+              PipuPath exists to help ambitious people discover direction, organize their growth, build real-world capability and gradually become humans capable of creating meaningful work, meaningful impact and meaningful futures.
 
             </p>
 
@@ -75,7 +81,7 @@ export default function FinalCTA() {
                 className="inline-flex items-center justify-center rounded-2xl bg-[#0F172A] px-8 py-4 text-sm font-medium text-white shadow-[0_10px_30px_rgba(15,23,42,0.18)] transition-all duration-300 hover:translate-y-[-2px]"
               >
 
-                Begin Your Journey
+                Start Building Yourself
 
               </Link>
 
@@ -84,9 +90,21 @@ export default function FinalCTA() {
                 className="inline-flex items-center justify-center rounded-2xl border border-[#E2E8F0] bg-white/80 backdrop-blur-xl px-8 py-4 text-sm font-medium text-[#0F172A] transition-all duration-300 hover:bg-white"
               >
 
-                Continue Journey
+                Continue Your Journey
 
               </Link>
+
+            </div>
+
+            {/* FINAL MESSAGE */}
+
+            <div className="mt-14 max-w-2xl">
+
+              <p className="text-sm md:text-base leading-relaxed text-[#94A3B8]">
+
+                Your future may not need more pressure, comparison or noise. It may need clearer direction, organized growth and the consistent development of the person you are capable of becoming.
+
+              </p>
 
             </div>
 
