@@ -62,25 +62,43 @@ import {
 from "../../lib/drift";
 
 import {
+  generateAdaptiveInsight,
+}
+from "../../lib/insightEngine";
+
+import {
   orchestrateAdaptiveState,
 }
 from "../../lib/orchestrator";
 
 export default function DashboardPage() {
 
-  const router = useRouter();
+  const router =
+    useRouter();
 
-  const { user, loading } =
-    useAuth();
+  const {
+    user,
+    loading,
+  } = useAuth();
 
-  const [profile, setProfile] =
-    useState(null);
+  // =========================
+  // STATE
+  // =========================
 
-  const [signals, setSignals] =
-    useState([]);
+  const [
+    profile,
+    setProfile,
+  ] = useState(null);
 
-  const [patterns, setPatterns] =
-    useState([]);
+  const [
+    signals,
+    setSignals,
+  ] = useState([]);
+
+  const [
+    patterns,
+    setPatterns,
+  ] = useState([]);
 
   const [
     evolutionInsights,
@@ -102,28 +120,43 @@ export default function DashboardPage() {
     setActiveMission,
   ] = useState(null);
 
-const [
-  interventionHistory,
-  setInterventionHistory,
-] = useState([]);
+  const [
+    adaptiveInsight,
+    setAdaptiveInsight,
+  ] = useState(
+    "Organizing your behavioral environment..."
+  );
 
-const environmentDensity =
+  const [
+    interventionHistory,
+    setInterventionHistory,
+  ] = useState([]);
 
-  orchestration?.environmentDensity ||
+  // =========================
+  // ENVIRONMENT DENSITY
+  // =========================
 
-  "normal";
+  const environmentDensity =
 
-const isMinimalDensity =
+    orchestration
+      ?.environmentDensity ||
 
-  environmentDensity === "minimal";
+    "normal";
 
-const isReducedDensity =
+  const isMinimalDensity =
 
-  environmentDensity === "reduced";
+    environmentDensity ===
+    "minimal";
 
-const isExpandedDensity =
+  const isReducedDensity =
 
-  environmentDensity === "expanded";
+    environmentDensity ===
+    "reduced";
+
+  const isExpandedDensity =
+
+    environmentDensity ===
+    "expanded";
 
   // =========================
   // AUTH
@@ -131,12 +164,21 @@ const isExpandedDensity =
 
   useEffect(() => {
 
-    if (!loading && !user) {
+    if (
+      !loading &&
+      !user
+    ) {
 
-      router.push("/login");
+      router.push(
+        "/login"
+      );
     }
 
-  }, [user, loading, router]);
+  }, [
+    user,
+    loading,
+    router,
+  ]);
 
   // =========================
   // LOAD PROFILE
@@ -148,12 +190,18 @@ const isExpandedDensity =
 
       if (!user) return;
 
-      const { data, error } =
-        await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
+      // =========================
+      // FETCH PROFILE
+      // =========================
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
 
       if (error) {
 
@@ -161,6 +209,10 @@ const isExpandedDensity =
 
         return;
       }
+
+      // =========================
+      // ONBOARDING CHECK
+      // =========================
 
       if (
         !data?.onboarding_completed
@@ -175,23 +227,36 @@ const isExpandedDensity =
 
       setProfile(data);
 
-if (data?.intervention_history) {
+      // =========================
+      // INTERVENTION HISTORY
+      // =========================
 
-  setInterventionHistory(
-    data.intervention_history
-  );
-}
+      if (
+        data?.intervention_history
+      ) {
 
-if (data?.adaptive_state) {
+        setInterventionHistory(
+          data.intervention_history
+        );
+      }
 
-  setOrchestration(
-    (prev) => ({
+      // =========================
+      // RESTORE ADAPTIVE STATE
+      // =========================
 
-      ...prev,
+      if (
+        data?.adaptive_state
+      ) {
 
-      ...data.adaptive_state,
-    }))
-}
+        setOrchestration(
+          (prev) => ({
+
+            ...prev,
+
+            ...data.adaptive_state,
+          })
+        );
+      }
 
       // =========================
       // SIGNALS
@@ -201,19 +266,23 @@ if (data?.adaptive_state) {
         await generateBehavioralSignals({
 
           reflectionCount:
-            data?.reflection_count || 0,
+            data
+              ?.reflection_count || 0,
 
           averageReflectionDepth:
-            data?.reflection_depth || 5,
+            data
+              ?.reflection_depth || 5,
 
           momentum:
             data?.momentum || 0,
 
           cognitiveState:
-            data?.last_cognitive_state || "",
+            data
+              ?.last_cognitive_state || "",
 
           clarityScore:
-            data?.clarity_score || 5,
+            data
+              ?.clarity_score || 5,
         });
 
       setSignals(
@@ -228,13 +297,16 @@ if (data?.adaptive_state) {
         await detectBehaviorPatterns({
 
           momentumHistory:
-            data?.momentum_history || [],
+            data
+              ?.momentum_history || [],
 
           cognitiveHistory:
-            data?.cognitive_history || [],
+            data
+              ?.cognitive_history || [],
 
           reflectionDepthHistory:
-            data?.reflection_depth_history || [],
+            data
+              ?.reflection_depth_history || [],
         });
 
       setPatterns(
@@ -249,16 +321,20 @@ if (data?.adaptive_state) {
         await generateEvolutionInsights({
 
           momentumHistory:
-            data?.momentum_history || [],
+            data
+              ?.momentum_history || [],
 
           cognitiveHistory:
-            data?.cognitive_history || [],
+            data
+              ?.cognitive_history || [],
 
           reflectionDepthHistory:
-            data?.reflection_depth_history || [],
+            data
+              ?.reflection_depth_history || [],
 
           consistencyHistory:
-            data?.consistency_history || [],
+            data
+              ?.consistency_history || [],
         });
 
       setEvolutionInsights(
@@ -272,9 +348,11 @@ if (data?.adaptive_state) {
       const fatigueCount =
 
         (
-          data?.cognitive_history || []
+          data
+            ?.cognitive_history || []
         ).filter(
           (state) =>
+
             state ===
             "Cognitive Fatigue"
         ).length;
@@ -298,8 +376,7 @@ if (data?.adaptive_state) {
                 data
                   .momentum_history
                   .reduce(
-                    (a, b) =>
-                      a + b,
+                    (a, b) => a + b,
                     0
                   ) /
 
@@ -311,7 +388,8 @@ if (data?.adaptive_state) {
               : 0,
 
           currentReflectionDepth:
-            data?.reflection_depth || 5,
+            data
+              ?.reflection_depth || 5,
 
           averageReflectionDepth:
 
@@ -326,8 +404,7 @@ if (data?.adaptive_state) {
                 data
                   .reflection_depth_history
                   .reduce(
-                    (a, b) =>
-                      a + b,
+                    (a, b) => a + b,
                     0
                   ) /
 
@@ -339,7 +416,8 @@ if (data?.adaptive_state) {
               : 0,
 
           recentCognitiveState:
-            data?.last_cognitive_state || "",
+            data
+              ?.last_cognitive_state || "",
 
           historicalFatigueCount:
             fatigueCount,
@@ -373,141 +451,225 @@ if (data?.adaptive_state) {
         orchestratedState
       );
 
-const generatedHistory = [
+      // =========================
+      // INTERVENTION HISTORY
+      // =========================
 
-  ...(data?.intervention_history || []),
+      const generatedHistory = [
 
-  {
-    missionMode:
-      orchestratedState?.missionMode,
+        ...(data
+          ?.intervention_history || []),
 
-    guidanceMode:
-      orchestratedState?.guidanceMode,
+        {
+          missionMode:
+            orchestratedState
+              ?.missionMode,
 
-    timestamp:
-      Date.now(),
-  },
+          guidanceMode:
+            orchestratedState
+              ?.guidanceMode,
 
-].slice(-20);
+          timestamp:
+            Date.now(),
+        },
 
-setInterventionHistory(
-  generatedHistory
-);
+      ].slice(-20);
 
-const recoveryCycles =
+      setInterventionHistory(
+        generatedHistory
+      );
 
-  generatedHistory.filter(
-    (entry) =>
-      entry.missionMode ===
-      "recovery"
-  ).length;
+      // =========================
+      // PACING PROFILE
+      // =========================
 
-const expansionCycles =
+      const recoveryCycles =
 
-  generatedHistory.filter(
-    (entry) =>
-      entry.missionMode ===
-      "expanded"
-  ).length;
+        generatedHistory.filter(
+          (entry) =>
 
-const stabilizationCycles =
+            entry.missionMode ===
+            "recovery"
+        ).length;
 
-  generatedHistory.filter(
-    (entry) =>
-      entry.missionMode ===
-      "simplified"
-  ).length;
+      const expansionCycles =
 
-const pacingProfile = {
+        generatedHistory.filter(
+          (entry) =>
 
-  recoveryFrequency:
-    recoveryCycles,
+            entry.missionMode ===
+            "expanded"
+        ).length;
 
-  expansionFrequency:
-    expansionCycles,
+      const stabilizationCycles =
 
-  stabilizationFrequency:
-    stabilizationCycles,
+        generatedHistory.filter(
+          (entry) =>
 
-  resilienceScore:
+            entry.missionMode ===
+            "simplified"
+        ).length;
 
-    Math.max(
-      1,
+      const pacingProfile = {
 
-      expansionCycles -
+        recoveryFrequency:
+          recoveryCycles,
 
-      recoveryCycles
-    ),
+        expansionFrequency:
+          expansionCycles,
 
-};
+        stabilizationFrequency:
+          stabilizationCycles,
 
-await supabase
-  .from("profiles")
-  .update({
+        resilienceScore:
 
-    intervention_history:
-      generatedHistory,
+          Math.max(
+            1,
 
-    adaptive_state: {
+            expansionCycles -
 
-      missionMode:
-        orchestratedState?.missionMode,
+            recoveryCycles
+          ),
+      };
 
-      guidanceMode:
-        orchestratedState?.guidanceMode,
+      // =========================
+      // SAVE ADAPTIVE STATE
+      // =========================
 
-      guidanceEscalation:
-        orchestratedState?.guidanceEscalation,
+      await supabase
+        .from("profiles")
+        .update({
 
-      environmentIntensity:
-        orchestratedState?.environmentIntensity,
+          intervention_history:
+            generatedHistory,
 
-      environmentDensity:
-        orchestratedState?.environmentDensity,
+          adaptive_state: {
 
-      stabilizationRequired:
-        orchestratedState?.stabilizationRequired,
+            missionMode:
+              orchestratedState
+                ?.missionMode,
 
-      updatedAt:
-        Date.now(),
-    },
+            guidanceMode:
+              orchestratedState
+                ?.guidanceMode,
 
-behavioral_pacing:
-  pacingProfile,
+            guidanceEscalation:
+              orchestratedState
+                ?.guidanceEscalation,
 
-  })
-  .eq("id", user.id);
+            environmentIntensity:
+              orchestratedState
+                ?.environmentIntensity,
+
+            environmentDensity:
+              orchestratedState
+                ?.environmentDensity,
+
+            stabilizationRequired:
+              orchestratedState
+                ?.stabilizationRequired,
+
+            updatedAt:
+              Date.now(),
+          },
+
+          behavioral_pacing:
+            pacingProfile,
+        })
+        .eq("id", user.id);
 
       // =========================
       // MISSION
       // =========================
 
-     const mission =
-  generateMission(
+      const mission =
+        generateMission(
 
-    data,
+          data,
 
-    orchestratedState,
+          orchestratedState,
 
-    generatedSignals,
+          generatedSignals,
 
-    generatedHistory
-  );
+          generatedHistory
+        );
 
       setActiveMission(
         mission
+      );
+
+      // =========================
+      // AI SYNTHESIS
+      // =========================
+
+      const insight =
+        await generateAdaptiveInsight({
+
+          archetype:
+            data?.archetype ||
+
+            "Explorer",
+
+          missionMode:
+            orchestratedState
+              ?.missionMode ||
+
+            "Standard",
+
+          guidanceMode:
+            orchestratedState
+              ?.guidanceMode ||
+
+            "Balanced",
+
+          cognitiveLoad:
+            orchestratedState
+              ?.cognitiveLoad ||
+
+            "Normal",
+
+          momentum:
+            data?.momentum ||
+
+            "Rebuilding",
+
+          reflections:
+            data?.latest_reflection ||
+
+            "The user is attempting to regain direction and stability.",
+
+          aspirations:
+            data?.aspirations ||
+
+            "The user wants a more successful and organized life.",
+
+          emotionalState:
+            data
+              ?.last_cognitive_state ||
+
+            "Uncertain",
+        });
+
+      setAdaptiveInsight(
+        insight
       );
     }
 
     loadProfile();
 
-  }, [user, router]);
+  }, [
+    user,
+    router,
+  ]);
 
   // =========================
   // LOADING
   // =========================
 
-  if (loading || !user) {
+  if (
+    loading ||
+    !user
+  ) {
 
     return (
 
@@ -529,6 +691,10 @@ behavioral_pacing:
     );
   }
 
+  // =========================
+  // UI
+  // =========================
+
   return (
 
     <main className="min-h-screen bg-[#F5F7FA] text-[#0F172A] overflow-x-hidden">
@@ -544,6 +710,8 @@ behavioral_pacing:
         <div className="absolute bottom-[-120px] right-[-120px] w-[320px] h-[320px] bg-[#0F172A]/5 rounded-full blur-3xl" />
 
       </div>
+
+      {/* CONTENT */}
 
       <div className={`relative max-w-6xl mx-auto transition-all duration-700
 
@@ -577,66 +745,94 @@ ${isMinimalDensity
 
         </div>
 
+        {/* AI INSIGHT */}
+
+        <div className="mb-8 rounded-[32px] border border-[#E2E8F0] bg-white/80 backdrop-blur-2xl p-8 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
+
+          <p className="text-xs uppercase tracking-[0.3em] text-[#B88A00] mb-5">
+
+            Adaptive Intelligence
+
+          </p>
+
+          <h2 className="text-2xl md:text-3xl font-semibold leading-relaxed text-[#0F172A]">
+
+            {adaptiveInsight}
+
+          </h2>
+
+        </div>
+
         {/* HERO */}
 
-<Hero
+        <Hero
 
-  profile={profile}
+          profile={profile}
 
-  orchestration={orchestration}
+          orchestration={orchestration}
 
-/>
+        />
 
-{/* ADAPTIVE MISSION */}
+        {/* MISSION */}
 
-<AdaptiveMission
+        <AdaptiveMission
 
-  activeMission={activeMission}
+          activeMission={activeMission}
 
-  orchestration={orchestration}
+          orchestration={orchestration}
 
-/>
+        />
 
-<Signals
+        {/* SIGNALS */}
 
-  signals={signals}
+        <Signals
 
-  orchestration={orchestration}
+          signals={signals}
 
-/>
+          orchestration={orchestration}
 
-<Orchestration
+        />
 
-  orchestration={orchestration}
+        {/* ORCHESTRATION */}
 
-/>
+        <Orchestration
 
-<Memory
+          orchestration={orchestration}
 
-  patterns={patterns}
+        />
 
-  orchestration={orchestration}
+        {/* MEMORY */}
 
-/>
+        <Memory
 
-<Evolution
+          patterns={patterns}
 
-  evolutionInsights={evolutionInsights}
+          orchestration={orchestration}
 
-  orchestration={orchestration}
+        />
 
-/>
+        {/* EVOLUTION */}
 
-<Drift
+        <Evolution
 
-  driftSignals={driftSignals}
+          evolutionInsights={evolutionInsights}
 
-  orchestration={orchestration}
+          orchestration={orchestration}
 
-/>
+        />
 
-</div>
+        {/* DRIFT */}
 
-</main>
+        <Drift
+
+          driftSignals={driftSignals}
+
+          orchestration={orchestration}
+
+        />
+
+      </div>
+
+    </main>
   );
 }
