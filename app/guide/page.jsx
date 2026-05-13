@@ -11,6 +11,29 @@ from "../../components/Navigation";
 import { useRouter }
 from "next/navigation";
 
+import { supabase }
+from "../../lib/supabase";
+
+import {
+  getPacingState
+}
+from "../../lib/orchestrator/getPacingState";
+
+import {
+  getRecentMemories
+}
+from "../../lib/memory/getRecentMemories";
+
+import {
+  synthesizeBehavior
+}
+from "../../lib/guidance/synthesizeBehavior";
+
+import {
+  useAdaptiveEnvironment
+}
+from "../../hooks/useAdaptiveEnvironment";
+
 const GUIDE_INSIGHTS = [
 
   {
@@ -61,43 +84,238 @@ const GUIDE_INSIGHTS = [
 
 export default function GuidePage() {
 
-  const router = useRouter();
+  const router =
+    useRouter();
 
-  const [selectedInsight,
-    setSelectedInsight] =
-    useState(null);
+  const [
+    profile,
+    setProfile,
+  ] = useState(null);
 
-  const [challenge,
-    setChallenge] =
-    useState("");
+  const [
+    selectedInsight,
+    setSelectedInsight,
+  ] = useState(null);
 
-  const [emotionalState,
-    setEmotionalState] =
-    useState("");
+  const [
+    challenge,
+    setChallenge,
+  ] = useState("");
 
-  const [contactMethod,
-    setContactMethod] =
-    useState("WhatsApp");
+  const [
+    emotionalState,
+    setEmotionalState,
+  ] = useState("");
+
+  const [
+    contactMethod,
+    setContactMethod,
+  ] = useState("WhatsApp");
+
+  const [
+    pacingState,
+    setPacingState,
+  ] = useState(null);
+
+  const [
+    synthesizedPatterns,
+    setSynthesizedPatterns,
+  ] = useState([]);
+
+  const [
+    recentMemories,
+    setRecentMemories,
+  ] = useState([]);
+
+  // =========================
+  // ADAPTIVE ENVIRONMENT
+  // =========================
+
+  const adaptiveEnvironment =
+    useAdaptiveEnvironment({
+
+      profile,
+
+      orchestration: {
+
+        missionMode:
+          pacingState?.mode,
+
+      },
+
+    });
+
+  // =========================
+  // LOAD PROFILE
+  // =========================
 
   useEffect(() => {
 
-    const randomInsight =
+    async function loadProfile() {
 
-      GUIDE_INSIGHTS[
-        Math.floor(
-          Math.random() *
-          GUIDE_INSIGHTS.length
-        )
-      ];
+      try {
 
-    setSelectedInsight(
-      randomInsight
-    );
+        const {
 
-  }, []);
+          data: {
+            user
+          }
+
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+
+          router.push("/login");
+
+          return;
+
+        }
+
+        const {
+          data,
+        } = await supabase
+
+          .from("profiles")
+
+          .select("*")
+
+          .eq("id", user.id)
+
+          .single();
+
+        if (!data) return;
+
+        setProfile(data);
+
+        // =========================
+        // PACING
+        // =========================
+
+        const pacing =
+          getPacingState({
+
+            streak:
+              data?.streak,
+
+            emotionalState:
+              data?.emotional_state,
+
+            momentumState:
+              data?.momentum_state,
+
+          });
+
+        setPacingState(
+          pacing
+        );
+
+        // =========================
+        // MEMORIES
+        // =========================
+
+        const memories =
+          await getRecentMemories({
+
+            userId:
+              user.id,
+
+            limit: 20,
+
+          });
+
+        setRecentMemories(
+          memories
+        );
+
+        // =========================
+        // SYNTHESIS
+        // =========================
+
+        const synthesized =
+          synthesizeBehavior({
+
+            memories,
+
+          });
+
+        setSynthesizedPatterns(
+          synthesized
+        );
+
+        // =========================
+        // ADAPTIVE INSIGHTS
+        // =========================
+
+        let filteredInsights =
+          GUIDE_INSIGHTS;
+
+        if (
+          pacing.mode ===
+          "recovery"
+        ) {
+
+          filteredInsights =
+            GUIDE_INSIGHTS.filter(
+
+              (item) =>
+
+                item.type ===
+                  "Recovery" ||
+
+                item.type ===
+                  "Clarity"
+
+            );
+
+        }
+
+        if (
+          pacing.mode ===
+          "expansion"
+        ) {
+
+          filteredInsights =
+            GUIDE_INSIGHTS.filter(
+
+              (item) =>
+
+                item.type ===
+                  "Momentum" ||
+
+                item.type ===
+                  "Execution"
+
+            );
+
+        }
+
+        const randomInsight =
+
+          filteredInsights[
+            Math.floor(
+              Math.random() *
+              filteredInsights.length
+            )
+          ];
+
+        setSelectedInsight(
+          randomInsight
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+
+    }
+
+    loadProfile();
+
+  }, [router]);
 
   // =========================
-  // WHATSAPP ESCALATION
+  // WHATSAPP
   // =========================
 
   function requestWhatsAppGuide() {
@@ -106,6 +324,7 @@ export default function GuidePage() {
       "2340000000000";
 
     const message =
+
       `Hello Guide Team,%0A%0A` +
 
       `I would like personal guidance.%0A%0A` +
@@ -114,18 +333,22 @@ export default function GuidePage() {
 
       `Current Challenge:%0A${challenge || "No details provided"}%0A%0A` +
 
-      `Sent from Behavioral OS Guide System.`;
+      `Behavioral State: ${pacingState?.mode || "Standard"}%0A%0A` +
+
+      `Sent from PipuPath Guide System.`;
 
     window.open(
 
       `https://wa.me/${phone}?text=${message}`,
 
       "_blank"
+
     );
+
   }
 
   // =========================
-  // EMAIL ESCALATION
+  // EMAIL
   // =========================
 
   function requestEmailGuide() {
@@ -141,7 +364,7 @@ export default function GuidePage() {
     const body =
       encodeURIComponent(
 
-        `Hello Guide Team,
+`Hello Guide Team,
 
 I would like personal guidance.
 
@@ -151,12 +374,65 @@ ${emotionalState || "Not specified"}
 Current Challenge:
 ${challenge || "No details provided"}
 
-Sent from Behavioral OS Guide System.`
+Behavioral State:
+${pacingState?.mode || "Standard"}
+
+Sent from PipuPath Guide System.`
+
       );
 
     window.location.href =
       `mailto:${email}?subject=${subject}&body=${body}`;
+
   }
+
+  // =========================
+  // GUIDE STATE
+  // =========================
+
+  const behavioralTitle =
+
+    pacingState?.mode ===
+    "recovery"
+
+      ?
+
+      "Recovery & Stabilization"
+
+      :
+
+    pacingState?.mode ===
+    "expansion"
+
+      ?
+
+      "Expansion Momentum"
+
+      :
+
+      "Reflective Processing";
+
+  const behavioralDescription =
+
+    pacingState?.mode ===
+    "recovery"
+
+      ?
+
+      "Your current behavioral signals suggest cognitive recovery and emotional stabilization are important right now."
+
+      :
+
+    pacingState?.mode ===
+    "expansion"
+
+      ?
+
+      "Your recent behavioral momentum suggests readiness for meaningful forward movement and expanded execution."
+
+      :
+
+      "Your recent behavioral activity suggests active internal processing and cognitive evaluation.";
 
   return (
 
@@ -164,7 +440,8 @@ Sent from Behavioral OS Guide System.`
 
       <Navigation />
 
-      {/* Ambient Glow */}
+      {/* BACKGROUND */}
+
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
 
         <div className="absolute top-[-120px] left-[-120px] w-[320px] h-[320px] bg-[#D4AF37]/10 rounded-full blur-3xl" />
@@ -173,13 +450,31 @@ Sent from Behavioral OS Guide System.`
 
       </div>
 
-      <div className="relative max-w-6xl mx-auto px-4 py-8 md:px-6 md:py-10">
+      {/* CONTENT */}
 
-        {/* Header */}
+      <div className={`
+
+relative
+
+${adaptiveEnvironment.contentWidth}
+
+mx-auto
+
+px-4
+md:px-6
+
+${adaptiveEnvironment.containerSpacing}
+
+`}>
+
+        {/* HEADER */}
+
         <div>
 
           <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
+
             Guide System
+
           </p>
 
           <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-none text-[#0F172A]">
@@ -200,40 +495,82 @@ Sent from Behavioral OS Guide System.`
 
         </div>
 
-        {/* Main Grid */}
+        {/* GRID */}
+
         <div className="grid lg:grid-cols-2 gap-6 mt-12">
 
-          {/* LEFT COLUMN */}
+          {/* LEFT */}
+
           <div className="space-y-6">
 
-            {/* Behavioral State */}
+            {/* STATE */}
+
             <div className="rounded-[36px] bg-[#0F172A] text-white p-8 shadow-[0_10px_60px_rgba(15,23,42,0.15)]">
 
               <p className="text-xs uppercase tracking-[0.25em] text-white/50">
+
                 Current Behavioral State
+
               </p>
 
               <h2 className="mt-6 text-4xl font-semibold tracking-tight leading-tight">
 
-                Reflective Processing
+                {behavioralTitle}
 
               </h2>
 
               <p className="mt-6 text-white/70 leading-relaxed">
 
-                Your recent behavioral activity suggests active internal processing and cognitive evaluation.
+                {behavioralDescription}
 
               </p>
 
             </div>
 
-            {/* Adaptive Insight */}
-            <div className="rounded-[32px] border border-white/60 bg-white/80 backdrop-blur-xl p-7 shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
+            {/* INSIGHT */}
+
+            <div className={`
+
+rounded-[32px]
+border
+border-white/60
+
+${
+
+  adaptiveEnvironment.cardStyle ===
+  "soft"
+
+    ?
+
+    "bg-[#FCFCFD]"
+
+    :
+
+  adaptiveEnvironment.cardStyle ===
+  "elevated"
+
+    ?
+
+    "bg-white"
+
+    :
+
+    "bg-white/80"
+
+}
+
+backdrop-blur-xl
+p-7
+shadow-[0_10px_50px_rgba(15,23,42,0.05)]
+
+`}>
 
               <div className="flex items-center justify-between">
 
                 <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8]">
+
                   Adaptive Insight
+
                 </p>
 
                 <span className="text-xs px-3 py-1 rounded-full bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]">
@@ -258,28 +595,60 @@ Sent from Behavioral OS Guide System.`
 
             </div>
 
-            {/* Direction Reminder */}
-            <div className="rounded-[32px] border border-[#FDE68A]/30 bg-gradient-to-br from-[#FEFCE8] to-[#FFFBEB] p-7 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
+            {/* SYNTHESIS */}
 
-              <p className="text-xs uppercase tracking-[0.25em] text-[#92400E]">
-                Alignment Reminder
-              </p>
+            <div className="rounded-[32px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-7 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
 
-              <p className="mt-5 text-xl leading-relaxed text-[#78350F]">
+              <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8]">
 
-                Sustainable transformation is built through repeated aligned behavior, not emotional intensity.
+                Behavioral Observations
 
               </p>
+
+              <div className="mt-6 space-y-4">
+
+                {
+
+                  synthesizedPatterns.map(
+
+                    (
+                      pattern,
+                      index
+                    ) => (
+
+                      <div
+                        key={index}
+                        className="rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] p-5"
+                      >
+
+                        <p className="text-[#475569] leading-relaxed">
+
+                          {pattern}
+
+                        </p>
+
+                      </div>
+
+                    )
+
+                  )
+
+                }
+
+              </div>
 
             </div>
 
           </div>
 
-          {/* RIGHT COLUMN */}
+          {/* RIGHT */}
+
           <div className="rounded-[40px] border border-white/60 bg-white/85 backdrop-blur-xl p-7 md:p-9 shadow-[0_10px_60px_rgba(15,23,42,0.06)]">
 
             <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8]">
+
               Request Personal Guidance
+
             </p>
 
             <h2 className="mt-6 text-4xl font-semibold tracking-tight leading-tight text-[#0F172A]">
@@ -295,7 +664,8 @@ Sent from Behavioral OS Guide System.`
 
             </p>
 
-            {/* Emotional State */}
+            {/* EMOTIONAL STATE */}
+
             <div className="mt-8">
 
               <label className="text-sm font-medium text-[#334155]">
@@ -305,13 +675,17 @@ Sent from Behavioral OS Guide System.`
               </label>
 
               <select
+
                 value={emotionalState}
+
                 onChange={(e) =>
                   setEmotionalState(
                     e.target.value
                   )
                 }
+
                 className="mt-3 w-full rounded-2xl border border-[#E2E8F0] bg-white px-5 py-4 outline-none text-[#0F172A]"
+
               >
 
                 <option value="">
@@ -346,7 +720,8 @@ Sent from Behavioral OS Guide System.`
 
             </div>
 
-            {/* Challenge */}
+            {/* CHALLENGE */}
+
             <div className="mt-8">
 
               <label className="text-sm font-medium text-[#334155]">
@@ -356,19 +731,25 @@ Sent from Behavioral OS Guide System.`
               </label>
 
               <textarea
+
                 value={challenge}
+
                 onChange={(e) =>
                   setChallenge(
                     e.target.value
                   )
                 }
+
                 placeholder="Share what you are currently navigating..."
+
                 className="mt-3 w-full min-h-[180px] rounded-[28px] border border-[#E2E8F0] bg-white px-5 py-5 resize-none outline-none text-[#334155] leading-relaxed"
+
               />
 
             </div>
 
-            {/* Contact Method */}
+            {/* CONTACT */}
+
             <div className="mt-8">
 
               <label className="text-sm font-medium text-[#334155]">
@@ -380,17 +761,26 @@ Sent from Behavioral OS Guide System.`
               <div className="grid grid-cols-2 gap-4 mt-3">
 
                 <button
+
                   onClick={() =>
                     setContactMethod(
                       "WhatsApp"
                     )
                   }
+
                   className={`rounded-2xl px-5 py-4 border transition-all duration-300
 
-                  ${contactMethod === "WhatsApp"
-                    ? "bg-[#0F172A] text-white border-[#0F172A]"
-                    : "bg-white border-[#E2E8F0] text-[#64748B]"
-                  }`}
+${contactMethod === "WhatsApp"
+
+  ?
+
+  "bg-[#0F172A] text-white border-[#0F172A]"
+
+  :
+
+  "bg-white border-[#E2E8F0] text-[#64748B]"
+}`}
+
                 >
 
                   WhatsApp
@@ -398,17 +788,26 @@ Sent from Behavioral OS Guide System.`
                 </button>
 
                 <button
+
                   onClick={() =>
                     setContactMethod(
                       "Email"
                     )
                   }
+
                   className={`rounded-2xl px-5 py-4 border transition-all duration-300
 
-                  ${contactMethod === "Email"
-                    ? "bg-[#0F172A] text-white border-[#0F172A]"
-                    : "bg-white border-[#E2E8F0] text-[#64748B]"
-                  }`}
+${contactMethod === "Email"
+
+  ?
+
+  "bg-[#0F172A] text-white border-[#0F172A]"
+
+  :
+
+  "bg-white border-[#E2E8F0] text-[#64748B]"
+}`}
+
                 >
 
                   Email
@@ -420,36 +819,55 @@ Sent from Behavioral OS Guide System.`
             </div>
 
             {/* CTA */}
+
             <div className="mt-10">
 
-              {contactMethod ===
-              "WhatsApp" ? (
+              {
 
-                <button
-                  onClick={
-                    requestWhatsAppGuide
-                  }
-                  className="w-full rounded-[28px] bg-[#0F172A] text-white px-6 py-5 text-[15px] font-medium tracking-wide hover:opacity-95 transition-all duration-300"
-                >
+                contactMethod ===
+                "WhatsApp"
 
-                  Continue via WhatsApp
+                  ?
 
-                </button>
+                  (
 
-              ) : (
+                    <button
 
-                <button
-                  onClick={
-                    requestEmailGuide
-                  }
-                  className="w-full rounded-[28px] bg-[#0F172A] text-white px-6 py-5 text-[15px] font-medium tracking-wide hover:opacity-95 transition-all duration-300"
-                >
+                      onClick={
+                        requestWhatsAppGuide
+                      }
 
-                  Continue via Email
+                      className="w-full rounded-[28px] bg-[#0F172A] text-white px-6 py-5 text-[15px] font-medium tracking-wide hover:opacity-95 transition-all duration-300"
 
-                </button>
+                    >
 
-              )}
+                      Continue via WhatsApp
+
+                    </button>
+
+                  )
+
+                  :
+
+                  (
+
+                    <button
+
+                      onClick={
+                        requestEmailGuide
+                      }
+
+                      className="w-full rounded-[28px] bg-[#0F172A] text-white px-6 py-5 text-[15px] font-medium tracking-wide hover:opacity-95 transition-all duration-300"
+
+                    >
+
+                      Continue via Email
+
+                    </button>
+
+                  )
+
+              }
 
             </div>
 
@@ -460,5 +878,7 @@ Sent from Behavioral OS Guide System.`
       </div>
 
     </main>
+
   );
+
 }

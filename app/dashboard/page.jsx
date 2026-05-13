@@ -23,21 +23,58 @@ from "../../components/dashboard/Hero";
 import AdaptiveMission
 from "../../components/dashboard/AdaptiveMission";
 
+import Evolution
+from "../../components/dashboard/Evolution";
+
 import {
   orchestrateAdaptiveState
-} from "../../lib/orchestrator";
+}
+from "../../lib/orchestrator";
 
 import {
   getGuidance
-} from "../../lib/guidance/getGuidance";
+}
+from "../../lib/guidance/getGuidance";
+
+import {
+  getPacingState
+}
+from "../../lib/orchestrator/getPacingState";
 
 import {
   generateAdaptiveMission
-} from "../../lib/ai/generateAdaptiveMission";
+}
+from "../../lib/ai/generateAdaptiveMission";
 
 import {
   submitReflection
-} from "../../lib/reflection/submitReflection";
+}
+from "../../lib/reflection/submitReflection";
+
+import {
+  getRecentMemories
+}
+from "../../lib/memory/getRecentMemories";
+
+import {
+  getRecentMissions
+}
+from "../../lib/missions/getRecentMissions";
+
+import {
+  getActiveMission
+}
+from "../../lib/missions/getActiveMission";
+
+import {
+  saveActiveMission
+}
+from "../../lib/missions/saveActiveMission";
+
+import {
+  useAdaptiveEnvironment
+}
+from "../../hooks/useAdaptiveEnvironment";
 
 export default function DashboardPage() {
 
@@ -48,6 +85,10 @@ export default function DashboardPage() {
     user,
     loading,
   } = useAuth();
+
+  // =========================
+  // STATE
+  // =========================
 
   const [
     profile,
@@ -79,8 +120,18 @@ export default function DashboardPage() {
     setSubmittingReflection,
   ] = useState(false);
 
+  const [
+    recentMemories,
+    setRecentMemories,
+  ] = useState([]);
+
+  const [
+    recentMissions,
+    setRecentMissions,
+  ] = useState([]);
+
   // =========================
-  // ADAPTIVE ENVIRONMENT
+  // BEHAVIORAL STATE
   // =========================
 
   const streak =
@@ -91,6 +142,36 @@ export default function DashboardPage() {
 
   const isMomentumState =
     streak >= 7;
+
+  // =========================
+  // PACING
+  // =========================
+
+  const pacingState =
+    getPacingState({
+
+      streak,
+
+      emotionalState:
+        profile?.emotional_state,
+
+      momentumState:
+        profile?.momentum_state,
+
+    });
+
+  // =========================
+  // ENVIRONMENT
+  // =========================
+
+  const adaptiveEnvironment =
+    useAdaptiveEnvironment({
+
+      profile,
+
+      orchestration,
+
+    });
 
   // =========================
   // AUTH
@@ -106,6 +187,7 @@ export default function DashboardPage() {
       router.push(
         "/login"
       );
+
     }
 
   }, [
@@ -129,12 +211,21 @@ export default function DashboardPage() {
       // =========================
 
       const {
+
         data,
         error,
+
       } = await supabase
+
         .from("profiles")
+
         .select("*")
-        .eq("id", user.id)
+
+        .eq(
+          "id",
+          user.id
+        )
+
         .single();
 
       if (error) {
@@ -142,10 +233,11 @@ export default function DashboardPage() {
         console.error(error);
 
         return;
+
       }
 
       // =========================
-      // ONBOARDING CHECK
+      // ONBOARDING
       // =========================
 
       if (
@@ -157,9 +249,41 @@ export default function DashboardPage() {
         );
 
         return;
+
       }
 
       setProfile(data);
+
+      // =========================
+      // MEMORIES
+      // =========================
+
+      const memoryData =
+        await getRecentMemories({
+
+          userId:
+            user.id,
+
+          limit: 10,
+
+        });
+
+      setRecentMemories(
+        memoryData
+      );
+
+      // =========================
+      // MISSION HISTORY
+      // =========================
+
+      const missionHistory =
+        await getRecentMissions(
+          user.id
+        );
+
+      setRecentMissions(
+        missionHistory
+      );
 
       // =========================
       // ORCHESTRATION
@@ -168,9 +292,11 @@ export default function DashboardPage() {
       const adaptiveState =
         await orchestrateAdaptiveState({
 
-          signals: [],
+          signals:
+            memoryData,
 
-          patterns: [],
+          patterns:
+            missionHistory,
 
           evolutionInsights: [],
 
@@ -183,34 +309,92 @@ export default function DashboardPage() {
       );
 
       // =========================
-      // AI MISSION
+      // ACTIVE MISSION
       // =========================
 
-      const mission =
-        await generateAdaptiveMission({
+      const existingMission =
+        await getActiveMission(
+          user.id
+        );
 
-          archetype:
-            data.archetype,
+      // =========================
+      // USE EXISTING
+      // =========================
 
-          streak:
-            data.streak,
+      if (
+        existingMission
+      ) {
 
-          identitySummary:
-            data.identity_summary,
+        setActiveMission({
 
-          currentFocus:
-            data.current_focus,
+          title:
+            existingMission.title,
 
-          recentReflection:
-            data.last_reflection,
+          description:
+            existingMission.description,
 
-          recentMemories: [],
+          missionType:
+            existingMission.mission_type,
+
+          intensity:
+            existingMission.intensity,
 
         });
 
-      setActiveMission(
-        mission
-      );
+      }
+
+      // =========================
+      // GENERATE NEW
+      // =========================
+
+      else {
+
+        const mission =
+          await generateAdaptiveMission({
+
+            archetype:
+              data.archetype,
+
+            streak:
+              data.streak,
+
+            identitySummary:
+              data.identity_summary,
+
+            currentFocus:
+              data.current_focus,
+
+            recentReflection:
+              data.last_reflection,
+
+            recentMemories:
+              memoryData,
+
+            recentMissions:
+              missionHistory,
+
+            pacingState,
+
+          });
+
+        setActiveMission(
+          mission
+        );
+
+        // =========================
+        // SAVE ACTIVE
+        // =========================
+
+        await saveActiveMission({
+
+          userId:
+            user.id,
+
+          mission,
+
+        });
+
+      }
 
       // =========================
       // GUIDANCE
@@ -270,7 +454,7 @@ export default function DashboardPage() {
       ) {
 
         // =========================
-        // UPDATE GUIDANCE
+        // GUIDANCE
         // =========================
 
         if (
@@ -282,46 +466,45 @@ export default function DashboardPage() {
 
             result.analysis
               .guidanceDirection
+
           );
+
         }
 
         // =========================
-        // REGENERATE MISSION
+        // REFRESH MEMORIES
         // =========================
 
-        const updatedMission =
-          await generateAdaptiveMission({
+        const updatedMemories =
+          await getRecentMemories({
 
-            archetype:
-              profile.archetype,
+            userId:
+              user.id,
 
-            streak:
-              profile.streak,
-
-            identitySummary:
-              profile.identity_summary,
-
-            currentFocus:
-              profile.current_focus,
-
-            recentReflection:
-              reflection,
-
-            recentMemories: [],
+            limit: 10,
 
           });
 
-        setActiveMission(
-          updatedMission
+        setRecentMemories(
+          updatedMemories
         );
 
         // =========================
-        // CLEAR INPUT
+        // REFRESH MISSIONS
         // =========================
 
-        setReflection("");
+        const updatedMissionHistory =
+          await getRecentMissions(
+            user.id
+          );
+
+        setRecentMissions(
+          updatedMissionHistory
+        );
 
       }
+
+      setReflection("");
 
     } catch (error) {
 
@@ -357,14 +540,16 @@ export default function DashboardPage() {
 
           <p className="text-sm text-[#64748B]">
 
-            Preparing your environment...
+            Preparing your adaptive environment...
 
           </p>
 
         </div>
 
       </main>
+
     );
+
   }
 
   return (
@@ -390,30 +575,18 @@ export default function DashboardPage() {
       <div className={`
 
 relative
-max-w-5xl
+
+${adaptiveEnvironment.contentWidth}
+
 mx-auto
+
 transition-all
 duration-700
 
-${
-  isRecoveryState
+px-4
+md:px-6
 
-    ?
-
-    "px-4 py-5 md:px-5 md:py-6"
-
-    :
-
-  isMomentumState
-
-    ?
-
-    "px-5 py-10 md:px-8 md:py-12"
-
-    :
-
-    "px-4 py-6 md:px-6 md:py-8"
-}
+${adaptiveEnvironment.containerSpacing}
 
 `}>
 
@@ -453,44 +626,66 @@ ${
 
         {/* GUIDANCE */}
 
-        <div
+        <div className={`
 
-          className={`
+mt-8
+rounded-[32px]
+border
+border-[#E2E8F0]
 
-          mt-8
-          rounded-[32px]
-          border
-          border-[#E2E8F0]
-          bg-white/80
-          backdrop-blur-2xl
-          p-8
-          shadow-[0_10px_50px_rgba(15,23,42,0.04)]
-          transition-all
-          duration-700
+${
 
-          ${
-            isRecoveryState
+  adaptiveEnvironment.cardStyle ===
+  "soft"
 
-              ?
+    ?
 
-              "opacity-90"
+    "bg-[#FCFCFD]"
 
-              :
+    :
 
-            isMomentumState
+  adaptiveEnvironment.cardStyle ===
+  "elevated"
 
-              ?
+    ?
 
-              "scale-[1.01]"
+    "bg-white"
 
-              :
+    :
 
-              ""
-          }
+    "bg-white/80"
 
-          `}
+}
 
-        >
+backdrop-blur-2xl
+p-8
+shadow-[0_10px_50px_rgba(15,23,42,0.04)]
+transition-all
+duration-700
+
+${
+
+  isRecoveryState
+
+    ?
+
+    "opacity-90"
+
+    :
+
+  isMomentumState
+
+    ?
+
+    "scale-[1.01]"
+
+    :
+
+    ""
+
+}
+
+`}>
 
           <p className="text-xs uppercase tracking-[0.3em] text-[#B88A00] mb-5">
 
@@ -505,6 +700,20 @@ ${
           </h2>
 
         </div>
+
+        {/* EVOLUTION */}
+
+        <Evolution
+
+          evolutionInsights={[]}
+
+          orchestration={orchestration}
+
+          recentMemories={recentMemories}
+
+          recentMissions={recentMissions}
+
+        />
 
         {/* REFLECTION */}
 
@@ -523,14 +732,46 @@ ${
             value={reflection}
 
             onChange={(e) =>
+
               setReflection(
                 e.target.value
               )
+
             }
 
             placeholder="What feels most important about today?"
 
-            className="w-full rounded-[24px] border border-[#E2E8F0] bg-[#FAFAFA] p-5 text-[#0F172A] outline-none resize-none focus:border-[#D4AF37]/40"
+            className={`
+
+w-full
+rounded-[24px]
+border
+border-[#E2E8F0]
+
+${
+
+  adaptiveEnvironment.mode ===
+  "recovery"
+
+    ?
+
+    "bg-[#FCFCFD]"
+
+    :
+
+    "bg-[#FAFAFA]"
+
+}
+
+p-5
+text-[#0F172A]
+outline-none
+resize-none
+focus:border-[#D4AF37]/40
+transition-all
+duration-500
+
+`}
 
           />
 

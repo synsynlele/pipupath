@@ -23,6 +23,11 @@ import {
 }
 from "../../lib/ai";
 
+import {
+  storeMemory
+}
+from "../../lib/memory/storeMemory";
+
 const PROMPTS = [
 
   "What is creating the most mental friction in your life right now?",
@@ -46,9 +51,10 @@ export default function MagicPenPage() {
   const [entries, setEntries] =
     useState([]);
 
-  const [selectedEntry,
-    setSelectedEntry] =
-    useState(null);
+  const [
+    selectedEntry,
+    setSelectedEntry,
+  ] = useState(null);
 
   const [title, setTitle] =
     useState("");
@@ -62,25 +68,30 @@ export default function MagicPenPage() {
   const [loading, setLoading] =
     useState(true);
 
-  const [lastSaved,
-    setLastSaved] =
-    useState(null);
+  const [
+    lastSaved,
+    setLastSaved,
+  ] = useState(null);
 
-  const [activePrompt,
-    setActivePrompt] =
-    useState("");
+  const [
+    activePrompt,
+    setActivePrompt,
+  ] = useState("");
 
-const [aiInsight,
-  setAiInsight] =
-  useState("");
+  const [
+    aiInsight,
+    setAiInsight,
+  ] = useState("");
 
-const [aiState,
-  setAiState] =
-  useState("");
+  const [
+    aiState,
+    setAiState,
+  ] = useState("");
 
-const [aiClarity,
-  setAiClarity] =
-  useState(0);
+  const [
+    aiClarity,
+    setAiClarity,
+  ] = useState(0);
 
   // =========================
   // LOAD ENTRIES
@@ -104,12 +115,17 @@ const [aiClarity,
       } finally {
 
         setLoading(false);
+
       }
+
     }
 
     loadEntries();
 
-    // Random prompt
+    // =========================
+    // RANDOM PROMPT
+    // =========================
+
     const randomPrompt =
       PROMPTS[
         Math.floor(
@@ -118,7 +134,9 @@ const [aiClarity,
         )
       ];
 
-    setActivePrompt(randomPrompt);
+    setActivePrompt(
+      randomPrompt
+    );
 
   }, []);
 
@@ -128,7 +146,9 @@ const [aiClarity,
 
   useEffect(() => {
 
-    if (!content.trim()) return;
+    if (
+      !content.trim()
+    ) return;
 
     const timeout =
       setTimeout(() => {
@@ -152,32 +172,78 @@ const [aiClarity,
 
       setSaving(true);
 
-     const interpretation =
-  await interpretMagicWriting(
-    content
-  );
+      // =========================
+      // AI INTERPRETATION
+      // =========================
 
-const clarityScore =
-  interpretation.clarity;
+      const interpretation =
+        await interpretMagicWriting(
+          content
+        );
 
-const emotionalState =
-  interpretation.state;
+      const clarityScore =
+        interpretation.clarity;
 
-const aiSummary =
-  interpretation.insight;
+      const emotionalState =
+        interpretation.state;
 
-setAiInsight(aiSummary);
+      const aiSummary =
+        interpretation.insight;
 
-setAiState(
-  emotionalState
-);
+      setAiInsight(
+        aiSummary
+      );
 
-setAiClarity(
-  clarityScore
-);
+      setAiState(
+        emotionalState
+      );
 
+      setAiClarity(
+        clarityScore
+      );
+
+      // =========================
+      // STORE MEMORY
+      // =========================
+
+      if (
+        aiSummary
+      ) {
+
+        await storeMemory({
+
+          userId:
+            selectedEntry?.user_id,
+
+          memoryType:
+            "magicpen_signal",
+
+          content:
+            aiSummary,
+
+          importance:
+
+            clarityScore >= 8
+
+              ?
+
+              5
+
+              :
+
+              3,
+
+        });
+
+      }
+
+      // =========================
       // UPDATE EXISTING
-      if (selectedEntry?.id) {
+      // =========================
+
+      if (
+        selectedEntry?.id
+      ) {
 
         const updated =
           await updateMagicEntry({
@@ -198,6 +264,7 @@ setAiClarity(
 
             aiEmotionalState:
               emotionalState,
+
           });
 
         setSelectedEntry(
@@ -206,7 +273,10 @@ setAiClarity(
 
       } else {
 
+        // =========================
         // CREATE NEW
+        // =========================
+
         const saved =
           await saveMagicEntry({
 
@@ -223,6 +293,7 @@ setAiClarity(
 
             aiEmotionalState:
               emotionalState,
+
           });
 
         setSelectedEntry(
@@ -231,17 +302,19 @@ setAiClarity(
 
         setEntries((prev) => {
 
-  const filtered =
-    prev.filter(
-      (item) =>
-        item.id !== saved.id
-    );
+          const filtered =
+            prev.filter(
+              (item) =>
+                item.id !== saved.id
+            );
 
-  return [
-    saved,
-    ...filtered,
-  ];
-});
+          return [
+            saved,
+            ...filtered,
+          ];
+
+        });
+
       }
 
       setLastSaved(
@@ -255,7 +328,9 @@ setAiClarity(
     } finally {
 
       setSaving(false);
+
     }
+
   }
 
   // =========================
@@ -264,13 +339,18 @@ setAiClarity(
 
   function openEntry(entry) {
 
-    setSelectedEntry(entry);
+    setSelectedEntry(
+      entry
+    );
 
-    setTitle(entry.title || "");
+    setTitle(
+      entry.title || ""
+    );
 
     setContent(
       entry.content || ""
     );
+
   }
 
   return (
@@ -279,7 +359,8 @@ setAiClarity(
 
       <Navigation />
 
-      {/* Ambient Glow */}
+      {/* AMBIENT GLOW */}
+
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
 
         <div className="absolute top-[-120px] left-[-120px] w-[320px] h-[320px] bg-[#D4AF37]/10 rounded-full blur-3xl" />
@@ -290,11 +371,14 @@ setAiClarity(
 
       <div className="relative max-w-7xl mx-auto px-4 py-8 md:px-6 md:py-10">
 
-        {/* Header */}
+        {/* HEADER */}
+
         <div>
 
           <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
+
             MagicPen
+
           </p>
 
           <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-none text-[#0F172A]">
@@ -313,17 +397,22 @@ setAiClarity(
 
         </div>
 
-        {/* Main Grid */}
+        {/* MAIN GRID */}
+
         <div className="grid lg:grid-cols-[320px_1fr] gap-6 mt-12">
 
           {/* LEFT SIDEBAR */}
+
           <div className="space-y-5">
 
-            {/* Prompt */}
+            {/* PROMPT */}
+
             <div className="rounded-[32px] border border-white/60 bg-white/80 backdrop-blur-xl p-6 shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
 
               <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8]">
+
                 Reflection Prompt
+
               </p>
 
               <p className="mt-5 text-lg leading-relaxed text-[#0F172A]">
@@ -334,16 +423,20 @@ setAiClarity(
 
             </div>
 
-            {/* Sessions */}
+            {/* SESSIONS */}
+
             <div className="rounded-[32px] border border-white/60 bg-white/80 backdrop-blur-xl p-5 shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
 
               <div className="flex items-center justify-between">
 
                 <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8]">
+
                   Sessions
+
                 </p>
 
                 <button
+
                   onClick={() => {
 
                     setSelectedEntry(
@@ -353,58 +446,96 @@ setAiClarity(
                     setTitle("");
 
                     setContent("");
+
                   }}
+
                   className="text-sm text-[#64748B] hover:text-[#0F172A]"
+
                 >
+
                   New
+
                 </button>
 
               </div>
 
               <div className="mt-5 space-y-3 max-h-[500px] overflow-y-auto pr-1">
 
-                {loading ? (
+                {
 
-                  <p className="text-sm text-[#64748B]">
-                    Loading...
-                  </p>
+                  loading
 
-                ) : entries.length === 0 ? (
+                    ?
 
-                  <p className="text-sm text-[#64748B] leading-relaxed">
-                    Your thinking sessions will appear here.
-                  </p>
+                    (
 
-                ) : (
+                      <p className="text-sm text-[#64748B]">
 
-                  entries.map((entry) => (
-
-                    <button
-                      key={entry.id}
-                      onClick={() =>
-                        openEntry(entry)
-                      }
-                      className="w-full text-left rounded-2xl border border-[#E2E8F0] bg-[#FAFAFA] p-4 hover:bg-white transition-all duration-300"
-                    >
-
-                      <p className="font-medium text-[#0F172A] truncate">
-
-                        {entry.title ||
-                          "Untitled Session"}
+                        Loading...
 
                       </p>
 
-                      <p className="mt-2 text-sm text-[#64748B] line-clamp-2">
+                    )
 
-                        {entry.content}
+                    :
+
+                  entries.length === 0
+
+                    ?
+
+                    (
+
+                      <p className="text-sm text-[#64748B] leading-relaxed">
+
+                        Your thinking sessions will appear here.
 
                       </p>
 
-                    </button>
+                    )
 
-                  ))
+                    :
 
-                )}
+                    (
+
+                      entries.map((entry) => (
+
+                        <button
+
+                          key={entry.id}
+
+                          onClick={() =>
+                            openEntry(entry)
+                          }
+
+                          className="w-full text-left rounded-2xl border border-[#E2E8F0] bg-[#FAFAFA] p-4 hover:bg-white transition-all duration-300"
+
+                        >
+
+                          <p className="font-medium text-[#0F172A] truncate">
+
+                            {
+
+                              entry.title ||
+
+                              "Untitled Session"
+
+                            }
+
+                          </p>
+
+                          <p className="mt-2 text-sm text-[#64748B] line-clamp-2">
+
+                            {entry.content}
+
+                          </p>
+
+                        </button>
+
+                      ))
+
+                    )
+
+                }
 
               </div>
 
@@ -413,73 +544,115 @@ setAiClarity(
           </div>
 
           {/* WRITING AREA */}
+
           <div className="space-y-6">
 
-            {/* Editor */}
+            {/* EDITOR */}
+
             <div className="rounded-[40px] border border-white/60 bg-white/85 backdrop-blur-xl p-6 md:p-8 shadow-[0_10px_60px_rgba(15,23,42,0.06)]">
 
-              {/* Top Bar */}
+              {/* TOP BAR */}
+
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
                 <input
+
                   type="text"
+
                   placeholder="Untitled Session"
+
                   value={title}
+
                   onChange={(e) =>
                     setTitle(
                       e.target.value
                     )
                   }
+
                   className="bg-transparent text-3xl md:text-4xl font-semibold tracking-tight text-[#0F172A] outline-none placeholder:text-[#94A3B8] w-full"
+
                 />
 
                 <div className="text-sm text-[#64748B]">
 
-                  {saving
-                    ? "Saving..."
-                    : lastSaved
-                    ? "Saved"
-                    : "Not saved"}
+                  {
+
+                    saving
+
+                      ?
+
+                      "Saving..."
+
+                      :
+
+                    lastSaved
+
+                      ?
+
+                      "Saved"
+
+                      :
+
+                      "Not saved"
+
+                  }
 
                 </div>
 
               </div>
 
-              {/* Writing Area */}
+              {/* WRITING AREA */}
+
               <textarea
+
                 value={content}
+
                 onChange={(e) =>
                   setContent(
                     e.target.value
                   )
                 }
+
                 placeholder="Begin thinking..."
+
                 className="mt-8 w-full min-h-[500px] bg-transparent resize-none outline-none text-[18px] leading-[1.9] text-[#334155] placeholder:text-[#94A3B8]"
+
               />
 
             </div>
 
-            {/* AI Insight */}
+            {/* AI INSIGHT */}
+
             <div className="rounded-[32px] border border-[#FDE68A]/30 bg-gradient-to-br from-[#FEFCE8] to-[#FFFBEB] p-6 md:p-7 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
 
               <p className="text-xs uppercase tracking-[0.25em] text-[#92400E]">
+
                 Cognitive Insight
+
               </p>
 
               <p className="mt-5 text-[#78350F] leading-relaxed">
 
-                {aiInsight ||
-  "Write deeply and the system will begin detecting behavioral patterns, emotional signals and cognitive clarity."}
+                {
+
+                  aiInsight ||
+
+                  "Write deeply and the system will begin detecting behavioral patterns, emotional signals and cognitive clarity."
+
+                }
 
               </p>
 
-              {/* Insight Grid */}
+              {/* INSIGHT GRID */}
+
               <div className="grid md:grid-cols-2 gap-4 mt-6">
 
                 <div className="rounded-2xl bg-white/60 p-5">
 
                   <p className="text-xs uppercase tracking-[0.2em] text-[#92400E]">
+
                     Clarity
+
                   </p>
 
                   <p className="mt-3 text-3xl font-semibold text-[#78350F]">
@@ -493,13 +666,20 @@ setAiClarity(
                 <div className="rounded-2xl bg-white/60 p-5">
 
                   <p className="text-xs uppercase tracking-[0.2em] text-[#92400E]">
+
                     Cognitive State
+
                   </p>
 
                   <p className="mt-3 text-2xl font-semibold text-[#78350F]">
 
-                    {aiState ||
-  "Reflective Processing"}
+                    {
+
+                      aiState ||
+
+                      "Reflective Processing"
+
+                    }
 
                   </p>
 
@@ -516,5 +696,7 @@ setAiClarity(
       </div>
 
     </main>
+
   );
+
 }
