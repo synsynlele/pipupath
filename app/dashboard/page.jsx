@@ -910,15 +910,45 @@ ${adaptiveEnvironment.containerSpacing}
 
         {/* HEADER */}
 
-        <div className="mb-8">
+<div className="mb-8 flex items-center justify-between">
 
-          <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8]">
+  {/* BRAND */}
 
-            PipuPath OS
+  <div className="flex items-center gap-4">
 
-          </p>
+    {/* LOGO */}
 
-        </div>
+    <div className="w-12 h-12 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center shadow-[0_10px_30px_rgba(15,23,42,0.15)]">
+
+      <span className="text-lg font-semibold">
+
+        P
+
+      </span>
+
+    </div>
+
+    {/* TEXT */}
+
+    <div>
+
+      <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8]">
+
+        PipuPath OS
+
+      </p>
+
+      <p className="mt-1 text-sm text-[#64748B]">
+
+        Adaptive Development Environment
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
 
         {/* HERO */}
 

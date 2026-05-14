@@ -518,29 +518,27 @@ export default function MagicPenPage() {
 
         {/* HEADER */}
 
-        <div>
+        <div className="max-w-4xl">
 
-          <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
+  <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
 
-            Cognitive Forge
+    MagicPen
 
-          </p>
+  </p>
 
-          <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-none text-[#0F172A]">
+  <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-none text-[#0F172A]">
 
-            Sharpen your thinking.
-            <br />
-            Expand your direction.
+    Your Cognitive Forge
 
-          </h1>
+  </h1>
 
-          <p className="mt-8 max-w-3xl text-lg leading-relaxed text-[#475569]">
+  <p className="mt-8 text-lg leading-relaxed text-[#475569] max-w-3xl">
 
-            Cognitive Forge is a strategic thinking environment designed to help ambitious people organize ideas, sharpen direction, challenge assumptions and develop greater mental clarity.
+    Capture thoughts, sharpen understanding, process difficult ideas and expand strategic awareness through deliberate cognitive exploration.
 
-          </p>
+  </p>
 
-        </div>
+</div>
 
         {/* GRID */}
 
