@@ -2,545 +2,378 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState }
+from "react";
 
-import { useRouter } from "next/navigation";
+import { useRouter }
+from "next/navigation";
 
-import { useAuth } from "../../context/AuthContext";
+import { useAuth }
+from "../../context/AuthContext";
 
-import { supabase } from "../../lib/supabase";
+import { supabase }
+from "../../lib/supabase";
 
-const QUESTIONS = [
+const ARCHETYPES = [
 
   {
-    id: 1,
 
-    question:
-      "What kind of future feels most meaningful to you?",
+    id:
+      "Builder",
 
-    options: [
+    title:
+      "Builder",
 
-      {
-        text:
-          "Building ideas, systems or creations that impact the world",
+    description:
 
-        type:
-          "Builder",
-      },
+      "You are driven to create meaningful things, build capability and construct a future that feels real and impactful.",
 
-      {
-        text:
-          "Leading people toward growth, change or progress",
+    strengths: [
 
-        type:
-          "Leader",
-      },
+      "Execution",
 
-      {
-        text:
-          "Understanding life deeply and developing wisdom",
+      "Persistence",
 
-        type:
-          "Thinker",
-      },
-
-      {
-        text:
-          "Helping people heal, grow and become better",
-
-        type:
-          "Guide",
-      },
+      "Long-term thinking",
 
     ],
+
+    risks: [
+
+      "Burnout",
+
+      "Isolation",
+
+      "Working without direction",
+
+    ],
+
   },
 
   {
-    id: 2,
 
-    question:
-      "What frustrates you most about your current life direction?",
+    id:
+      "Explorer",
 
-    options: [
+    title:
+      "Explorer",
 
-      {
-        text:
-          "I have ideas and ambition but struggle with consistent execution",
+    description:
 
-        type:
-          "Builder",
-      },
+      "You are driven by curiosity, expansion and discovering possibilities beyond conventional paths.",
 
-      {
-        text:
-          "I know I can do more but feel scattered or unfocused",
+    strengths: [
 
-        type:
-          "Leader",
-      },
+      "Curiosity",
 
-      {
-        text:
-          "I overthink decisions and delay meaningful action",
+      "Adaptability",
 
-        type:
-          "Thinker",
-      },
-
-      {
-        text:
-          "I care deeply about others but neglect my own growth",
-
-        type:
-          "Guide",
-      },
+      "Vision expansion",
 
     ],
+
+    risks: [
+
+      "Drifting",
+
+      "Endless searching",
+
+      "Difficulty committing",
+
+    ],
+
   },
 
   {
-    id: 3,
 
-    question:
-      "What gives you the strongest sense of purpose?",
+    id:
+      "Leader",
 
-    options: [
+    title:
+      "Leader",
 
-      {
-        text:
-          "Creating meaningful things that outlive me",
+    description:
 
-        type:
-          "Builder",
-      },
+      "You are driven to create structure, take responsibility and influence meaningful outcomes around you.",
 
-      {
-        text:
-          "Helping people organize and move forward",
+    strengths: [
 
-        type:
-          "Leader",
-      },
+      "Initiative",
 
-      {
-        text:
-          "Discovering deeper understanding and insight",
+      "Responsibility",
 
-        type:
-          "Thinker",
-      },
-
-      {
-        text:
-          "Helping people become healthier and stronger",
-
-        type:
-          "Guide",
-      },
+      "Coordination",
 
     ],
+
+    risks: [
+
+      "Control obsession",
+
+      "Pressure addiction",
+
+      "Ego attachment",
+
+    ],
+
   },
 
   {
-    id: 4,
 
-    question:
-      "When life becomes uncertain, what do you naturally rely on?",
+    id:
+      "Strategist",
 
-    options: [
+    title:
+      "Strategist",
 
-      {
-        text:
-          "Experimenting, building and adapting quickly",
+    description:
 
-        type:
-          "Builder",
-      },
+      "You are driven to deeply understand systems, leverage and how meaningful outcomes are actually created.",
 
-      {
-        text:
-          "Creating structure, plans and direction",
+    strengths: [
 
-        type:
-          "Leader",
-      },
+      "Analysis",
 
-      {
-        text:
-          "Thinking deeply before acting",
+      "Systems thinking",
 
-        type:
-          "Thinker",
-      },
-
-      {
-        text:
-          "Seeking perspective through human connection",
-
-        type:
-          "Guide",
-      },
+      "Optimization",
 
     ],
+
+    risks: [
+
+      "Overthinking",
+
+      "Inaction",
+
+      "Disconnection from execution",
+
+    ],
+
   },
 
   {
-    id: 5,
 
-    question:
-      "Which capability do you most want to strengthen right now?",
+    id:
+      "Creator",
 
-    options: [
+    title:
+      "Creator",
 
-      {
-        text:
-          "Execution and turning ideas into reality",
+    description:
 
-        type:
-          "Builder",
-      },
+      "You are driven to express vision, originality and emotionally meaningful ideas through creation.",
 
-      {
-        text:
-          "Discipline, leadership and consistency",
+    strengths: [
 
-        type:
-          "Leader",
-      },
+      "Creativity",
 
-      {
-        text:
-          "Clarity, thinking and intelligent decision-making",
+      "Imagination",
 
-        type:
-          "Thinker",
-      },
-
-      {
-        text:
-          "Communication, empathy and helping others effectively",
-
-        type:
-          "Guide",
-      },
+      "Emotional depth",
 
     ],
-  },
 
-  {
-    id: 6,
+    risks: [
 
-    question:
-      "What kind of person do you ultimately want to become?",
+      "Inconsistency",
 
-    options: [
+      "Emotional volatility",
 
-      {
-        text:
-          "Someone who builds meaningful things for the future",
-
-        type:
-          "Builder",
-      },
-
-      {
-        text:
-          "Someone capable of leading meaningful progress",
-
-        type:
-          "Leader",
-      },
-
-      {
-        text:
-          "Someone known for wisdom and intelligent thinking",
-
-        type:
-          "Thinker",
-      },
-
-      {
-        text:
-          "Someone who helps people grow meaningfully",
-
-        type:
-          "Guide",
-      },
+      "Unfinished work",
 
     ],
+
   },
 
 ];
-
-const REFLECTION_QUESTIONS = [
-
-  {
-    id: 1,
-
-    prompt:
-      "What feels hardest about your life right now?",
-  },
-
-  {
-    id: 2,
-
-    prompt:
-      "What kind of person do you want to become?",
-  },
-
-  {
-    id: 3,
-
-    prompt:
-      "If your life became much better in the next few years, what would likely change most?",
-  },
-
-];
-
-import {
-  ARCHETYPES
-} from "../../lib/identity/archetypes";
-
 
 export default function OnboardingPage() {
 
-  const router = useRouter();
+  const router =
+    useRouter();
 
-  const { user, loading } = useAuth();
+  const {
+    user,
+    loading,
+  } = useAuth();
 
-  const [step, setStep] = useState(0);
+  // =========================
+  // STATE
+  // =========================
 
-  const [answers, setAnswers] =
-    useState([]);
+  const [
+    selectedArchetype,
+    setSelectedArchetype,
+  ] = useState(null);
 
-const [
+  const [
+    futureVision,
+    setFutureVision,
+  ] = useState("");
 
-  reflectionStep,
+  const [
+    currentStruggle,
+    setCurrentStruggle,
+  ] = useState("");
 
-  setReflectionStep,
+  const [
+    currentFocus,
+    setCurrentFocus,
+  ] = useState("");
 
-] = useState(0);
+  const [
+    loadingState,
+    setLoadingState,
+  ] = useState(false);
 
-const [
+  // =========================
+  // AUTH
+  // =========================
 
-  reflectionAnswers,
-
-  setReflectionAnswers,
-
-] = useState({
-
-    struggle: "",
-
-    futureSelf: "",
-
-    futureChange: "",
-});
-
-  const [submitting, setSubmitting] =
-    useState(false);
-
-const [
-
-  reflectionMode,
-
-  setReflectionMode,
-
-] = useState(false);
-
-  // Redirect unauthenticated users
   useEffect(() => {
 
-    if (!loading && !user) {
+    if (
+      !loading &&
+      !user
+    ) {
 
-      router.push("/login");
+      router.push(
+        "/login"
+      );
+
     }
 
-  }, [user, loading, router]);
+  }, [
+    user,
+    loading,
+    router,
+  ]);
 
-  const currentQuestion =
-    QUESTIONS[step];
+  // =========================
+  // COMPLETE
+  // =========================
 
-  const progress = useMemo(() => {
-
-    return Math.round(
-      ((step + 1) /
-        QUESTIONS.length) *
-        100
-    );
-
-  }, [step]);
-
-  function handleAnswer(type) {
-
-    const updated = [
-      ...answers,
-      type,
-    ];
-
-    setAnswers(updated);
+  async function handleComplete() {
 
     if (
-  step < QUESTIONS.length - 1
-) {
-
-  setTimeout(() => {
-
-    setStep(step + 1);
-
-  }, 250);
-
-} else {
-
-  setReflectionMode(true);
-}
-  }
-
-  async function completeOnboarding(
-  finalAnswers
-) {
-
-    if (!user) return;
-
-    setSubmitting(true);
-
-    const counts = {};
-
-    finalAnswers.forEach((item) => {
-
-      counts[item] =
-        (counts[item] || 0) + 1;
-    });
-
-    let topType = "Builder";
-
-    let highest = 0;
-
-    Object.keys(counts).forEach((key) => {
-
-      if (counts[key] > highest) {
-
-        highest = counts[key];
-
-        topType = key;
-      }
-    });
-
-    const archetypeData =
-  ARCHETYPES[topType];
+      !selectedArchetype
+    ) return;
 
     try {
 
-      const { error } =
-        await supabase
-          .from("profiles")
-          .update({
+      setLoadingState(true);
 
-            archetype:
-              archetypeData.title,
+      const identitySummary = `
 
-            onboarding_completed:
-              true,
+Archetype:
+${selectedArchetype.id}
 
-            onboarding_completed_at:
-              new Date().toISOString(),
-             
-            identity_reflections:
-  reflectionAnswers,
-          })
-          .eq("id", user.id);
+Future Vision:
+${futureVision}
+
+Current Focus:
+${currentFocus}
+
+Current Struggle:
+${currentStruggle}
+
+`;
+
+      const {
+        error,
+      } = await supabase
+
+        .from("profiles")
+
+        .update({
+
+          archetype:
+            selectedArchetype.id,
+
+          aspirations:
+            futureVision,
+
+          current_focus:
+            currentFocus,
+
+          current_struggle:
+            currentStruggle,
+
+          identity_summary:
+            identitySummary,
+
+          onboarding_completed:
+            true,
+
+        })
+
+        .eq(
+          "id",
+          user.id
+        );
 
       if (error) {
 
         console.error(error);
 
-        setSubmitting(false);
-
         return;
+
       }
 
-      localStorage.setItem(
-        "archetype_result",
-        JSON.stringify({
-          ...archetypeData,
-          type: topType,
-        })
+      router.push(
+        "/dashboard"
       );
 
-      router.push("/results");
-
-    } catch (error) {
-
-      console.error(error);
     }
 
-    setSubmitting(false);
+    catch (error) {
+
+      console.error(error);
+
+    }
+
+    finally {
+
+      setLoadingState(false);
+
+    }
+
   }
 
-  if (loading || !user) {
+  if (
+    loading ||
+    !user
+  ) {
 
     return (
-      <main className="min-h-screen bg-[#F5F7FA] flex items-center justify-center px-6">
 
-        <div className="flex flex-col items-center gap-5">
+      <main className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+
+        <div className="flex flex-col items-center gap-4">
 
           <div className="w-14 h-14 rounded-full border-2 border-[#D4AF37]/20 border-t-[#D4AF37] animate-spin" />
 
-          <p className="text-[#64748B] text-sm tracking-wide">
-            Preparing your identity experience...
+          <p className="text-sm text-[#64748B]">
+
+            Preparing identity calibration...
+
           </p>
 
         </div>
 
       </main>
+
     );
+
   }
-
-function handleReflectionChange(
-  value
-) {
-
-  if (reflectionStep === 0) {
-
-    setReflectionAnswers(
-      (prev) => ({
-
-        ...prev,
-
-        struggle: value,
-      })
-    );
-  }
-
-  if (reflectionStep === 1) {
-
-    setReflectionAnswers(
-      (prev) => ({
-
-        ...prev,
-
-        futureSelf: value,
-      })
-    );
-  }
-
-  if (reflectionStep === 2) {
-
-    setReflectionAnswers(
-      (prev) => ({
-
-        ...prev,
-
-        futureChange: value,
-      })
-    );
-  }
-}
 
   return (
 
-    <main className="min-h-screen bg-[#F5F7FA] overflow-hidden text-[#0F172A]">
+    <main className="min-h-screen bg-[#F5F7FA] overflow-x-hidden text-[#0F172A]">
 
-      {/* Ambient Glow */}
+      {/* BACKGROUND */}
+
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
 
         <div className="absolute top-[-120px] left-[-120px] w-[320px] h-[320px] bg-[#D4AF37]/10 rounded-full blur-3xl" />
@@ -549,231 +382,491 @@ function handleReflectionChange(
 
       </div>
 
-      <div className="relative max-w-4xl mx-auto min-h-screen px-4 py-8 md:px-8 flex flex-col">
+      {/* CONTENT */}
 
-        {/* Header */}
-        <div>
+      <div className="relative max-w-7xl mx-auto px-4 py-10 md:px-6 md:py-16">
+
+        {/* HERO */}
+
+        <div className="max-w-4xl">
 
           <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
+
             Identity Calibration
+
           </p>
 
-          <div className="mt-6 h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
+          <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-none text-[#0F172A]">
 
-            <div
-              className="h-full bg-[#D4AF37] rounded-full transition-all duration-500"
-              style={{
-                width: `${progress}%`,
-              }}
+            Build the person
+            <br />
+            your future requires.
+
+          </h1>
+
+          <p className="mt-8 text-lg leading-relaxed text-[#475569] max-w-3xl">
+
+            PipuPath adapts to how you think, grow, execute and build your future. Select the developmental profile that feels most aligned with how you naturally move through the world.
+
+          </p>
+
+        </div>
+
+        {/* ARCHETYPES */}
+
+        <div className="grid lg:grid-cols-2 gap-6 mt-14">
+
+          {
+
+            ARCHETYPES.map((archetype) => {
+
+              const active =
+
+                selectedArchetype?.id ===
+                archetype.id;
+
+              return (
+
+                <button
+
+                  key={archetype.id}
+
+                  onClick={() =>
+                    setSelectedArchetype(
+                      archetype
+                    )
+                  }
+
+                  className={`
+
+text-left
+rounded-[36px]
+p-8
+transition-all
+duration-500
+border
+
+${
+
+  active
+
+    ?
+
+    "bg-[#0F172A] text-white border-[#0F172A] shadow-[0_10px_60px_rgba(15,23,42,0.15)] scale-[1.01]"
+
+    :
+
+    "bg-white/80 border-[#E2E8F0] hover:bg-white hover:scale-[1.01]"
+
+}
+
+`}
+
+                >
+
+                  <div className="flex items-start justify-between gap-6">
+
+                    <div>
+
+                      <p className={`
+
+text-xs
+uppercase
+tracking-[0.3em]
+
+${
+
+  active
+
+    ?
+
+    "text-white/40"
+
+    :
+
+    "text-[#94A3B8]"
+
+}
+
+`}>
+
+                        Development Profile
+
+                      </p>
+
+                      <h2 className="mt-5 text-4xl font-semibold tracking-tight">
+
+                        {archetype.title}
+
+                      </h2>
+
+                    </div>
+
+                    {
+
+                      active && (
+
+                        <div className="w-4 h-4 rounded-full bg-[#D4AF37]" />
+
+                      )
+
+                    }
+
+                  </div>
+
+                  <p className={`
+
+mt-8
+leading-relaxed
+text-lg
+
+${
+
+  active
+
+    ?
+
+    "text-white/75"
+
+    :
+
+    "text-[#475569]"
+
+}
+
+`}>
+
+                    {archetype.description}
+
+                  </p>
+
+                  {/* GRID */}
+
+                  <div className="grid md:grid-cols-2 gap-4 mt-8">
+
+                    {/* STRENGTHS */}
+
+                    <div className={`
+
+rounded-3xl
+p-5
+
+${
+
+  active
+
+    ?
+
+    "bg-white/5"
+
+    :
+
+    "bg-[#F8FAFC]"
+
+}
+
+`}>
+
+                      <p className={`
+
+text-xs
+uppercase
+tracking-[0.2em]
+
+${
+
+  active
+
+    ?
+
+    "text-white/40"
+
+    :
+
+    "text-[#94A3B8]"
+
+}
+
+`}>
+
+                        Strengths
+
+                      </p>
+
+                      <div className="mt-4 space-y-2">
+
+                        {
+
+                          archetype.strengths.map((item) => (
+
+                            <p
+                              key={item}
+                              className={`
+
+${
+
+  active
+
+    ?
+
+    "text-white/80"
+
+    :
+
+    "text-[#475569]"
+
+}
+
+`}
+
+                            >
+
+                              • {item}
+
+                            </p>
+
+                          ))
+
+                        }
+
+                      </div>
+
+                    </div>
+
+                    {/* RISKS */}
+
+                    <div className={`
+
+rounded-3xl
+p-5
+
+${
+
+  active
+
+    ?
+
+    "bg-white/5"
+
+    :
+
+    "bg-[#F8FAFC]"
+
+}
+
+`}>
+
+                      <p className={`
+
+text-xs
+uppercase
+tracking-[0.2em]
+
+${
+
+  active
+
+    ?
+
+    "text-white/40"
+
+    :
+
+    "text-[#94A3B8]"
+
+}
+
+`}>
+
+                        Growth Risks
+
+                      </p>
+
+                      <div className="mt-4 space-y-2">
+
+                        {
+
+                          archetype.risks.map((item) => (
+
+                            <p
+                              key={item}
+                              className={`
+
+${
+
+  active
+
+    ?
+
+    "text-white/80"
+
+    :
+
+    "text-[#475569]"
+
+}
+
+`}
+
+                            >
+
+                              • {item}
+
+                            </p>
+
+                          ))
+
+                        }
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </button>
+
+              );
+
+            })
+
+          }
+
+        </div>
+
+        {/* INPUTS */}
+
+        <div className="grid lg:grid-cols-3 gap-6 mt-10">
+
+          {/* FUTURE */}
+
+          <div className="rounded-[36px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-6">
+
+            <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
+
+              Future Vision
+
+            </p>
+
+            <textarea
+
+              rows={5}
+
+              value={futureVision}
+
+              onChange={(e) =>
+                setFutureVision(
+                  e.target.value
+                )
+              }
+
+              placeholder="What kind of future are you trying to build?"
+
+              className="mt-5 w-full bg-transparent outline-none resize-none text-[#475569] leading-relaxed"
+
             />
 
           </div>
 
-          <div className="mt-3 flex items-center justify-between">
+          {/* FOCUS */}
 
-            <p className="text-sm text-[#64748B]">
-              Question {step + 1} of {QUESTIONS.length}
+          <div className="rounded-[36px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-6">
+
+            <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
+
+              Current Focus
+
             </p>
 
-            <p className="text-sm text-[#64748B]">
-              {progress}%
+            <textarea
+
+              rows={5}
+
+              value={currentFocus}
+
+              onChange={(e) =>
+                setCurrentFocus(
+                  e.target.value
+                )
+              }
+
+              placeholder="What are you currently trying to improve or build?"
+
+              className="mt-5 w-full bg-transparent outline-none resize-none text-[#475569] leading-relaxed"
+
+            />
+
+          </div>
+
+          {/* STRUGGLE */}
+
+          <div className="rounded-[36px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-6">
+
+            <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
+
+              Current Friction
+
             </p>
+
+            <textarea
+
+              rows={5}
+
+              value={currentStruggle}
+
+              onChange={(e) =>
+                setCurrentStruggle(
+                  e.target.value
+                )
+              }
+
+              placeholder="What keeps slowing you down or holding you back?"
+
+              className="mt-5 w-full bg-transparent outline-none resize-none text-[#475569] leading-relaxed"
+
+            />
 
           </div>
 
         </div>
 
-        {/* Main */}
-        <div className="flex-1 flex flex-col justify-center py-12">
+        {/* COMPLETE */}
 
-          {submitting ? (
+        <button
 
-            <div className="flex flex-col items-center justify-center text-center py-20">
+          onClick={
+            handleComplete
+          }
 
-              <div className="w-16 h-16 rounded-full border-2 border-[#D4AF37]/20 border-t-[#D4AF37] animate-spin" />
+          disabled={
+            !selectedArchetype ||
+            loadingState
+          }
 
-              <h2 className="mt-8 text-3xl font-semibold tracking-tight text-[#0F172A]">
-                Analyzing your behavioral identity...
-              </h2>
+          className="mt-10 px-8 py-5 rounded-[24px] bg-[#0F172A] text-white text-lg font-medium hover:opacity-90 transition-all disabled:opacity-40"
 
-              <p className="mt-4 text-[#64748B] max-w-lg leading-relaxed">
-                Building your personalized evolution profile.
-              </p>
-
-            </div>
-
-          ) : (
-
-            <>
-
-  {!reflectionMode ? (
-
-    <>
-
-      <div className="max-w-3xl">
-
-        <p className="text-sm uppercase tracking-[0.25em] text-[#94A3B8]">
-
-          Identity Question
-
-        </p>
-
-        <h1 className="mt-8 text-4xl md:text-6xl font-semibold tracking-tight leading-[1.1] text-[#0F172A]">
-
-          {currentQuestion.question}
-
-        </h1>
-
-      </div>
-
-      <div className="mt-14 grid gap-4">
-
-        {currentQuestion.options.map((option, index) => (
-
-          <button
-            key={index}
-            onClick={() =>
-              handleAnswer(
-                option.type
-              )
-            }
-            className="group text-left rounded-[28px] border border-white/60 bg-white/80 backdrop-blur-xl p-6 md:p-7 shadow-[0_10px_50px_rgba(15,23,42,0.04)] hover:translate-y-[-2px] hover:border-[#D4AF37]/30 transition-all duration-300"
-          >
-
-            <div className="flex items-center justify-between gap-4">
-
-              <div>
-
-                <p className="text-xl md:text-2xl font-medium tracking-tight text-[#0F172A] leading-relaxed">
-
-                  {option.text}
-
-                </p>
-
-              </div>
-
-              <div className="w-12 h-12 rounded-2xl border border-[#E2E8F0] bg-[#FAFAFA] flex items-center justify-center group-hover:bg-[#0F172A] group-hover:text-white transition-all duration-300">
-
-                →
-
-              </div>
-
-            </div>
-
-          </button>
-
-        ))}
-
-      </div>
-
-    </>
-
-  ) : (
-
-    <>
-
-      <div className="max-w-3xl">
-
-        <p className="text-sm uppercase tracking-[0.25em] text-[#94A3B8]">
-
-          A Little More About You
-
-        </p>
-
-        <h1 className="mt-8 text-4xl md:text-6xl font-semibold tracking-tight leading-[1.1] text-[#0F172A]">
+        >
 
           {
-            REFLECTION_QUESTIONS[
-              reflectionStep
-            ].prompt
+
+            loadingState
+
+              ?
+
+              "Calibrating Environment..."
+
+              :
+
+              "Initialize Development OS"
+
           }
 
-        </h1>
-
-      </div>
-
-      <div className="mt-12">
-
-        <textarea
-
-          rows={6}
-
-          value={
-
-            reflectionStep === 0
-
-              ? reflectionAnswers.struggle
-
-              : reflectionStep === 1
-
-              ? reflectionAnswers.futureSelf
-
-              : reflectionAnswers.futureChange
-          }
-
-          onChange={(e) =>
-            handleReflectionChange(
-              e.target.value
-            )
-          }
-
-          placeholder="Write whatever feels true for you..."
-
-          className="w-full rounded-[32px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-6 text-lg text-[#0F172A] outline-none resize-none shadow-[0_10px_50px_rgba(15,23,42,0.04)] focus:border-[#D4AF37]/40"
-        />
-
-        <div className="mt-8 flex items-center justify-between">
-
-          <p className="text-sm text-[#94A3B8]">
-
-            There are no right or wrong answers.
-
-          </p>
-
-          <button
-
-            onClick={() => {
-
-              if (
-                reflectionStep <
-
-                REFLECTION_QUESTIONS.length - 1
-              ) {
-
-                setReflectionStep(
-                  reflectionStep + 1
-                );
-
-              } else {
-
-                completeOnboarding(
-                  answers
-                );
-              }
-            }}
-
-            className="rounded-2xl bg-[#0F172A] px-7 py-4 text-white font-medium hover:translate-y-[-2px] transition-all duration-300"
-          >
-
-            Continue
-
-          </button>
-
-        </div>
-
-      </div>
-
-    </>
-
-  )}
-
-</>
-          )}
-
-        </div>
+        </button>
 
       </div>
 
     </main>
+
   );
+
 }

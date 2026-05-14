@@ -166,34 +166,79 @@ export default function Evolution({
   // =========================
 
   let stage =
-    "Emerging Builder";
+  "Emerging Builder";
 
-  if (
-    evolutionScore >= 25
-  ) {
+let stageNarrative =
 
-    stage =
-      "Strategic Explorer";
+  "You are beginning to develop execution awareness and intentional movement.";
 
-  }
+// =========================
+// STAGE 2
+// =========================
 
-  if (
-    evolutionScore >= 50
-  ) {
+if (
+  evolutionScore >= 25
+) {
 
-    stage =
-      "Capability Architect";
+  stage =
+    "Strategic Explorer";
 
-  }
+  stageNarrative =
 
-  if (
-    evolutionScore >= 75
-  ) {
+    "Your behavioral patterns suggest increasing clarity, stronger curiosity and growing developmental intention.";
 
-    stage =
-      "Momentum Builder";
+}
 
-  }
+// =========================
+// STAGE 3
+// =========================
+
+if (
+  evolutionScore >= 50
+) {
+
+  stage =
+    "Capability Architect";
+
+  stageNarrative =
+
+    "You are developing stronger execution structure, clearer strategic thinking and more reliable behavioral consistency.";
+
+}
+
+// =========================
+// STAGE 4
+// =========================
+
+if (
+  evolutionScore >= 75
+) {
+
+  stage =
+    "Momentum Builder";
+
+  stageNarrative =
+
+    "Your recent trajectory suggests increasing momentum, stronger identity reinforcement and meaningful forward expansion.";
+
+}
+
+// =========================
+// STAGE 5
+// =========================
+
+if (
+  evolutionScore >= 90
+) {
+
+  stage =
+    "Trajectory Operator";
+
+  stageNarrative =
+
+    "Your behavioral trajectory suggests increasing strategic adaptability, execution discipline and future-oriented thinking.";
+
+}
 
   return (
 
@@ -241,11 +286,21 @@ export default function Evolution({
 
           </p>
 
-          <p className="mt-3 text-white/70">
+          <div className="mt-3">
 
-            {stage}
+  <p className="text-white/70">
 
-          </p>
+    {stage}
+
+  </p>
+
+  <p className="mt-3 text-sm leading-relaxed text-white/50">
+
+    {stageNarrative}
+
+  </p>
+
+</div>
 
         </div>
 

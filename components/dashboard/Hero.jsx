@@ -1,3 +1,5 @@
+"use client";
+
 export default function Hero({
 
   profile,
@@ -6,261 +8,309 @@ export default function Hero({
 
 }) {
 
-  const missionMode =
-    orchestration?.missionMode || "standard";
+  // =========================
+  // USER DATA
+  // =========================
 
-  const isRecovery =
-    missionMode === "recovery";
+  const archetype =
+    profile?.archetype ||
 
-  const isExpanded =
-    missionMode === "expanded";
+    "Builder";
 
-  const isSimplified =
-    missionMode === "simplified";
+  const streak =
+    profile?.streak || 0;
 
-  const environmentIntensity =
-    orchestration?.environmentIntensity ||
+  const momentum =
+    profile?.momentum || 50;
 
-    "balanced";
+  // =========================
+  // STRATEGIC STATES
+  // =========================
 
-  const isSoft =
-    environmentIntensity === "soft";
+  let strategicState =
+    "Identity Expansion";
 
-  const isMinimal =
-    environmentIntensity === "minimal";
+  let strategicNarrative =
 
-  const isElevated =
-    environmentIntensity === "elevated";
+    "Your current trajectory suggests active developmental movement and increasing awareness of the future you are trying to build.";
 
-const guidanceEscalation =
+  let executionPressure =
 
-  orchestration?.guidanceEscalation ||
+    "Execution consistency will determine whether your ambition compounds or remains unrealized potential.";
 
-  "stable";
+  // =========================
+  // BUILDER
+  // =========================
 
-const isIntentional =
+  if (
+    archetype === "Builder"
+  ) {
 
-  guidanceEscalation === "intentional";
+    strategicState =
+      "Capability Construction";
 
-const isGrowthElevated =
+    strategicNarrative =
 
-  guidanceEscalation === "elevated";
+      "You are in a phase where long-term advantage will come from building real capability, disciplined execution and meaningful output under imperfect conditions.";
 
-const transitionState =
+    executionPressure =
 
-  orchestration?.transitionState ||
+      "Avoid passive consumption. Your future will be shaped by what you repeatedly build, not what you repeatedly plan.";
 
-  "stable";
+  }
 
-const isRecovering =
+  // =========================
+  // LEADER
+  // =========================
 
-  transitionState === "recovering";
+  if (
+    archetype === "Leader"
+  ) {
 
-const isStabilizing =
+    strategicState =
+      "Responsibility Expansion";
 
-  transitionState === "stabilizing";
+    strategicNarrative =
 
-const isAscending =
+      "Your trajectory suggests increasing leadership capacity, but leadership is earned through responsibility, initiative and reliable execution under pressure.";
 
-  transitionState === "ascending";
+    executionPressure =
+
+      "Do not wait for ideal conditions. Leadership develops when you create structure before certainty exists.";
+
+  }
+
+  // =========================
+  // EXPLORER
+  // =========================
+
+  if (
+    archetype === "Explorer"
+  ) {
+
+    strategicState =
+      "Directional Discovery";
+
+    strategicNarrative =
+
+      "Your current stage requires expanding exposure, testing possibilities and transforming curiosity into real-world movement.";
+
+    executionPressure =
+
+      "Exploration without execution eventually becomes disguised avoidance. Convert curiosity into experience.";
+
+  }
+
+  // =========================
+  // STRATEGIST
+  // =========================
+
+  if (
+    archetype === "Strategist"
+  ) {
+
+    strategicState =
+      "Leverage Mapping";
+
+    strategicNarrative =
+
+      "Your thinking patterns suggest strong strategic potential, but long-term advantage requires converting analysis into decisive execution.";
+
+    executionPressure =
+
+      "Clarity without movement creates intellectual stagnation. Use insight to accelerate action.";
+
+  }
+
+  // =========================
+  // CREATOR
+  // =========================
+
+  if (
+    archetype === "Creator"
+  ) {
+
+    strategicState =
+      "Creative Expansion";
+
+    strategicNarrative =
+
+      "Your trajectory suggests growing creative identity and originality, but your next stage requires courageous output consistency.";
+
+    executionPressure =
+
+      "Perfectionism quietly destroys momentum. Publish, create and refine through repetition.";
+
+  }
+
+  // =========================
+  // MOMENTUM STATES
+  // =========================
+
+  if (
+    streak >= 7
+  ) {
+
+    strategicNarrative +=
+
+      " Your recent momentum suggests increasing behavioral consistency and greater execution reliability.";
+
+  }
+
+  if (
+    streak <= 2
+  ) {
+
+    executionPressure =
+
+      "Your current challenge is not potential. It is rebuilding execution consistency through smaller but unavoidable actions.";
+
+  }
+
+  // =========================
+  // MOMENTUM LABEL
+  // =========================
+
+  let momentumState =
+    "Emerging Momentum";
+
+  if (
+    momentum >= 70
+  ) {
+
+    momentumState =
+      "High Execution Momentum";
+
+  }
+
+  if (
+    momentum <= 35
+  ) {
+
+    momentumState =
+      "Momentum Recovery Phase";
+
+  }
 
   return (
 
-    <section className={`relative overflow-hidden rounded-[36px] border backdrop-blur-xl p-6 md:p-10 shadow-[0_10px_50px_rgba(15,23,42,0.06)] transition-all duration-700
-
-${isSoft
-  ? "bg-[#F8FAFC]/95 border-[#E2E8F0]"
-  : isMinimal
-  ? "bg-[#FFFFFF]/85 border-[#E5E7EB]"
-  : isElevated
-  ? "bg-gradient-to-br from-[#FFFDF7] to-[#F8FAFC] border-[#F4E7B8]"
-  : isRecovery
-  ? "bg-[#F8FAFC]/90 border-[#E2E8F0]"
-  : isExpanded
-  ? "bg-gradient-to-br from-[#FFFDF7] to-[#F8FAFC] border-[#F4E7B8]"
-  : isSimplified
-  ? "bg-[#FFFFFF]/80 border-[#E5E7EB]"
-  : "bg-white/70 border-white/60"
-}`}>
+    <section className="relative overflow-hidden rounded-[42px] border border-[#E2E8F0] bg-[#0F172A] text-white p-8 md:p-10 shadow-[0_20px_80px_rgba(15,23,42,0.18)]">
 
       {/* BACKGROUND */}
 
-      <div className="absolute inset-0 bg-gradient-to-br from-[#FFFFFF] via-[#FAFAF9] to-[#F8FAFC]" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
 
-      <div className={`absolute top-[-120px] right-[-120px] w-[260px] h-[260px] rounded-full blur-3xl
+        <div className="absolute top-[-120px] right-[-120px] w-[320px] h-[320px] rounded-full bg-[#D4AF37]/10 blur-3xl" />
 
-${isRecovery
-  ? "bg-[#CBD5E1]/20"
-  : isExpanded
-  ? "bg-[#D4AF37]/20"
-  : isSimplified
-  ? "bg-[#E5E7EB]/30"
-  : "bg-[#D4AF37]/10"
-}`}
-/>
+        <div className="absolute bottom-[-120px] left-[-120px] w-[320px] h-[320px] rounded-full bg-white/5 blur-3xl" />
+
+      </div>
 
       {/* CONTENT */}
 
       <div className="relative z-10">
 
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
+        {/* TOP */}
+
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
 
           {/* LEFT */}
 
-          <div className="max-w-2xl">
+          <div className="max-w-4xl">
 
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#D4AF37]/10 text-[#B88A00] text-sm font-medium">
+            <p className="text-[11px] uppercase tracking-[0.35em] text-white/40 font-medium">
 
-              {isRecovering
-  ? "Recovery Transition Environment"
-
-  : isStabilizing
-  ? "Behavioral Stabilization Environment"
-
-  : isAscending
-  ? "Expansion Transition Environment"
-
-  : isSoft
-  ? "Soft Recovery Environment"
-
-  : isMinimal
-  ? "Minimal Cognitive Environment"
-
-  : isElevated
-  ? "Elevated Growth Environment"
-
-  : isRecovery
-  ? "Adaptive Recovery Environment"
-
-  : isExpanded
-  ? "Growth Expansion Environment"
-
-  : isSimplified
-  ? "Behavioral Stabilization Environment"
-
-  : "Adaptive Human Development"}
-
-            </div>
-
-            <h1 className="mt-6 text-5xl md:text-6xl font-semibold tracking-tight leading-none text-[#0F172A]">
-
-              {isAscending
-
-  ?
-
-  `${profile?.archetype || "Explorer"} Ascending`
-
-  : isStabilizing
-
-  ?
-
-  `${profile?.archetype || "Explorer"} Stabilizing`
-
-  : isRecovering
-
-  ?
-
-  `${profile?.archetype || "Explorer"} Recovering`
-
-  : isGrowthElevated
-
-  ?
-
-  `${profile?.archetype || "Explorer"} Ascending`
-
-  : isIntentional
-
-  ?
-
-  `${profile?.archetype || "Explorer"} Evolving`
-
-  :
-
-  profile?.archetype || "Explorer"}
-
-            </h1>
-
-            <p className="mt-6 text-lg text-[#475569] leading-relaxed max-w-xl">
-
-              Sustainable transformation emerges from aligned behavior repeated consistently over time.
+              Strategic Command Center
 
             </p>
 
-            {/* ORCHESTRATION */}
+            <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-none">
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+              {strategicState}
 
-              <div className="px-4 py-2 rounded-full bg-[#0F172A] text-white text-sm font-medium capitalize">
+            </h1>
 
-                {orchestration?.missionMode || "standard"} mode
+            <p className="mt-8 text-lg md:text-xl leading-relaxed text-white/75 max-w-3xl">
 
-              </div>
+              {strategicNarrative}
 
-              <div className="px-4 py-2 rounded-full bg-white border border-[#E2E8F0] text-[#0F172A] text-sm font-medium capitalize">
-
-                {orchestration?.guidanceMode || "balanced"} guidance
-
-              </div>
-
-              <div className="px-4 py-2 rounded-full bg-white border border-[#E2E8F0] text-[#0F172A] text-sm font-medium capitalize">
-
-                {orchestration?.cognitiveLoad || "normal"} cognitive load
-
-              </div>
-
-            </div>
+            </p>
 
           </div>
 
           {/* RIGHT */}
 
-          <div className="grid grid-cols-3 gap-3 w-full lg:w-auto">
+          <div className="grid grid-cols-2 gap-4 min-w-[280px]">
 
-            <div className="rounded-3xl bg-[#0F172A] text-white p-5 min-w-[110px]">
+            {/* ARCHETYPE */}
 
-              <p className="text-xs uppercase tracking-[0.2em] text-white/60">
+            <div className="rounded-3xl bg-white/5 border border-white/10 p-5 backdrop-blur-xl">
 
-                XP
+              <p className="text-xs uppercase tracking-[0.2em] text-white/40">
 
-              </p>
-
-              <h3 className="mt-3 text-3xl font-semibold">
-
-                {profile?.xp || 0}
-
-              </h3>
-
-            </div>
-
-            <div className="rounded-3xl bg-white border border-[#E2E8F0] p-5 min-w-[110px]">
-
-              <p className="text-xs uppercase tracking-[0.2em] text-[#94A3B8]">
-
-                Streak
+                Archetype
 
               </p>
 
-              <h3 className="mt-3 text-3xl font-semibold text-[#D4AF37]">
+              <p className="mt-4 text-2xl font-semibold">
 
-                {profile?.streak || 0}
+                {archetype}
 
-              </h3>
+              </p>
 
             </div>
 
-            <div className="rounded-3xl bg-white border border-[#E2E8F0] p-5 min-w-[110px]">
+            {/* MOMENTUM */}
 
-              <p className="text-xs uppercase tracking-[0.2em] text-[#94A3B8]">
+            <div className="rounded-3xl bg-white/5 border border-white/10 p-5 backdrop-blur-xl">
+
+              <p className="text-xs uppercase tracking-[0.2em] text-white/40">
 
                 Momentum
 
               </p>
 
-              <h3 className="mt-3 text-3xl font-semibold text-[#16A34A]">
+              <p className="mt-4 text-2xl font-semibold">
 
-                {profile?.momentum || 0}%
+                {momentumState}
 
-              </h3>
+              </p>
+
+            </div>
+
+            {/* STREAK */}
+
+            <div className="rounded-3xl bg-white/5 border border-white/10 p-5 backdrop-blur-xl">
+
+              <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+
+                Execution Streak
+
+              </p>
+
+              <p className="mt-4 text-5xl font-semibold">
+
+                {streak}
+
+              </p>
+
+            </div>
+
+            {/* TRAJECTORY */}
+
+            <div className="rounded-3xl bg-[#D4AF37] text-[#0F172A] p-5">
+
+              <p className="text-xs uppercase tracking-[0.2em] text-[#0F172A]/60">
+
+                Trajectory
+
+              </p>
+
+              <p className="mt-4 text-2xl font-semibold leading-tight">
+
+                Forward Expansion
+
+              </p>
 
             </div>
 
@@ -268,8 +318,28 @@ ${isRecovery
 
         </div>
 
+        {/* EXECUTION PRESSURE */}
+
+        <div className="mt-10 rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+
+          <p className="text-xs uppercase tracking-[0.25em] text-white/40">
+
+            Execution Pressure
+
+          </p>
+
+          <p className="mt-5 text-lg leading-relaxed text-white/80">
+
+            {executionPressure}
+
+          </p>
+
+        </div>
+
       </div>
 
     </section>
+
   );
+
 }

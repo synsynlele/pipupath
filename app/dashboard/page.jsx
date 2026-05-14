@@ -26,15 +26,13 @@ from "../../components/dashboard/AdaptiveMission";
 import Evolution
 from "../../components/dashboard/Evolution";
 
+import MissionResolution
+from "../../components/dashboard/MissionResolution";
+
 import {
   orchestrateAdaptiveState
 }
 from "../../lib/orchestrator";
-
-import {
-  getGuidance
-}
-from "../../lib/guidance/getGuidance";
 
 import {
   getPacingState
@@ -75,6 +73,16 @@ import {
   useAdaptiveEnvironment
 }
 from "../../hooks/useAdaptiveEnvironment";
+
+import {
+  extractNarrative
+}
+from "../../lib/memory/extractNarrative";
+
+import {
+  rewriteIdentitySummary
+}
+from "../../lib/identity/rewriteIdentitySummary";
 
 export default function DashboardPage() {
 
@@ -126,6 +134,11 @@ export default function DashboardPage() {
   ] = useState(false);
 
   const [
+    resolvingMission,
+    setResolvingMission,
+  ] = useState(false);
+
+  const [
     recentMemories,
     setRecentMemories,
   ] = useState([]);
@@ -141,12 +154,6 @@ export default function DashboardPage() {
 
   const streak =
     profile?.streak || 0;
-
-  const isRecoveryState =
-    streak < 3;
-
-  const isMomentumState =
-    streak >= 7;
 
   // =========================
   // PACING
@@ -211,6 +218,10 @@ export default function DashboardPage() {
 
       if (!user) return;
 
+      // =========================
+      // PROFILE
+      // =========================
+
       const {
 
         data,
@@ -236,6 +247,10 @@ export default function DashboardPage() {
         return;
 
       }
+
+      // =========================
+      // ONBOARDING
+      // =========================
 
       if (
         !data?.onboarding_completed
@@ -303,6 +318,22 @@ export default function DashboardPage() {
 
       setOrchestration(
         adaptiveState
+      );
+
+      // =========================
+      // NARRATIVE MEMORY
+      // =========================
+
+      const narrative =
+        extractNarrative({
+
+          recentMemories:
+            memoryData,
+
+        });
+
+      setGuidance(
+        narrative
       );
 
       // =========================
@@ -380,17 +411,6 @@ export default function DashboardPage() {
         });
 
       }
-
-      // =========================
-      // GUIDANCE
-      // =========================
-
-      const adaptiveGuidance =
-        getGuidance(data);
-
-      setGuidance(
-        adaptiveGuidance
-      );
 
     }
 
@@ -483,14 +503,14 @@ export default function DashboardPage() {
         await response.json();
 
       // =========================
-      // SET INSIGHT
+      // INSIGHT
       // =========================
 
       setReflectionInsight(
 
         data?.insight ||
 
-        "Your reflection suggests an active internal transition toward greater clarity and intentional movement."
+        "Your reflection suggests increasing awareness of the future you are trying to build."
 
       );
 
@@ -512,6 +532,22 @@ export default function DashboardPage() {
         updatedMemories
       );
 
+      // =========================
+      // UPDATE NARRATIVE
+      // =========================
+
+      const updatedNarrative =
+        extractNarrative({
+
+          recentMemories:
+            updatedMemories,
+
+        });
+
+      setGuidance(
+        updatedNarrative
+      );
+
       setReflection("");
 
     }
@@ -525,6 +561,278 @@ export default function DashboardPage() {
     finally {
 
       setSubmittingReflection(
+        false
+      );
+
+    }
+
+  }
+
+  // =========================
+  // MISSION RESOLUTION
+  // =========================
+
+  async function handleMissionResolution(
+    type
+  ) {
+
+    try {
+
+      setResolvingMission(
+        true
+      );
+
+      // =========================
+      // GENERATE NEXT
+      // =========================
+
+      if (
+        type ===
+        "generate_next"
+      ) {
+
+        const nextMission =
+          await generateAdaptiveMission({
+
+            archetype:
+              profile?.archetype,
+
+            streak:
+              profile?.streak,
+
+            identitySummary:
+              profile?.identity_summary,
+
+            currentFocus:
+              profile?.current_focus,
+
+            recentReflection:
+              profile?.last_reflection,
+
+            recentMemories,
+
+            recentMissions,
+
+            pacingState,
+
+          });
+
+        await saveActiveMission({
+
+          userId:
+            user.id,
+
+          mission:
+            nextMission,
+
+        });
+
+        setActiveMission(
+          nextMission
+        );
+
+        setResolvingMission(
+          false
+        );
+
+        return;
+
+      }
+
+      // =========================
+      // STORE MEMORY
+      // =========================
+
+      await submitReflection({
+
+        userId:
+          user.id,
+
+        reflection:
+
+          activeMission?.description ||
+
+          "Mission interaction",
+
+        profile,
+
+        memoryType:
+          type,
+
+      });
+
+      // =========================
+      // MOMENTUM
+      // =========================
+
+      let updatedMomentum =
+
+        profile?.momentum || 50;
+
+      if (
+        type ===
+        "mission_completion"
+      ) {
+
+        updatedMomentum += 8;
+
+      }
+
+      if (
+        type ===
+        "mission_partial"
+      ) {
+
+        updatedMomentum += 3;
+
+      }
+
+      if (
+        type ===
+        "mission_struggle"
+      ) {
+
+        updatedMomentum -= 5;
+
+      }
+
+      updatedMomentum =
+
+        Math.max(
+          0,
+          Math.min(
+            100,
+            updatedMomentum
+          )
+        );
+
+      // =========================
+      // UPDATE PROFILE
+      // =========================
+
+      await supabase
+
+        .from("profiles")
+
+        .update({
+
+          momentum:
+            updatedMomentum,
+
+          streak:
+
+            type ===
+            "mission_completion"
+
+              ?
+
+              (profile?.streak || 0) + 1
+
+              :
+
+              profile?.streak || 0,
+
+        })
+
+        .eq(
+          "id",
+          user.id
+        );
+
+      // =========================
+      // REFRESH MEMORIES
+      // =========================
+
+      const updatedMemories =
+        await getRecentMemories({
+
+          userId:
+            user.id,
+
+          limit: 10,
+
+        });
+
+      // =========================
+      // REWRITE IDENTITY
+      // =========================
+
+      const rewrittenIdentity =
+        await rewriteIdentitySummary({
+
+          profile,
+
+          recentMemories:
+            updatedMemories,
+
+          recentMissions,
+
+        });
+
+      // =========================
+      // SAVE IDENTITY
+      // =========================
+
+      await supabase
+
+        .from("profiles")
+
+        .update({
+
+          identity_summary:
+            rewrittenIdentity,
+
+        })
+
+        .eq(
+          "id",
+          user.id
+        );
+
+      // =========================
+      // UPDATE LOCAL STATE
+      // =========================
+
+      setProfile({
+
+        ...profile,
+
+        identity_summary:
+          rewrittenIdentity,
+
+      });
+
+      setRecentMemories(
+        updatedMemories
+      );
+
+      // =========================
+      // UPDATE NARRATIVE
+      // =========================
+
+      const updatedNarrative =
+        extractNarrative({
+
+          recentMemories:
+            updatedMemories,
+
+        });
+
+      setGuidance(
+        updatedNarrative
+      );
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+    }
+
+    finally {
+
+      setResolvingMission(
         false
       );
 
@@ -634,6 +942,20 @@ ${adaptiveEnvironment.containerSpacing}
 
         />
 
+        {/* MISSION RESOLUTION */}
+
+        <MissionResolution
+
+          onResolve={
+            handleMissionResolution
+          }
+
+          loading={
+            resolvingMission
+          }
+
+        />
+
         {/* GUIDANCE */}
 
         <div className={`
@@ -675,7 +997,7 @@ shadow-[0_10px_50px_rgba(15,23,42,0.04)]
 
           <p className="text-xs uppercase tracking-[0.3em] text-[#B88A00] mb-5">
 
-            Strategic Guidance
+            Development Narrative
 
           </p>
 
@@ -725,7 +1047,7 @@ shadow-[0_10px_50px_rgba(15,23,42,0.04)]
 
             }
 
-            placeholder="What did you notice about yourself, your direction, your resistance or your momentum today?"
+            placeholder="What did you notice about your execution, resistance, direction or momentum today?"
 
             className={`
 
@@ -790,8 +1112,6 @@ duration-500
             }
 
           </button>
-
-          {/* AI INSIGHT */}
 
           {
 

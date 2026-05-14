@@ -8,84 +8,21 @@ from "react";
 import Navigation
 from "../../components/Navigation";
 
-import { useRouter }
-from "next/navigation";
+import { useAuth }
+from "../../context/AuthContext";
 
 import { supabase }
 from "../../lib/supabase";
 
-import {
-  getPacingState
-}
-from "../../lib/orchestrator/getPacingState";
-
-import {
-  getRecentMemories
-}
-from "../../lib/memory/getRecentMemories";
-
-import {
-  synthesizeBehavior
-}
-from "../../lib/guidance/synthesizeBehavior";
-
-import {
-  useAdaptiveEnvironment
-}
-from "../../hooks/useAdaptiveEnvironment";
-
-const GUIDE_INSIGHTS = [
-
-  {
-    title:
-      "Reduce cognitive overload",
-
-    message:
-      "Your growth accelerates when your focus narrows. Simplify your priorities today.",
-
-    type:
-      "Clarity",
-  },
-
-  {
-    title:
-      "Momentum matters more than intensity",
-
-    message:
-      "Sustainable movement creates deeper transformation than emotional bursts of motivation.",
-
-    type:
-      "Momentum",
-  },
-
-  {
-    title:
-      "Reflection without action becomes stagnation",
-
-    message:
-      "Convert one insight into immediate behavioral movement today.",
-
-    type:
-      "Execution",
-  },
-
-  {
-    title:
-      "Rest can be strategic",
-
-    message:
-      "Mental exhaustion reduces alignment, clarity and decision quality.",
-
-    type:
-      "Recovery",
-  },
-
-];
-
 export default function GuidePage() {
 
-  const router =
-    useRouter();
+  const {
+    user,
+  } = useAuth();
+
+  // =========================
+  // STATE
+  // =========================
 
   const [
     profile,
@@ -93,57 +30,24 @@ export default function GuidePage() {
   ] = useState(null);
 
   const [
-    selectedInsight,
-    setSelectedInsight,
-  ] = useState(null);
-
-  const [
-    challenge,
-    setChallenge,
+    strategicState,
+    setStrategicState,
   ] = useState("");
 
   const [
-    emotionalState,
-    setEmotionalState,
+    strategicInsight,
+    setStrategicInsight,
   ] = useState("");
 
   const [
-    contactMethod,
-    setContactMethod,
-  ] = useState("WhatsApp");
+    executionPressure,
+    setExecutionPressure,
+  ] = useState("");
 
   const [
-    pacingState,
-    setPacingState,
-  ] = useState(null);
-
-  const [
-    synthesizedPatterns,
-    setSynthesizedPatterns,
-  ] = useState([]);
-
-  const [
-    recentMemories,
-    setRecentMemories,
-  ] = useState([]);
-
-  // =========================
-  // ADAPTIVE ENVIRONMENT
-  // =========================
-
-  const adaptiveEnvironment =
-    useAdaptiveEnvironment({
-
-      profile,
-
-      orchestration: {
-
-        missionMode:
-          pacingState?.mode,
-
-      },
-
-    });
+    growthDirective,
+    setGrowthDirective,
+  ] = useState("");
 
   // =========================
   // LOAD PROFILE
@@ -153,158 +57,172 @@ export default function GuidePage() {
 
     async function loadProfile() {
 
-      try {
+      if (!user) return;
 
-        const {
+      const {
+        data,
+        error,
+      } = await supabase
 
-          data: {
-            user
-          }
+        .from("profiles")
 
-        } = await supabase.auth.getUser();
+        .select("*")
 
-        if (!user) {
+        .eq(
+          "id",
+          user.id
+        )
 
-          router.push("/login");
+        .single();
 
-          return;
-
-        }
-
-        const {
-          data,
-        } = await supabase
-
-          .from("profiles")
-
-          .select("*")
-
-          .eq("id", user.id)
-
-          .single();
-
-        if (!data) return;
-
-        setProfile(data);
-
-        // =========================
-        // PACING
-        // =========================
-
-        const pacing =
-          getPacingState({
-
-            streak:
-              data?.streak,
-
-            emotionalState:
-              data?.emotional_state,
-
-            momentumState:
-              data?.momentum_state,
-
-          });
-
-        setPacingState(
-          pacing
-        );
-
-        // =========================
-        // MEMORIES
-        // =========================
-
-        const memories =
-          await getRecentMemories({
-
-            userId:
-              user.id,
-
-            limit: 20,
-
-          });
-
-        setRecentMemories(
-          memories
-        );
-
-        // =========================
-        // SYNTHESIS
-        // =========================
-
-        const synthesized =
-          synthesizeBehavior({
-
-            memories,
-
-          });
-
-        setSynthesizedPatterns(
-          synthesized
-        );
-
-        // =========================
-        // ADAPTIVE INSIGHTS
-        // =========================
-
-        let filteredInsights =
-          GUIDE_INSIGHTS;
-
-        if (
-          pacing.mode ===
-          "recovery"
-        ) {
-
-          filteredInsights =
-            GUIDE_INSIGHTS.filter(
-
-              (item) =>
-
-                item.type ===
-                  "Recovery" ||
-
-                item.type ===
-                  "Clarity"
-
-            );
-
-        }
-
-        if (
-          pacing.mode ===
-          "expansion"
-        ) {
-
-          filteredInsights =
-            GUIDE_INSIGHTS.filter(
-
-              (item) =>
-
-                item.type ===
-                  "Momentum" ||
-
-                item.type ===
-                  "Execution"
-
-            );
-
-        }
-
-        const randomInsight =
-
-          filteredInsights[
-            Math.floor(
-              Math.random() *
-              filteredInsights.length
-            )
-          ];
-
-        setSelectedInsight(
-          randomInsight
-        );
-
-      } catch (error) {
+      if (error) {
 
         console.error(error);
+
+        return;
+
+      }
+
+      setProfile(data);
+
+      // =========================
+      // STRATEGIC STATES
+      // =========================
+
+      const streak =
+        data?.streak || 0;
+
+      const momentum =
+        data?.momentum || 0;
+
+      const archetype =
+        data?.archetype || "Builder";
+
+      // =========================
+      // BUILDER
+      // =========================
+
+      if (
+        archetype === "Builder"
+      ) {
+
+        setStrategicState(
+          "Capability Expansion"
+        );
+
+        setStrategicInsight(
+
+          "Your current trajectory suggests strong potential for long-term capability growth, but your future advantage will depend on consistency rather than intensity. The next phase of your development requires structured execution, deeper focus and deliberate skill accumulation."
+
+        );
+
+        setExecutionPressure(
+
+          "Avoid passive consumption. Your current stage demands creation, structured learning and measurable output."
+
+        );
+
+        setGrowthDirective(
+
+          "Spend the next 7 days building something tangible, however small. Train execution momentum rather than waiting for perfect clarity."
+
+        );
+
+      }
+
+      // =========================
+      // LEADER
+      // =========================
+
+      if (
+        archetype === "Leader"
+      ) {
+
+        setStrategicState(
+          "Responsibility Expansion"
+        );
+
+        setStrategicInsight(
+
+          "Your trajectory suggests increasing leadership capacity, but leadership is built through responsibility under pressure rather than status. Your next stage requires greater initiative, clearer decision-making and stronger execution reliability."
+
+        );
+
+        setExecutionPressure(
+
+          "Do not wait for permission to create structure. Begin organizing difficult things proactively."
+
+        );
+
+        setGrowthDirective(
+
+          "Within the next 72 hours, initiate one responsibility, project or difficult conversation that others usually avoid."
+
+        );
+
+      }
+
+      // =========================
+      // EXPLORER
+      // =========================
+
+      if (
+        archetype === "Explorer"
+      ) {
+
+        setStrategicState(
+          "Directional Discovery"
+        );
+
+        setStrategicInsight(
+
+          "Your thinking patterns suggest expanding curiosity and future possibility, but exploration without structure can become avoidance. Your next stage requires converting curiosity into tested experience and real-world movement."
+
+        );
+
+        setExecutionPressure(
+
+          "Do not remain trapped inside endless possibility analysis. Exploration must produce exposure and action."
+
+        );
+
+        setGrowthDirective(
+
+          "Before the end of this week, deeply investigate one path, industry or skill by speaking with real practitioners or studying actual execution environments."
+
+        );
+
+      }
+
+      // =========================
+      // LOW MOMENTUM
+      // =========================
+
+      if (
+        streak <= 2
+      ) {
+
+        setExecutionPressure(
+
+          "Your current challenge is not potential. It is execution consistency. Rebuild movement immediately through smaller but unavoidable actions."
+
+        );
+
+      }
+
+      // =========================
+      // HIGH MOMENTUM
+      // =========================
+
+      if (
+        streak >= 7
+      ) {
+
+        setGrowthDirective(
+
+          "Your momentum is increasing. This is the correct time to pursue more difficult responsibilities and longer-term strategic projects."
+
+        );
 
       }
 
@@ -312,127 +230,7 @@ export default function GuidePage() {
 
     loadProfile();
 
-  }, [router]);
-
-  // =========================
-  // WHATSAPP
-  // =========================
-
-  function requestWhatsAppGuide() {
-
-    const phone =
-      "2340000000000";
-
-    const message =
-
-      `Hello Guide Team,%0A%0A` +
-
-      `I would like personal guidance.%0A%0A` +
-
-      `Current Emotional State: ${emotionalState || "Not specified"}%0A%0A` +
-
-      `Current Challenge:%0A${challenge || "No details provided"}%0A%0A` +
-
-      `Behavioral State: ${pacingState?.mode || "Standard"}%0A%0A` +
-
-      `Sent from PipuPath Guide System.`;
-
-    window.open(
-
-      `https://wa.me/${phone}?text=${message}`,
-
-      "_blank"
-
-    );
-
-  }
-
-  // =========================
-  // EMAIL
-  // =========================
-
-  function requestEmailGuide() {
-
-    const email =
-      "guide@yourplatform.com";
-
-    const subject =
-      encodeURIComponent(
-        "Guidance Request"
-      );
-
-    const body =
-      encodeURIComponent(
-
-`Hello Guide Team,
-
-I would like personal guidance.
-
-Current Emotional State:
-${emotionalState || "Not specified"}
-
-Current Challenge:
-${challenge || "No details provided"}
-
-Behavioral State:
-${pacingState?.mode || "Standard"}
-
-Sent from PipuPath Guide System.`
-
-      );
-
-    window.location.href =
-      `mailto:${email}?subject=${subject}&body=${body}`;
-
-  }
-
-  // =========================
-  // GUIDE STATE
-  // =========================
-
-  const behavioralTitle =
-
-    pacingState?.mode ===
-    "recovery"
-
-      ?
-
-      "Recovery & Stabilization"
-
-      :
-
-    pacingState?.mode ===
-    "expansion"
-
-      ?
-
-      "Expansion Momentum"
-
-      :
-
-      "Reflective Processing";
-
-  const behavioralDescription =
-
-    pacingState?.mode ===
-    "recovery"
-
-      ?
-
-      "Your current behavioral signals suggest cognitive recovery and emotional stabilization are important right now."
-
-      :
-
-    pacingState?.mode ===
-    "expansion"
-
-      ?
-
-      "Your recent behavioral momentum suggests readiness for meaningful forward movement and expanded execution."
-
-      :
-
-      "Your recent behavioral activity suggests active internal processing and cognitive evaluation.";
+  }, [user]);
 
   return (
 
@@ -452,44 +250,31 @@ Sent from PipuPath Guide System.`
 
       {/* CONTENT */}
 
-      <div className={`
+      <div className="relative max-w-7xl mx-auto px-4 py-8 md:px-6 md:py-10">
 
-relative
-
-${adaptiveEnvironment.contentWidth}
-
-mx-auto
-
-px-4
-md:px-6
-
-${adaptiveEnvironment.containerSpacing}
-
-`}>
-
-        {/* HEADER */}
+        {/* HERO */}
 
         <div>
 
           <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
 
-            Guide System
+            Strategic Direction Engine
 
           </p>
 
           <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-none text-[#0F172A]">
 
-            Direction.
+            Build clarity.
             <br />
-            Clarity.
+            Increase capability.
             <br />
-            Alignment.
+            Execute deliberately.
 
           </h1>
 
-          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-[#475569]">
+          <p className="mt-8 max-w-3xl text-lg leading-relaxed text-[#475569]">
 
-            Guide helps stabilize your thinking, restore clarity and support intentional growth.
+            Guide interprets your behavioral trajectory and helps you sharpen direction, strengthen execution and develop long-term strategic identity.
 
           </p>
 
@@ -497,381 +282,97 @@ ${adaptiveEnvironment.containerSpacing}
 
         {/* GRID */}
 
-        <div className="grid lg:grid-cols-2 gap-6 mt-12">
+        <div className="grid lg:grid-cols-3 gap-6 mt-14">
 
-          {/* LEFT */}
+          {/* STATE */}
 
-          <div className="space-y-6">
+          <div className="rounded-[40px] bg-[#0F172A] text-white p-8 shadow-[0_10px_60px_rgba(15,23,42,0.12)]">
 
-            {/* STATE */}
+            <p className="text-xs uppercase tracking-[0.3em] text-white/40">
 
-            <div className="rounded-[36px] bg-[#0F172A] text-white p-8 shadow-[0_10px_60px_rgba(15,23,42,0.15)]">
-
-              <p className="text-xs uppercase tracking-[0.25em] text-white/50">
-
-                Current Behavioral State
-
-              </p>
-
-              <h2 className="mt-6 text-4xl font-semibold tracking-tight leading-tight">
-
-                {behavioralTitle}
-
-              </h2>
-
-              <p className="mt-6 text-white/70 leading-relaxed">
-
-                {behavioralDescription}
-
-              </p>
-
-            </div>
-
-            {/* INSIGHT */}
-
-            <div className={`
-
-rounded-[32px]
-border
-border-white/60
-
-${
-
-  adaptiveEnvironment.cardStyle ===
-  "soft"
-
-    ?
-
-    "bg-[#FCFCFD]"
-
-    :
-
-  adaptiveEnvironment.cardStyle ===
-  "elevated"
-
-    ?
-
-    "bg-white"
-
-    :
-
-    "bg-white/80"
-
-}
-
-backdrop-blur-xl
-p-7
-shadow-[0_10px_50px_rgba(15,23,42,0.05)]
-
-`}>
-
-              <div className="flex items-center justify-between">
-
-                <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8]">
-
-                  Adaptive Insight
-
-                </p>
-
-                <span className="text-xs px-3 py-1 rounded-full bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]">
-
-                  {selectedInsight?.type}
-
-                </span>
-
-              </div>
-
-              <h3 className="mt-6 text-3xl font-semibold tracking-tight leading-tight text-[#0F172A]">
-
-                {selectedInsight?.title}
-
-              </h3>
-
-              <p className="mt-6 text-[#475569] leading-relaxed">
-
-                {selectedInsight?.message}
-
-              </p>
-
-            </div>
-
-            {/* SYNTHESIS */}
-
-            <div className="rounded-[32px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-7 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
-
-              <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8]">
-
-                Behavioral Observations
-
-              </p>
-
-              <div className="mt-6 space-y-4">
-
-                {
-
-                  synthesizedPatterns.map(
-
-                    (
-                      pattern,
-                      index
-                    ) => (
-
-                      <div
-                        key={index}
-                        className="rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] p-5"
-                      >
-
-                        <p className="text-[#475569] leading-relaxed">
-
-                          {pattern}
-
-                        </p>
-
-                      </div>
-
-                    )
-
-                  )
-
-                }
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* RIGHT */}
-
-          <div className="rounded-[40px] border border-white/60 bg-white/85 backdrop-blur-xl p-7 md:p-9 shadow-[0_10px_60px_rgba(15,23,42,0.06)]">
-
-            <p className="text-xs uppercase tracking-[0.25em] text-[#94A3B8]">
-
-              Request Personal Guidance
+              Current Strategic State
 
             </p>
 
-            <h2 className="mt-6 text-4xl font-semibold tracking-tight leading-tight text-[#0F172A]">
+            <h2 className="mt-6 text-4xl font-semibold leading-tight">
 
-              Connect with
-              a human guide.
+              {strategicState}
 
             </h2>
 
-            <p className="mt-6 text-[#475569] leading-relaxed">
+            <p className="mt-8 text-white/75 leading-relaxed">
 
-              If you need deeper support, clarity or direction, you can request intentional human guidance.
+              {strategicInsight}
 
             </p>
 
-            {/* EMOTIONAL STATE */}
+          </div>
 
-            <div className="mt-8">
+          {/* EXECUTION */}
 
-              <label className="text-sm font-medium text-[#334155]">
+          <div className="rounded-[40px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-8 shadow-[0_10px_60px_rgba(15,23,42,0.05)]">
 
-                Current Emotional State
+            <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
 
-              </label>
+              Execution Pressure
 
-              <select
+            </p>
 
-                value={emotionalState}
+            <h2 className="mt-6 text-4xl font-semibold leading-tight text-[#0F172A]">
 
-                onChange={(e) =>
-                  setEmotionalState(
-                    e.target.value
-                  )
-                }
+              Strategic Tension
 
-                className="mt-3 w-full rounded-2xl border border-[#E2E8F0] bg-white px-5 py-4 outline-none text-[#0F172A]"
+            </h2>
 
-              >
+            <p className="mt-8 text-[#475569] leading-relaxed">
 
-                <option value="">
-                  Select emotional state
-                </option>
+              {executionPressure}
 
-                <option>
-                  Mentally Overloaded
-                </option>
-
-                <option>
-                  Burned Out
-                </option>
-
-                <option>
-                  Unclear Direction
-                </option>
-
-                <option>
-                  Emotionally Stuck
-                </option>
-
-                <option>
-                  Seeking Clarity
-                </option>
-
-                <option>
-                  Growth Focused
-                </option>
-
-              </select>
-
-            </div>
-
-            {/* CHALLENGE */}
-
-            <div className="mt-8">
-
-              <label className="text-sm font-medium text-[#334155]">
-
-                Describe Your Challenge
-
-              </label>
-
-              <textarea
-
-                value={challenge}
-
-                onChange={(e) =>
-                  setChallenge(
-                    e.target.value
-                  )
-                }
-
-                placeholder="Share what you are currently navigating..."
-
-                className="mt-3 w-full min-h-[180px] rounded-[28px] border border-[#E2E8F0] bg-white px-5 py-5 resize-none outline-none text-[#334155] leading-relaxed"
-
-              />
-
-            </div>
-
-            {/* CONTACT */}
-
-            <div className="mt-8">
-
-              <label className="text-sm font-medium text-[#334155]">
-
-                Preferred Contact Method
-
-              </label>
-
-              <div className="grid grid-cols-2 gap-4 mt-3">
-
-                <button
-
-                  onClick={() =>
-                    setContactMethod(
-                      "WhatsApp"
-                    )
-                  }
-
-                  className={`rounded-2xl px-5 py-4 border transition-all duration-300
-
-${contactMethod === "WhatsApp"
-
-  ?
-
-  "bg-[#0F172A] text-white border-[#0F172A]"
-
-  :
-
-  "bg-white border-[#E2E8F0] text-[#64748B]"
-}`}
-
-                >
-
-                  WhatsApp
-
-                </button>
-
-                <button
-
-                  onClick={() =>
-                    setContactMethod(
-                      "Email"
-                    )
-                  }
-
-                  className={`rounded-2xl px-5 py-4 border transition-all duration-300
-
-${contactMethod === "Email"
-
-  ?
-
-  "bg-[#0F172A] text-white border-[#0F172A]"
-
-  :
-
-  "bg-white border-[#E2E8F0] text-[#64748B]"
-}`}
-
-                >
-
-                  Email
-
-                </button>
-
-              </div>
-
-            </div>
-
-            {/* CTA */}
-
-            <div className="mt-10">
-
-              {
-
-                contactMethod ===
-                "WhatsApp"
-
-                  ?
-
-                  (
-
-                    <button
-
-                      onClick={
-                        requestWhatsAppGuide
-                      }
-
-                      className="w-full rounded-[28px] bg-[#0F172A] text-white px-6 py-5 text-[15px] font-medium tracking-wide hover:opacity-95 transition-all duration-300"
-
-                    >
-
-                      Continue via WhatsApp
-
-                    </button>
-
-                  )
-
-                  :
-
-                  (
-
-                    <button
-
-                      onClick={
-                        requestEmailGuide
-                      }
-
-                      className="w-full rounded-[28px] bg-[#0F172A] text-white px-6 py-5 text-[15px] font-medium tracking-wide hover:opacity-95 transition-all duration-300"
-
-                    >
-
-                      Continue via Email
-
-                    </button>
-
-                  )
-
-              }
-
-            </div>
+            </p>
 
           </div>
+
+          {/* DIRECTIVE */}
+
+          <div className="rounded-[40px] border border-[#FDE68A]/30 bg-gradient-to-br from-[#FEFCE8] to-[#FFFBEB] p-8 shadow-[0_10px_60px_rgba(15,23,42,0.05)]">
+
+            <p className="text-xs uppercase tracking-[0.3em] text-[#92400E]">
+
+              Growth Directive
+
+            </p>
+
+            <h2 className="mt-6 text-4xl font-semibold leading-tight text-[#78350F]">
+
+              Your next move.
+
+            </h2>
+
+            <p className="mt-8 text-[#78350F] leading-relaxed">
+
+              {growthDirective}
+
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* STRATEGIC NOTE */}
+
+        <div className="mt-8 rounded-[40px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-8 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
+
+          <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
+
+            Development Philosophy
+
+          </p>
+
+          <p className="mt-6 max-w-4xl text-lg leading-relaxed text-[#475569]">
+
+            Your future will not be built by motivation alone. Long-term advantage is created through clarity, capability accumulation, strategic thinking, disciplined execution and meaningful responsibility over time.
+
+          </p>
 
         </div>
 
