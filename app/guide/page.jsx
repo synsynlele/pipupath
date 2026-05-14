@@ -437,7 +437,7 @@ export default function GuidePage() {
 
   <a
 
-    href="mailto:your@email.com"
+    href="copyartint@gmail.com"
 
     className="inline-flex items-center justify-center px-6 py-4 rounded-[22px] border border-white/20 text-white hover:bg-white/5 transition-all"
 

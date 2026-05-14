@@ -321,9 +321,8 @@ ${currentStruggle}
 
       }
 
-      router.push(
-        "/dashboard"
-      );
+      window.location.href =
+  "/dashboard";
 
     }
 
@@ -387,6 +386,18 @@ ${currentStruggle}
       <div className="relative max-w-7xl mx-auto px-4 py-10 md:px-6 md:py-16">
 
         {/* HERO */}
+
+<a
+
+  href="/dashboard"
+
+  className="inline-flex items-center text-sm text-[#64748B] hover:text-[#0F172A] transition-all mb-8"
+
+>
+
+  ← Return to Dashboard
+
+</a>
 
         <div className="max-w-4xl">
 
@@ -853,11 +864,11 @@ ${
 
               ?
 
-              "Calibrating Environment..."
+              "Updating Development Environment..."
 
               :
 
-              "Initialize Development OS"
+              "Activate Updated Path"
 
           }
 
