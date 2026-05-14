@@ -92,9 +92,6 @@ export default function GuidePage() {
       const streak =
         data?.streak || 0;
 
-      const momentum =
-        data?.momentum || 0;
-
       const archetype =
         data?.archetype || "Builder";
 
@@ -358,79 +355,101 @@ export default function GuidePage() {
 
         </div>
 
-{/* RECALIBRATION */}
+        {/* RECALIBRATION */}
 
-<div className="mt-8 rounded-[40px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-8 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
+        <div className="mt-8 rounded-[40px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-8 shadow-[0_10px_50px_rgba(15,23,42,0.04)]">
 
-  <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
+          <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
 
-    Identity Recalibration
+            Identity Recalibration
 
-  </p>
+          </p>
 
-  <h2 className="mt-5 text-3xl font-semibold text-[#0F172A]">
+          <h2 className="mt-5 text-3xl font-semibold text-[#0F172A]">
 
-    Your trajectory can evolve.
+            Your trajectory can evolve.
 
-  </h2>
+          </h2>
 
-  <p className="mt-5 max-w-3xl leading-relaxed text-[#475569]">
+          <p className="mt-5 max-w-3xl leading-relaxed text-[#475569]">
 
-    As your thinking, ambition and behavioral patterns evolve, your developmental profile may shift. Recalibrate your identity environment whenever your current trajectory no longer feels aligned.
+            As your thinking, ambition and behavioral patterns evolve, your developmental profile may shift. Reinitialize your environment whenever your trajectory no longer feels aligned.
 
-  </p>
+          </p>
 
-  <button
+          <a
 
-    onClick={() =>
-      window.location.href =
-        "/onboarding"
-    }
+            href="/onboarding"
 
-    className="mt-6 px-6 py-4 rounded-[22px] bg-[#0F172A] text-white hover:opacity-90 transition-all"
+            className="inline-block mt-6 px-6 py-4 rounded-[22px] bg-[#0F172A] text-white hover:opacity-90 transition-all"
+
+          >
+
+            Reinitialize Development OS
+
+          </a>
+
+        </div>
+
+        {/* HUMAN GUIDANCE */}
+
+        <div className="mt-8 rounded-[40px] bg-[#0F172A] text-white p-8 shadow-[0_10px_60px_rgba(15,23,42,0.12)]">
+
+          <p className="text-xs uppercase tracking-[0.3em] text-white/40">
+
+            Strategic Human Guidance
+
+          </p>
+
+          <h2 className="mt-5 text-3xl font-semibold">
+
+            Some transitions require human perspective.
+
+          </h2>
+
+          <p className="mt-5 max-w-3xl text-white/75 leading-relaxed">
+
+            When needed, connect with experienced mentors, strategists or developmental guides for deeper direction, external perspective and difficult transition support.
+
+          </p>
+
+          <div className="mt-6 flex flex-col sm:flex-row gap-4">
+
+  {/* WHATSAPP */}
+
+  <a
+
+    href="https://wa.me/2348061190801"
+
+    target="_blank"
+
+    rel="noopener noreferrer"
+
+    className="inline-flex items-center justify-center px-6 py-4 rounded-[22px] bg-[#D4AF37] text-[#0F172A] font-semibold hover:opacity-90 transition-all"
 
   >
 
-    Recalibrate Identity
+    Request Guidance on WhatsApp
 
-  </button>
+  </a>
 
-</div>
+  {/* EMAIL */}
 
-{/* HUMAN GUIDANCE */}
+  <a
 
-<div className="mt-8 rounded-[40px] bg-[#0F172A] text-white p-8 shadow-[0_10px_60px_rgba(15,23,42,0.12)]">
+    href="mailto:your@email.com"
 
-  <p className="text-xs uppercase tracking-[0.3em] text-white/40">
-
-    Strategic Human Guidance
-
-  </p>
-
-  <h2 className="mt-5 text-3xl font-semibold">
-
-    Some transitions require human perspective.
-
-  </h2>
-
-  <p className="mt-5 max-w-3xl text-white/75 leading-relaxed">
-
-    When needed, connect with experienced mentors, strategists or developmental guides for deeper direction, external perspective and difficult transition support.
-
-  </p>
-
-  <button
-
-    className="mt-6 px-6 py-4 rounded-[22px] bg-[#D4AF37] text-[#0F172A] font-semibold hover:opacity-90 transition-all"
+    className="inline-flex items-center justify-center px-6 py-4 rounded-[22px] border border-white/20 text-white hover:bg-white/5 transition-all"
 
   >
 
-    Request Strategic Guidance
+    Contact via Email
 
-  </button>
+  </a>
 
 </div>
 
+        </div>
 
         {/* STRATEGIC NOTE */}
 

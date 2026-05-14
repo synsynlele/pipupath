@@ -528,7 +528,7 @@ export default function MagicPenPage() {
 
   <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-none text-[#0F172A]">
 
-    Your Cognitive Forge
+    Your MagicPen
 
   </h1>
 

@@ -920,11 +920,15 @@ ${adaptiveEnvironment.containerSpacing}
 
     <div className="w-12 h-12 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center shadow-[0_10px_30px_rgba(15,23,42,0.15)]">
 
-      <span className="text-lg font-semibold">
+      <img
 
-        P
+  src="/logo.png"
 
-      </span>
+  alt="PipuPath"
+
+  className="w-8 h-8 object-contain"
+
+/>
 
     </div>
 
