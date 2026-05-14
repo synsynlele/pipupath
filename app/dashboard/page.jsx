@@ -148,6 +148,11 @@ export default function DashboardPage() {
     setRecentMissions,
   ] = useState([]);
 
+const [
+  dashboardReady,
+  setDashboardReady,
+] = useState(false);
+
   // =========================
   // BEHAVIORAL STATE
   // =========================
@@ -242,27 +247,35 @@ export default function DashboardPage() {
 
       if (error) {
 
-        console.error(error);
+  console.error(error);
 
-        return;
+  setDashboardReady(
+    true
+  );
 
-      }
+  return;
+
+}
 
       // =========================
       // ONBOARDING
       // =========================
 
       if (
-        !data?.onboarding_completed
-      ) {
+  !data?.onboarding_completed
+) {
 
-        router.push(
-          "/onboarding"
-        );
+  setDashboardReady(
+    true
+  );
 
-        return;
+  router.push(
+    "/onboarding"
+  );
 
-      }
+  return;
+
+}
 
       setProfile(data);
 
@@ -411,6 +424,10 @@ export default function DashboardPage() {
         });
 
       }
+
+setDashboardReady(
+  true
+);
 
     }
 
@@ -845,10 +862,9 @@ export default function DashboardPage() {
   // =========================
 
   if (
-    loading ||
-    !user ||
-    !profile
-  ) {
+  loading ||
+  !dashboardReady
+) {
 
     return (
 
@@ -908,7 +924,8 @@ ${adaptiveEnvironment.containerSpacing}
 
 `}>
 
-        {/* HEADER */}
+ 
+    {/* HEADER */}
 
 <div className="mb-8 flex items-center justify-between">
 
@@ -922,13 +939,13 @@ ${adaptiveEnvironment.containerSpacing}
 
       <img
 
-  src="/logo.png"
+        src="/logo.png"
 
-  alt="PipuPath"
+        alt="PipuPath"
 
-  className="w-8 h-8 object-contain"
+        className="w-8 h-8 object-contain"
 
-/>
+      />
 
     </div>
 
@@ -953,6 +970,7 @@ ${adaptiveEnvironment.containerSpacing}
   </div>
 
 </div>
+
 
         {/* HERO */}
 
