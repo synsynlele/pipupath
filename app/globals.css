@@ -3,67 +3,24 @@
 @tailwind utilities;
 
 html,
-body{
-  padding:0;
-  margin:0;
-  background:#050505;
-  color:white;
-  font-family:Arial, Helvetica, sans-serif;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
 body {
-  overflow-x: hidden;
+  padding: 0;
+  margin: 0;
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(91,140,255,0.15),
+      transparent 40%
+    ),
+    #050816;
+
+  color: #f8fafc;
+  font-family: Inter, sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.motion-safe {
-  will-change: transform, opacity;
-}
-
-.glass {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.depth-card {
-  transform-style: preserve-3d;
-}
-
-.depth-card:hover {
-  transform: translateY(-4px);
-}
-
-.soft-border {
-  position: relative;
-}
-
-.soft-border::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  padding: 1px;
-  border-radius: inherit;
-
-  background: linear-gradient(
-    to bottom right,
-    rgba(255,255,255,0.12),
-    rgba(255,255,255,0.02)
-  );
-
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-
-  -webkit-mask-composite: xor;
-
-  mask-composite: exclude;
-
-  pointer-events: none;
+  box-sizing: border-box;
 }

@@ -7,60 +7,204 @@ import {
   useState,
 } from "react";
 
-import { supabase } from "../lib/supabase";
+import { supabase }
+from "../lib/supabase";
 
-const AuthContext = createContext(null);
+import useProfileStore
+from "@/stores/profileStore";
 
-export function AuthProvider({ children }) {
+import useMissionStore
+from "@/stores/missionStore";
 
-  const [user, setUser] = useState(null);
+const AuthContext =
+  createContext(null);
 
-  const [loading, setLoading] = useState(true);
+export function AuthProvider({
+  children,
+}) {
+
+  const [user, setUser] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const {
+    completeOnboarding,
+  } = useProfileStore();
+
+  const {
+    setMissions,
+  } = useMissionStore();
 
   useEffect(() => {
 
-    async function getSession() {
+    let mounted = true;
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    async function initializeAuth() {
 
-      setUser(session?.user ?? null);
+      try {
 
-      setLoading(false);
+        const {
+          data,
+          error,
+        } =
+          await supabase.auth.getSession();
+
+        if (error) {
+
+          console.error(
+            "SESSION ERROR:",
+            error
+          );
+        }
+
+        const currentUser =
+          data?.session?.user ?? null;
+
+        if (!mounted) return;
+
+        setUser(currentUser);
+
+        // RESTORE PROFILE
+
+        if (currentUser) {
+
+          const {
+            data: profile,
+          } =
+            await supabase
+              .from("profiles")
+              .select("*")
+              .eq(
+                "id",
+                currentUser.id
+              )
+              .single();
+
+          if (profile) {
+
+            completeOnboarding({
+
+              identity:
+                profile.builder_identity,
+
+              strengths:
+                profile.strengths,
+
+              skills:
+                profile.skills,
+
+              earningPath:
+                profile.earning_path,
+            });
+          }
+
+          // RESTORE MISSIONS
+
+          const {
+            data: missions,
+          } =
+            await supabase
+              .from("user_missions")
+              .select("*")
+              .eq(
+                "user_id",
+                currentUser.id
+              )
+              .order(
+                "created_at",
+                {
+                  ascending: false,
+                }
+              );
+
+         if (missions) {
+
+  const normalizedMissions =
+    missions.map((mission) => ({
+
+      ...mission,
+
+      completed:
+        mission.completed ||
+        mission.status ===
+          "completed",
+    }));
+
+  setMissions(
+    normalizedMissions
+  );
+}
+        }
+
+      } catch (err) {
+
+        console.error(
+          "AUTH INIT ERROR:",
+          err
+        );
+
+      } finally {
+
+        if (mounted) {
+
+          setLoading(false);
+        }
+      }
     }
 
-    getSession();
+    initializeAuth();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (_, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
+    } =
+      supabase.auth.onAuthStateChange(
+        async (
+          _event,
+          session
+        ) => {
 
-    return () => subscription.unsubscribe();
+          const currentUser =
+            session?.user ?? null;
+
+          setUser(currentUser);
+
+          setLoading(false);
+        }
+      );
+
+    return () => {
+
+      mounted = false;
+
+      subscription.unsubscribe();
+    };
 
   }, []);
 
   return (
+
     <AuthContext.Provider
       value={{
         user,
         loading,
       }}
     >
+
       {children}
+
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
 
-  const context = useContext(AuthContext);
+  const context =
+    useContext(AuthContext);
 
   if (!context) {
+
     throw new Error(
       "useAuth must be used inside AuthProvider"
     );
