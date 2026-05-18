@@ -124,6 +124,14 @@ const useProfileStore =
           };
         }),
 
+setBuilderProfile:
+  (profile) =>
+    set({
+
+      builderProfile:
+        profile,
+    }),
+
 
 hydrateProfile:
   (profile) =>
