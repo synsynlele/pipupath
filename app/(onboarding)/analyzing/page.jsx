@@ -88,23 +88,42 @@ useEffect(() => {
 
         await supabase
           .from("profiles")
-          .update({
+         .update({
 
-            identity_summary:
-              data.summary,
+  archetype:
+    data.identity,
 
-            current_focus:
-              data.nextFocus,
+  identity_summary:
+    data.summary,
 
-            adaptive_state:
-              data,
+  strengths:
+    data.strengths,
 
-            onboarding_completed:
-              true,
+  growth_risks:
+    data.risks,
 
-            onboarding_completed_at:
-              new Date(),
-          })
+  builder_paths:
+    data.builderPaths,
+
+  growth_environment:
+    data.growthEnvironment,
+
+  execution_style:
+    data.executionStyle,
+
+  current_focus:
+    data.nextFocus,
+
+  adaptive_state:
+    data,
+
+  onboarding_completed:
+    true,
+
+  onboarding_completed_at:
+    new Date(),
+
+})
 
           .eq(
             "id",
