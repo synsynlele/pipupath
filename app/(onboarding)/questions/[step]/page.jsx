@@ -19,75 +19,94 @@ import useOnboardingStore from "@/stores/onboardingStore";
 const questions = [
 
   {
+    key: "attention",
+
+    title:
+      "What kinds of problems, ideas, or situations naturally catch your attention even when nobody asks you to care about them?",
+
+    subtitle:
+      "Your attention patterns often reveal your deepest builder direction.",
+
+    placeholder:
+      "Broken systems, technology, helping people, storytelling, design, business opportunities...",
+  },
+
+  {
     key: "energy",
+
     title:
-      "What kind of work makes you feel naturally excited or deeply interested?",
+      "What type of work or activity gives you energy instead of draining you, even when it becomes difficult?",
 
     subtitle:
-      "Think about work that energizes you naturally.",
+      "This helps uncover the kind of work you can sustain long-term.",
 
     placeholder:
-      "Designing, teaching, solving problems, creating videos...",
+      "Teaching, building products, solving problems, organizing people...",
   },
 
   {
-    key: "skill",
+    key: "friction",
+
     title:
-      "What do people naturally come to you for help with?",
+      "When you stop making progress on something important, what usually caused it?",
 
     subtitle:
-      "Sometimes your natural value is already visible to others.",
+      "Understanding your bottlenecks is more valuable than pretending to be perfect.",
 
     placeholder:
-      "Explaining things, fixing problems, editing videos...",
+      "Distractions, inconsistency, overthinking, lack of support, fear...",
   },
 
   {
-    key: "type",
+    key: "social",
+
     title:
-      "Would you rather create, organize, solve, teach, lead, or explore?",
+      "In groups, teams, or communities, what role do you naturally drift toward over time?",
 
     subtitle:
-      "Choose the kind of role that feels most natural to you.",
+      "People usually reveal their natural operating style socially.",
 
     placeholder:
-      "Create, solve, lead...",
+      "Leading, organizing, teaching, solving problems quietly, motivating...",
   },
 
   {
-    key: "money",
+    key: "value",
+
     title:
-      "If you could start making money online within 30 days, what would you want it to be from?",
+      "If someone had to pay you tomorrow based only on your current abilities, what would they most likely pay you for?",
 
     subtitle:
-      "Think practical, realistic, and interesting.",
+      "This helps identify practical value creation paths already visible in you.",
 
     placeholder:
-      "Content creation, freelancing, selling products...",
+      "Explaining things, editing videos, solving technical problems, writing...",
   },
 
   {
-    key: "obsession",
+    key: "environment",
+
     title:
-      "What topics, industries, or problems do you constantly think about?",
+      "What kind of environment usually helps you perform at your best?",
 
     subtitle:
-      "Your future often hides inside your obsessions.",
+      "Some people thrive with structure. Others need freedom or accountability.",
 
     placeholder:
-      "Technology, fashion, education, AI...",
+      "Clear structure, independence, collaboration, deadlines, quiet spaces...",
   },
 
   {
-    key: "style",
+    key: "leverage",
+
     title:
-      "Do you prefer working alone, with people, behind the scenes, or publicly?",
+      "What ability, skill, or path do you believe could completely change your future if you mastered it deeply?",
 
     subtitle:
-      "This helps discover your ideal operating style.",
+      "This reveals where your mind already sees long-term leverage.",
 
     placeholder:
-      "Alone, publicly, with teams...",
+      "Communication, technology, business, design, leadership, AI...",
   },
 ];
 

@@ -79,7 +79,7 @@ export default function JourneyPage() {
         subtitle="Builder Operating System"
       >
 
-        <div className="flex flex-col">
+        <div className="flex flex-col pb-32">
 
           {/* TITLE */}
 
@@ -117,6 +117,50 @@ export default function JourneyPage() {
             </GlowButton>
 
           </div>
+
+<div className="mt-4">
+
+  <GlowButton
+    onClick={() =>
+      router.push(
+        "/nortnspoil"
+      )
+    }
+  >
+
+    Open NortnSpoil
+
+  </GlowButton>
+
+</div>
+
+
+<div className="mt-4">
+
+  <a
+    href="/vault"
+    className="
+      inline-flex
+      rounded-2xl
+      border
+      border-white/10
+      bg-white/5
+      px-5
+      py-3
+      text-sm
+      font-semibold
+      text-slate-300
+      transition-all
+      hover:bg-white/10
+    "
+  >
+
+    Open Mission Vault
+
+  </a>
+
+</div>
+
 
           {/* MOMENTUM */}
 
@@ -217,7 +261,16 @@ export default function JourneyPage() {
 
             ) : (
 
-              missions.map(
+              missions
+
+  .filter(
+    (mission) =>
+
+      mission.status !==
+      "completed"
+  )
+
+  .map(
                 (mission) => (
 
                   <BuilderCard

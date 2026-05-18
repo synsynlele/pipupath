@@ -8,6 +8,15 @@ import { motion } from "framer-motion";
 
 import OnboardingLayout from "@/features/onboarding/components/OnboardingLayout";
 
+import useOnboardingStore
+from "@/stores/onboardingStore";
+
+import useProfileStore
+from "@/stores/profileStore";
+
+import { supabase }
+from "@/lib/supabase";
+
 const messages = [
 "Discovering your strengths...",
 "Mapping practical opportunities...",
@@ -18,31 +27,115 @@ export default function AnalyzingPage() {
 
 const router = useRouter();
 
+const {
+  answers,
+} = useOnboardingStore();
+
+const {
+  setBuilderProfile,
+} = useProfileStore();
+
 const [index, setIndex] = useState(0);
 
 useEffect(() => {
 
-const interval = setInterval(() => {
+  const interval = setInterval(() => {
 
-  setIndex((prev) =>
-    (prev + 1) % messages.length
-  );
+    setIndex((prev) =>
+      (prev + 1) % messages.length
+    );
 
-}, 1800);
+  }, 1800);
 
-const timeout = setTimeout(() => {
+  async function analyzeBuilder() {
 
-  router.push("/identity");
+    try {
 
-}, 5000);
+      const response =
+        await fetch(
+          "/api/analyze-builder",
+          {
 
-return () => {
+            method: "POST",
 
-  clearInterval(interval);
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
 
-  clearTimeout(timeout);
-};
+            body:
+              JSON.stringify({
 
+                answers,
+              }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      setBuilderProfile(data);
+
+      const {
+        data: authData,
+      } =
+        await supabase.auth.getUser();
+
+      const user =
+        authData?.user;
+
+      if (user) {
+
+        await supabase
+          .from("profiles")
+          .update({
+
+            identity_summary:
+              data.summary,
+
+            current_focus:
+              data.nextFocus,
+
+            adaptive_state:
+              data,
+
+            onboarding_completed:
+              true,
+
+            onboarding_completed_at:
+              new Date(),
+          })
+
+          .eq(
+            "id",
+            user.id
+          );
+      }
+
+      setTimeout(() => {
+
+        router.push(
+          "/identity"
+        );
+
+      }, 1200);
+
+    } catch (error) {
+
+      console.error(error);
+
+      router.push(
+        "/identity"
+      );
+    }
+  }
+
+  analyzeBuilder();
+
+  return () => {
+
+    clearInterval(interval);
+  };
 
 }, [router]);
 

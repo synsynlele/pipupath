@@ -12,10 +12,11 @@ from "next/navigation";
 
 import {
   Home,
-  PenSquare,
-  Compass,
-  User,
-  LogOut,
+PenSquare,
+Compass,
+Users,
+User,
+LogOut,
 } from "lucide-react";
 
 import { supabase }
@@ -36,9 +37,9 @@ const navItems = [
   },
 
   {
-    label: "NortnSpoil",
-    href: "/nortnspoil",
-    icon: Compass,
+    label: "Connect",
+    href: "/builderconnect",
+    icon: Users,
   },
 
   {

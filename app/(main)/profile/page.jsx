@@ -15,8 +15,16 @@ from "@/stores/missionStore";
 export default function ProfilePage() {
 
   const {
-    builderProfile,
-  } = useProfileStore();
+
+  builderProfile,
+
+  builderLevel,
+
+  streak,
+
+  momentumState,
+
+} = useProfileStore();
 
   const {
     missions,
@@ -35,7 +43,7 @@ export default function ProfilePage() {
       subtitle="Identity Evolution"
     >
 
-      <div className="flex flex-col">
+      <div className="flex flex-col pb-32">
 
         {/* HERO */}
 
@@ -66,9 +74,48 @@ export default function ProfilePage() {
 
         </div>
 
+{/* BUILDER STATUS */}
+
+<div className="mt-10 grid grid-cols-2 gap-4">
+
+  <BuilderCard>
+
+    <p className="text-sm text-slate-400">
+
+      Momentum State
+
+    </p>
+
+    <h2 className="mt-2 text-2xl font-bold text-white">
+
+      {momentumState}
+
+    </h2>
+
+  </BuilderCard>
+
+  <BuilderCard>
+
+    <p className="text-sm text-slate-400">
+
+      Builder Streak
+
+    </p>
+
+    <h2 className="mt-2 text-2xl font-bold text-white">
+
+      {streak} days
+
+    </h2>
+
+  </BuilderCard>
+
+</div>
+
+
         {/* STATS */}
 
-        <div className="mt-10 grid grid-cols-2 gap-4">
+        <div className="mt-5 grid grid-cols-3 gap-4">
 
           <BuilderCard>
 
@@ -103,6 +150,22 @@ export default function ProfilePage() {
             </p>
 
           </BuilderCard>
+
+<BuilderCard>
+
+  <div className="text-3xl font-bold text-white">
+
+    {builderLevel}
+
+  </div>
+
+  <p className="mt-2 text-sm text-slate-400">
+
+    Builder Level
+
+  </p>
+
+</BuilderCard>
 
         </div>
 
