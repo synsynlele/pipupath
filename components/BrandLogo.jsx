@@ -23,16 +23,11 @@ export default function BrandLogo({
       >
 
         <Image
-          src={
-            gold
-              ? "/pipupath-gold.png"
-              : "/pipupath-black.png"
-          }
-          alt="PipuPath"
-          fill
-          className="object-contain"
-          priority
-        />
+  src="/pipupath-gold.png"
+  alt="PipuPath Gold Logo"
+  fill
+  sizes="(max-width: 768px) 40px, 72px"
+/>
 
       </div>
 

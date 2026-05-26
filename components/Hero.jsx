@@ -1,10 +1,7 @@
 "use client";
 
-import Link
-from "next/link";
-
-import BrandLogo
-from "./BrandLogo";
+import Link from "next/link";
+import BrandLogo from "./BrandLogo";
 
 export default function Hero() {
 
@@ -16,9 +13,9 @@ export default function Hero() {
 
       <div className="absolute inset-0 pointer-events-none">
 
-        <div className="absolute top-[-140px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#D4AF37]/10 rounded-full blur-3xl" />
+        <div className="absolute top-[-140px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#D4AF37]/10 rounded-full blur-3xl"/>
 
-        <div className="absolute bottom-[-120px] right-[-120px] w-[300px] h-[300px] bg-[#0F172A]/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-[-120px] right-[-120px] w-[300px] h-[300px] bg-[#0F172A]/5 rounded-full blur-3xl"/>
 
       </div>
 
@@ -31,11 +28,8 @@ export default function Hero() {
         <div className="mb-8">
 
           <BrandLogo
-
             size={72}
-
             label={false}
-
           />
 
         </div>
@@ -44,29 +38,35 @@ export default function Hero() {
 
         <div className="mb-7 px-5 py-2 rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/10 text-[#B88A00] text-sm font-semibold backdrop-blur-xl">
 
-          For Ambitious People Building Meaningful Lives
+          ⚡ Your Journey Starts Here
 
         </div>
 
-        {/* HEADING */}
+        {/* TITLE */}
 
-        <h1 className="max-w-5xl text-5xl md:text-7xl font-semibold tracking-tight leading-[1.02] text-[#0F172A]">
+        <h1 className="max-w-5xl text-5xl md:text-7xl font-semibold tracking-tight leading-[1.02] text-white">
 
-          Organize your potential
+          Discover your path.
 
-          <span className="block mt-2">
+          <span className="block mt-2 text-white">
 
-            into a meaningful life.
+Build yourself.
 
-          </span>
+</span>
+
+<span className="block mt-2 bg-gradient-to-r from-[#D4AF37] via-blue-400 to-violet-400 bg-clip-text text-transparent">
+
+Build the future.
+
+</span>
 
         </h1>
 
         {/* DESCRIPTION */}
 
-        <p className="mt-8 max-w-3xl text-lg md:text-xl text-[#64748B] leading-relaxed">
+        <p className="mt-8 max-w-3xl text-lg md:text-xl text-[#CBD5E1] leading-relaxed">
 
-          PipuPath helps ambitious young people discover direction, build capability, regain momentum and develop themselves into people capable of building meaningful things for the world — one mission at a time.
+          PipuPath helps young people discover who they are, build real-world skills and become builders of the future — one quest at a time.
 
         </p>
 
@@ -79,58 +79,58 @@ export default function Hero() {
             className="inline-flex items-center justify-center rounded-2xl bg-[#0F172A] px-7 py-4 text-sm font-medium text-white shadow-[0_10px_30px_rgba(15,23,42,0.18)] transition-all duration-300 hover:translate-y-[-2px]"
           >
 
-            Start Building Yourself
+            ⚡ Begin Journey
 
           </Link>
 
           <Link
             href="/login"
-            className="inline-flex items-center justify-center rounded-2xl border border-[#E2E8F0] bg-white/80 backdrop-blur-xl px-7 py-4 text-sm font-medium text-[#0F172A] transition-all duration-300 hover:bg-white"
+            className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/80 backdrop-blur-xl px-7 py-4 text-sm font-medium text-[#0F172A] transition-all duration-300 hover:bg-white"
           >
 
-            Continue Your Journey
+            🧭 Continue Journey
 
           </Link>
 
         </div>
 
-        {/* TRUST LINE */}
+        {/* TRUST */}
 
-        <div className="mt-14 flex flex-wrap items-center justify-center gap-3 text-sm text-[#64748B]">
+        <div className="mt-14 flex flex-wrap items-center justify-center gap-3 text-sm text-[#E2E8F0]">
 
-          <span className="px-4 py-2 rounded-full bg-white/70 border border-[#E2E8F0]">
+          <span className="px-4 py-2 rounded-full bg-white/10 border border-white/10">
 
-            Discover Direction
-
-          </span>
-
-          <span className="px-4 py-2 rounded-full bg-white/70 border border-[#E2E8F0]">
-
-            Build Capability
+            🧠 Build Skills
 
           </span>
 
-          <span className="px-4 py-2 rounded-full bg-white/70 border border-[#E2E8F0]">
+          <span className="px-4 py-2 rounded-full bg-white/10 border border-white/10">
 
-            Regain Momentum
+            ⚔ Complete Quests
 
           </span>
 
-          <span className="px-4 py-2 rounded-full bg-white/70 border border-[#E2E8F0]">
+          <span className="px-4 py-2 rounded-full bg-white/10 border border-white/10">
 
-            Become a Builder
+            🚀 Unlock Growth
+
+          </span>
+
+          <span className="px-4 py-2 rounded-full bg-white/10 border border-white/10">
+
+            🌍 Become A Builder
 
           </span>
 
         </div>
 
-        {/* BOTTOM MESSAGE */}
+        {/* FOOT MESSAGE */}
 
         <div className="mt-16 max-w-2xl">
 
-          <p className="text-sm md:text-base leading-relaxed text-[#94A3B8]">
+          <p className="text-sm md:text-base leading-relaxed text-[#E2E8F0]">
 
-            Most people are not failing because they lack potential. They are failing because their ambition is fragmented, unsupported and directionless. PipuPath exists to help people organize themselves into capable humans who can build meaningful futures for themselves and others.
+            Everyone starts somewhere. Your future is not built in one day. It is built one quest, one skill and one step at a time.
 
           </p>
 
@@ -139,5 +139,6 @@ export default function Hero() {
       </div>
 
     </section>
+
   );
 }

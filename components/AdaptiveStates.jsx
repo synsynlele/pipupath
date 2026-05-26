@@ -1,38 +1,42 @@
 export default function AdaptiveStates() {
 
-  const states = [
+  const stages = [
 
     {
-      title:
-        "Searching",
+      icon:"🧭",
+
+      title:"Explorer",
 
       description:
-        "Many ambitious people are not lazy — they are directionless, overwhelmed and mentally scattered. PipuPath helps organize uncertainty into clarity, structure and forward movement.",
+      "Every journey starts here. You discover new interests, learn about yourself and begin understanding what excites you."
     },
 
     {
-      title:
-        "Stabilizing",
+      icon:"⚒",
+
+      title:"Builder",
 
       description:
-        "As momentum begins rebuilding, the environment reduces friction and helps users develop consistency, focus and emotional steadiness without overwhelming pressure.",
+      "You begin taking action, building habits and developing skills that help you become stronger and more focused."
     },
 
     {
-      title:
-        "Building",
+      icon:"🚀",
+
+      title:"Creator",
 
       description:
-        "Once clarity and rhythm strengthen, missions evolve into capability development — helping users build discipline, communication, execution, learning and real-world leverage.",
+      "You begin turning ideas into projects, solving problems and creating things that matter."
     },
 
     {
-      title:
-        "Expanding",
+      icon:"🌍",
+
+      title:"World Builder",
 
       description:
-        "As capability compounds, the platform helps users think bigger, create meaningful work, develop leadership and become people capable of building impact beyond themselves.",
-    },
+      "You use your strengths and skills to create impact and help make the world better."
+    }
 
   ];
 
@@ -44,82 +48,83 @@ export default function AdaptiveStates() {
 
         {/* HEADER */}
 
-        <div className="max-w-3xl">
+        <div className="max-w-4xl">
 
-          <p className="text-sm font-medium text-[#B88A00]">
+          <p className="text-sm font-medium text-[#FACC15]">
 
-            The Journey of Becoming
+            Your Growth Journey
 
           </p>
 
-          <h2 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight leading-tight text-[#0F172A]">
+          <h2 className="mt-4 text-4xl md:text-6xl font-semibold leading-tight text-white">
 
-            Growth is not linear.
+            Every builder starts somewhere.
 
-            <span className="block mt-2">
+            <span className="block">
 
-              Becoming capable takes stages.
+              Growth happens one step at a time.
 
             </span>
 
           </h2>
 
-          <p className="mt-6 text-lg text-[#64748B] leading-relaxed">
+          <p className="mt-8 text-lg leading-relaxed text-[#CBD5E1]">
 
-            PipuPath adapts to where a person currently is — helping them move from confusion and inconsistency toward clarity, capability, meaningful contribution and long-term growth.
+            PipuPath helps you move through different stages of growth while building real-world skills and discovering your path.
 
           </p>
 
         </div>
 
-        {/* STATES */}
+        {/* STAGES */}
 
-        <div className="grid md:grid-cols-2 gap-6 mt-16">
+        <div className="grid md:grid-cols-2 gap-8 mt-16">
 
-          {states.map((state) => (
+          {
 
-            <div
-              key={state.title}
-              className="group rounded-[32px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-8 shadow-[0_10px_40px_rgba(15,23,42,0.04)] transition-all duration-300 hover:translate-y-[-4px]"
-            >
+            stages.map((stage)=>(
 
-              {/* ICON */}
+              <div
 
-              <div className="w-14 h-14 rounded-2xl bg-[#D4AF37]/10 flex items-center justify-center text-[#B88A00] text-lg font-semibold">
+                key={stage.title}
 
-                {state.title.charAt(0)}
+                className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-[0_10px_50px_rgba(0,0,0,0.25)]"
+
+              >
+
+                <div className="w-14 h-14 rounded-2xl bg-[#D4AF37]/10 flex items-center justify-center text-xl">
+
+                  {stage.icon}
+
+                </div>
+
+                <h3 className="mt-8 text-3xl font-semibold text-white">
+
+                  {stage.title}
+
+                </h3>
+
+                <p className="mt-6 leading-relaxed text-[#CBD5E1]">
+
+                  {stage.description}
+
+                </p>
 
               </div>
 
-              {/* TITLE */}
+            ))
 
-              <h3 className="mt-7 text-2xl font-semibold text-[#0F172A]">
-
-                {state.title}
-
-              </h3>
-
-              {/* DESCRIPTION */}
-
-              <p className="mt-5 text-[#64748B] leading-relaxed text-[15px]">
-
-                {state.description}
-
-              </p>
-
-            </div>
-
-          ))}
+          }
 
         </div>
 
-        {/* BOTTOM MESSAGE */}
+        {/* FOOT */}
 
         <div className="mt-16 max-w-3xl">
 
-          <p className="text-base md:text-lg leading-relaxed text-[#94A3B8]">
+          <p className="text-lg text-[#CBD5E1] leading-relaxed">
 
-            The goal is not perfection. The goal is helping people organize themselves into humans capable of building meaningful futures for themselves, their communities and the world around them.
+            You do not need to have everything figured out today. Growth happens through small actions repeated over time.
 
           </p>
 
@@ -128,5 +133,7 @@ export default function AdaptiveStates() {
       </div>
 
     </section>
+
   );
+
 }

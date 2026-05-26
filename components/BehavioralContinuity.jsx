@@ -1,30 +1,27 @@
 export default function BehavioralContinuity() {
 
-  const continuity = [
+  const cards = [
 
     {
-      title:
-        "Momentum Recovery",
+      title:"Momentum Recovery",
 
       description:
-        "Growth is rarely perfect or linear. When users lose focus, become overwhelmed or slow down, the platform helps them reconnect, reorganize and continue moving forward without starting from zero again.",
+      "Growth is rarely perfect. When people lose focus or become overwhelmed, PipuPath helps them get moving again."
     },
 
     {
-      title:
-        "Capability Compounding",
+      title:"Skill Growth Over Time",
 
       description:
-        "Small consistent missions gradually develop real-world capability over time — including communication, execution, discipline, learning, leadership and long-term resilience.",
+      "Small actions repeated consistently slowly become stronger skills and stronger habits."
     },
 
     {
-      title:
-        "Becoming Over Time",
+      title:"Becoming Better Every Day",
 
       description:
-        "PipuPath is designed to help people continuously evolve into more capable, focused and meaningful versions of themselves through intentional growth and adaptive support.",
-    },
+      "PipuPath helps people continue growing into stronger, more capable and more meaningful versions of themselves."
+    }
 
   ];
 
@@ -36,19 +33,19 @@ export default function BehavioralContinuity() {
 
         {/* HEADER */}
 
-        <div className="max-w-3xl">
+        <div className="max-w-4xl">
 
-          <p className="text-sm font-medium text-[#B88A00]">
+          <p className="text-sm font-medium text-yellow-400">
 
             Long-Term Growth
 
           </p>
 
-          <h2 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight leading-tight text-[#0F172A]">
+          <h2 className="mt-4 text-4xl md:text-6xl font-bold leading-tight text-white">
 
             Real growth continues
 
-            <span className="block mt-2">
+            <span className="block text-white">
 
               even through instability.
 
@@ -56,46 +53,51 @@ export default function BehavioralContinuity() {
 
           </h2>
 
-          <p className="mt-6 text-lg text-[#64748B] leading-relaxed">
+          <p className="mt-8 text-lg leading-relaxed text-slate-300">
 
-            Most people do not fail because they lack potential. They fail because growth becomes inconsistent, unsupported and fragmented over time. PipuPath helps users maintain direction, rebuild momentum and continue becoming more capable through every stage of their journey.
+            Most people do not fail because they lack potential.
+
+            They fail because growth becomes inconsistent, unsupported and fragmented over time.
+
+            PipuPath helps users rebuild momentum and continue becoming stronger through every stage of their journey.
 
           </p>
 
         </div>
 
-        {/* GRID */}
+        {/* CARDS */}
 
-        <div className="grid md:grid-cols-3 gap-6 mt-14">
+        <div className="mt-16 grid md:grid-cols-3 gap-8">
 
-          {continuity.map((item) => (
+          {cards.map((card,index)=>(
 
             <div
-              key={item.title}
-              className="rounded-[32px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-8 shadow-[0_10px_40px_rgba(15,23,42,0.04)] transition-all duration-300 hover:translate-y-[-4px]"
+              key={index}
+              className="
+              rounded-[36px]
+              border
+              border-white/10
+              bg-white/5
+              backdrop-blur-xl
+              p-8
+              "
             >
 
-              {/* ICON */}
+              <div className="w-14 h-14 rounded-2xl bg-yellow-400/10 flex items-center justify-center">
 
-              <div className="w-12 h-12 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center text-lg font-semibold">
-
-                •
+                <div className="w-2 h-2 rounded-full bg-yellow-400"/>
 
               </div>
 
-              {/* TITLE */}
+              <h3 className="mt-8 text-3xl font-semibold text-white">
 
-              <h3 className="mt-6 text-2xl font-semibold text-[#0F172A] leading-tight">
-
-                {item.title}
+                {card.title}
 
               </h3>
 
-              {/* DESCRIPTION */}
+              <p className="mt-6 text-slate-300 leading-relaxed">
 
-              <p className="mt-4 text-[#64748B] leading-relaxed">
-
-                {item.description}
+                {card.description}
 
               </p>
 
@@ -105,20 +107,10 @@ export default function BehavioralContinuity() {
 
         </div>
 
-        {/* BOTTOM MESSAGE */}
-
-        <div className="mt-16 max-w-3xl">
-
-          <p className="text-base md:text-lg leading-relaxed text-[#94A3B8]">
-
-            The goal is not temporary motivation. The goal is helping people gradually organize themselves into humans capable of building meaningful futures, meaningful work and meaningful contribution over the long term.
-
-          </p>
-
-        </div>
-
       </div>
 
     </section>
+
   );
+
 }

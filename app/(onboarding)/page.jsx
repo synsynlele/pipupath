@@ -1,716 +1,258 @@
 "use client";
 
-export const dynamic = "force-dynamic";
+import { useState } from "react";
+import Link from "next/link";
 
-import { useEffect, useState }
-from "react";
+const builderClasses = [
 
-import { useRouter }
-from "next/navigation";
+{
+name:"🛠 Vision Builder",
+description:"You enjoy creating ideas and turning them into something real."
+},
 
-import { useAuth }
-from "../../context/AuthContext";
+{
+name:"👑 Path Leader",
+description:"You naturally help people move forward."
+},
 
-import { supabase }
-from "../../lib/supabase";
+{
+name:"🎨 Creator Builder",
+description:"You enjoy expressing ideas and making new things."
+},
 
-const ARCHETYPES = [
-
-  {
-    id: "Builder",
-    title: "Builder",
-    description:
-      "You are driven to create meaningful things, build capability and construct a future that feels real and impactful.",
-    strengths: [
-      "Execution",
-      "Persistence",
-      "Long-term thinking",
-    ],
-    risks: [
-      "Burnout",
-      "Isolation",
-      "Working without direction",
-    ],
-  },
-
-  {
-    id: "Explorer",
-    title: "Explorer",
-    description:
-      "You are driven by curiosity, expansion and discovering possibilities beyond conventional paths.",
-    strengths: [
-      "Curiosity",
-      "Adaptability",
-      "Vision expansion",
-    ],
-    risks: [
-      "Drifting",
-      "Endless searching",
-      "Difficulty committing",
-    ],
-  },
-
-  {
-    id: "Leader",
-    title: "Leader",
-    description:
-      "You are driven to create structure, take responsibility and influence meaningful outcomes around you.",
-    strengths: [
-      "Initiative",
-      "Responsibility",
-      "Coordination",
-    ],
-    risks: [
-      "Control obsession",
-      "Pressure addiction",
-      "Ego attachment",
-    ],
-  },
-
-  {
-    id: "Strategist",
-    title: "Strategist",
-    description:
-      "You are driven to deeply understand systems, leverage and how meaningful outcomes are actually created.",
-    strengths: [
-      "Analysis",
-      "Systems thinking",
-      "Optimization",
-    ],
-    risks: [
-      "Overthinking",
-      "Inaction",
-      "Disconnection from execution",
-    ],
-  },
-
-  {
-    id: "Creator",
-    title: "Creator",
-    description:
-      "You are driven to express vision, originality and emotionally meaningful ideas through creation.",
-    strengths: [
-      "Creativity",
-      "Imagination",
-      "Emotional depth",
-    ],
-    risks: [
-      "Inconsistency",
-      "Emotional volatility",
-      "Unfinished work",
-    ],
-  },
+{
+name:"🧩 Problem Solver",
+description:"You enjoy fixing things and finding solutions."
+}
 
 ];
 
 export default function OnboardingPage() {
 
-  const router =
-    useRouter();
+const [future,setFuture]=useState("");
+const [skill,setSkill]=useState("");
+const [challenge,setChallenge]=useState("");
 
-  const {
-    user,
-    loading,
-  } = useAuth();
+const [selectedClass,setSelectedClass]=useState("");
 
-  // =========================
-  // STATE
-  // =========================
+return (
 
-  const [
-    recalibrationMode,
-    setRecalibrationMode,
-  ] = useState(false);
+<main className="min-h-screen bg-[#050816] text-white px-6 py-10">
 
-  const [
-    selectedArchetype,
-    setSelectedArchetype,
-  ] = useState(null);
+<div className="max-w-5xl mx-auto">
 
-  const [
-    futureVision,
-    setFutureVision,
-  ] = useState("");
+{/* TOP */}
 
-  const [
-    currentStruggle,
-    setCurrentStruggle,
-  ] = useState("");
+<div className="text-center">
 
-  const [
-    currentFocus,
-    setCurrentFocus,
-  ] = useState("");
+<div className="inline-flex rounded-full border border-yellow-400/20 bg-yellow-400/10 px-5 py-2">
 
-  const [
-    loadingState,
-    setLoadingState,
-  ] = useState(false);
+<span className="text-sm text-yellow-400">
 
-  // =========================
-  // AUTH
-  // =========================
+⚡ Welcome Builder
 
-  useEffect(() => {
+</span>
 
-    if (
-      !loading &&
-      !user
-    ) {
+</div>
 
-      router.push(
-        "/login"
-      );
+<h1 className="mt-8 text-4xl md:text-6xl font-bold">
 
-    }
+Your journey starts now.
 
-  }, [
-    user,
-    loading,
-    router,
-  ]);
+</h1>
 
-  // =========================
-  // CHECK MODE
-  // =========================
+<p className="mt-6 text-slate-300 text-lg max-w-2xl mx-auto">
 
-  useEffect(() => {
+Answer a few quick quests so PipuPath can understand you and unlock your first journey.
 
-    async function checkProfile() {
+</p>
 
-      if (!user) return;
+</div>
 
-      const {
-        data,
-      } = await supabase
+{/* QUESTS */}
 
-        .from("profiles")
+<div className="mt-16 space-y-8">
 
-        .select("*")
+{/* QUEST 1 */}
 
-        .eq(
-          "id",
-          user.id
-        )
+<div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
-        .single();
+<p className="text-yellow-400">
 
-      if (
-        data?.onboarding_completed
-      ) {
+🎯 Quest 1
 
-        setRecalibrationMode(
-          true
-        );
+</p>
 
-      }
+<h2 className="mt-3 text-2xl font-semibold">
 
-    }
+Imagine your future
 
-    checkProfile();
+</h2>
 
-  }, [user]);
+<p className="mt-3 text-slate-300">
 
-  // =========================
-  // COMPLETE
-  // =========================
+What kind of life would make you excited to wake up every day?
 
-  async function handleComplete() {
+</p>
 
-    if (
-      !selectedArchetype
-    ) return;
+<textarea
+value={future}
+onChange={(e)=>setFuture(e.target.value)}
+placeholder="Write anything..."
+className="w-full mt-6 rounded-2xl bg-black/20 border border-white/10 p-5 outline-none"
+/>
 
-    try {
+</div>
 
-      setLoadingState(true);
+{/* QUEST 2 */}
 
-      const identitySummary = `
+<div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
-Archetype:
-${selectedArchetype.id}
+<p className="text-yellow-400">
 
-Future Vision:
-${futureVision}
+⚡ Quest 2
 
-Current Focus:
-${currentFocus}
+</p>
 
-Current Struggle:
-${currentStruggle}
+<h2 className="mt-3 text-2xl font-semibold">
 
-`;
+What would you love to improve?
 
-      const {
-        error,
-      } = await supabase
+</h2>
 
-        .from("profiles")
+<input
+value={skill}
+onChange={(e)=>setSkill(e.target.value)}
+placeholder="Confidence, money, leadership..."
+className="w-full mt-6 rounded-2xl bg-black/20 border border-white/10 p-5 outline-none"
+/>
 
-        .update({
+</div>
 
-          archetype:
-            selectedArchetype.id,
+{/* QUEST 3 */}
 
-          aspirations:
-            futureVision,
+<div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
-          current_focus:
-            currentFocus,
+<p className="text-yellow-400">
 
-          current_struggle:
-            currentStruggle,
+🧩 Quest 3
 
-          identity_summary:
-            identitySummary,
+</p>
 
-          onboarding_completed:
-            true,
+<h2 className="mt-3 text-2xl font-semibold">
 
-        })
+What feels hardest right now?
 
-        .eq(
-          "id",
-          user.id
-        );
+</h2>
 
-      if (error) {
+<textarea
+value={challenge}
+onChange={(e)=>setChallenge(e.target.value)}
+placeholder="Write honestly..."
+className="w-full mt-6 rounded-2xl bg-black/20 border border-white/10 p-5 outline-none"
+/>
 
-        console.error(error);
+</div>
 
-        return;
+{/* CLASS SELECTION */}
 
-      }
+<div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
-      window.location.href =
-        "/dashboard";
+<p className="text-yellow-400">
 
-    }
+⚔ Choose Your Builder Class
 
-    catch (error) {
+</p>
 
-      console.error(error);
+<h2 className="mt-3 text-2xl font-semibold">
 
-    }
+Which feels most like you?
 
-    finally {
+</h2>
 
-      setLoadingState(false);
+<div className="grid md:grid-cols-2 gap-5 mt-8">
 
-    }
+{builderClasses.map((item)=>(
 
-  }
+<button
 
-  // =========================
-  // LOADING
-  // =========================
+key={item.name}
 
-  if (
-    loading ||
-    !user
-  ) {
+onClick={()=>setSelectedClass(item.name)}
 
-    return (
-
-      <main className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
-
-        <div className="flex flex-col items-center gap-4">
-
-          <div className="w-14 h-14 rounded-full border-2 border-[#D4AF37]/20 border-t-[#D4AF37] animate-spin" />
-
-          <p className="text-sm text-[#64748B]">
-
-            Preparing developmental environment...
-
-          </p>
-
-        </div>
-
-      </main>
-
-    );
-
-  }
-
-  return (
-
-    <main className="min-h-screen bg-[#F5F7FA] overflow-x-hidden text-[#0F172A]">
-
-      {/* BACKGROUND */}
-
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-
-        <div className="absolute top-[-120px] left-[-120px] w-[320px] h-[320px] bg-[#D4AF37]/10 rounded-full blur-3xl" />
-
-        <div className="absolute bottom-[-120px] right-[-120px] w-[320px] h-[320px] bg-[#0F172A]/5 rounded-full blur-3xl" />
-
-      </div>
-
-      {/* CONTENT */}
-
-      <div className="relative max-w-7xl mx-auto px-4 py-10 md:px-6 md:py-16">
-
-        {/* RETURN */}
-
-        {
-
-          recalibrationMode && (
-
-            <div className="flex justify-end mb-8">
-
-              <a
-
-                href="/dashboard"
-
-                className="text-sm text-[#94A3B8] hover:text-[#0F172A] transition-all"
-
-              >
-
-                Return to Dashboard
-
-              </a>
-
-            </div>
-
-          )
-
-        }
-
-        {/* HERO */}
-
-        <div className="max-w-4xl">
-
-          <p className="text-[11px] uppercase tracking-[0.35em] text-[#94A3B8] font-medium">
-
-            {
-
-              recalibrationMode
-
-                ?
-
-                "IDENTITY RECALIBRATION"
-
-                :
-
-                "DEVELOPMENT ONBOARDING"
-
-            }
-
-          </p>
-
-          <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-none text-[#0F172A]">
-
-            {
-
-              recalibrationMode
-
-                ?
-
-                "Build the person your future requires."
-
-                :
-
-                "Discover the trajectory your future may require."
-
-            }
-
-          </h1>
-
-          <p className="mt-8 text-lg leading-relaxed text-[#475569] max-w-3xl">
-
-            PipuPath adapts to how you think, grow, execute and build your future.
-
-          </p>
-
-        </div>
-
-        {/* QUESTIONS */}
-
-        {
-
-          !recalibrationMode && (
-
-            <div className="grid lg:grid-cols-3 gap-6 mt-10">
-
-              {/* FUTURE */}
-
-              <div className="rounded-[36px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-6">
-
-                <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
-
-                  Future Vision
-
-                </p>
-
-                <textarea
-
-                  rows={5}
-
-                  value={futureVision}
-
-                  onChange={(e) =>
-                    setFutureVision(
-                      e.target.value
-                    )
-                  }
-
-                  placeholder="What kind of future are you trying to build?"
-
-                  className="mt-5 w-full bg-transparent outline-none resize-none text-[#475569] leading-relaxed"
-
-                />
-
-              </div>
-
-              {/* FOCUS */}
-
-              <div className="rounded-[36px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-6">
-
-                <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
-
-                  Current Focus
-
-                </p>
-
-                <textarea
-
-                  rows={5}
-
-                  value={currentFocus}
-
-                  onChange={(e) =>
-                    setCurrentFocus(
-                      e.target.value
-                    )
-                  }
-
-                  placeholder="What are you currently trying to improve or build?"
-
-                  className="mt-5 w-full bg-transparent outline-none resize-none text-[#475569] leading-relaxed"
-
-                />
-
-              </div>
-
-              {/* STRUGGLE */}
-
-              <div className="rounded-[36px] border border-[#E2E8F0] bg-white/80 backdrop-blur-xl p-6">
-
-                <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
-
-                  Current Friction
-
-                </p>
-
-                <textarea
-
-                  rows={5}
-
-                  value={currentStruggle}
-
-                  onChange={(e) =>
-                    setCurrentStruggle(
-                      e.target.value
-                    )
-                  }
-
-                  placeholder="What keeps slowing you down or holding you back?"
-
-                  className="mt-5 w-full bg-transparent outline-none resize-none text-[#475569] leading-relaxed"
-
-                />
-
-              </div>
-
-            </div>
-
-          )
-
-        }
-
-        {/* ARCHETYPES */}
-
-        <div className="grid lg:grid-cols-2 gap-6 mt-14">
-
-          {
-
-            ARCHETYPES.map((archetype) => {
-
-              const active =
-
-                selectedArchetype?.id ===
-                archetype.id;
-
-              return (
-
-                <button
-
-                  key={archetype.id}
-
-                  onClick={() =>
-                    setSelectedArchetype(
-                      archetype
-                    )
-                  }
-
-                  className={`
+className={`
 
 text-left
-rounded-[36px]
-p-8
-transition-all
-duration-500
+rounded-3xl
+p-6
 border
+transition-all
 
-${
+${selectedClass===item.name
 
-  active
+? "border-yellow-400 bg-yellow-400/10"
 
-    ?
-
-    "bg-[#0F172A] text-white border-[#0F172A] shadow-[0_10px_60px_rgba(15,23,42,0.15)] scale-[1.01]"
-
-    :
-
-    "bg-white/80 border-[#E2E8F0] hover:bg-white hover:scale-[1.01]"
-
-}
+: "border-white/10 bg-black/20"}
 
 `}
 
-                >
+>
 
-                  <div className="flex items-start justify-between gap-6">
+<h3 className="font-semibold text-lg">
 
-                    <div>
+{item.name}
 
-                      <p className={`
+</h3>
 
-text-xs
-uppercase
-tracking-[0.3em]
+<p className="mt-3 text-sm text-slate-300">
 
-${
+{item.description}
 
-  active
+</p>
 
-    ?
+</button>
 
-    "text-white/40"
+))}
 
-    :
+</div>
 
-    "text-[#94A3B8]"
+</div>
 
-}
+</div>
 
-`}>
+{/* BUTTON */}
 
-                        Development Profile
+<div className="mt-12 text-center">
 
-                      </p>
+<Link
 
-                      <h2 className="mt-5 text-4xl font-semibold tracking-tight">
+href="/onboarding/identity"
 
-                        {archetype.title}
+className="
 
-                      </h2>
+inline-flex
+rounded-2xl
+px-10
+py-5
+bg-yellow-500
+text-black
+font-bold
+shadow-[0_10px_40px_rgba(234,179,8,.30)]
 
-                    </div>
+"
 
-                    {
+>
 
-                      active && (
+Unlock My Path ⚡
 
-                        <div className="w-4 h-4 rounded-full bg-[#D4AF37]" />
+</Link>
 
-                      )
+</div>
 
-                    }
+</div>
 
-                  </div>
+</main>
 
-                  <p className={`
-
-mt-8
-leading-relaxed
-text-lg
-
-${
-
-  active
-
-    ?
-
-    "text-white/75"
-
-    :
-
-    "text-[#475569]"
-
-}
-
-`}>
-
-                    {archetype.description}
-
-                  </p>
-
-                </button>
-
-              );
-
-            })
-
-          }
-
-        </div>
-
-        {/* COMPLETE */}
-
-        <button
-
-          onClick={
-            handleComplete
-          }
-
-          disabled={
-            !selectedArchetype ||
-            loadingState
-          }
-
-          className="mt-10 px-8 py-5 rounded-[24px] bg-[#0F172A] text-white text-lg font-medium hover:opacity-90 transition-all disabled:opacity-40"
-
-        >
-
-          {
-
-            loadingState
-
-              ?
-
-              "Updating Development Environment..."
-
-              :
-
-              recalibrationMode
-
-                ?
-
-                "Activate Updated Path"
-
-                :
-
-                "Initialize Development OS"
-
-          }
-
-        </button>
-
-      </div>
-
-    </main>
-
-  );
+);
 
 }

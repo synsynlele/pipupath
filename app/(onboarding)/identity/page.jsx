@@ -1,251 +1,251 @@
 "use client";
 
-import { useRouter }
-from "next/navigation";
-
-import BuilderCard from "@/components/ui/BuilderCard";
-
-import GlowButton from "@/components/ui/GlowButton";
-
-import useProfileStore from "@/stores/profileStore";
-
-import BuilderShell from "@/components/layout/BuilderShell";
-
+import Link from "next/link";
 
 export default function IdentityPage() {
 
+const identity={
 
-const { completeOnboarding } =
-  useProfileStore();
+name:"🛠 Vision Builder",
 
-const router =
-  useRouter();
+summary:
+"You enjoy creating ideas and imagining things that could become real. You care about building something meaningful and making a difference.",
 
-const {
-  builderProfile,
-} = useProfileStore();
+strengths:[
 
-const profile =
-  builderProfile;
+"Creative thinking",
 
-  
+"Big ideas",
 
-if (!profile) {
+"Curiosity",
 
-  return null;
-}
+"Leadership potential"
 
-  return (
+],
 
-    <BuilderShell
-  title="PipuPath"
-  subtitle="Builder Identity"
->
+watchOut:[
 
-      <div className="flex flex-col pb-32">
+"Too many ideas at once",
 
-        {/* LABEL */}
+"Overthinking",
 
-        <div className="mb-6 w-fit rounded-full border border-blue-400/20 bg-blue-500/10 px-5 py-2 text-sm text-blue-300">
-          Builder Identity
-        </div>
+"Difficulty starting"
 
-        {/* TITLE */}
+],
 
-        <h1 className="text-5xl font-bold leading-tight tracking-tight text-white">
+quests:[
 
-  Your responses suggest strong alignment with
+"Build projects",
 
-  <span className="mt-3 block bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">
+"Create content",
 
-    {profile.identity}
+"Solve problems",
 
-  </span>
+"Lead people"
+
+]
+
+};
+
+return(
+
+<main className="min-h-screen bg-[#050816] text-white px-6 py-10">
+
+<div className="max-w-5xl mx-auto">
+
+{/* TOP */}
+
+<div className="text-center">
+
+<div className="inline-flex rounded-full border border-yellow-400/20 bg-yellow-400/10 px-5 py-2">
+
+<span className="text-sm text-yellow-400">
+
+⚔ Identity Unlocked
+
+</span>
+
+</div>
+
+<h1 className="mt-8 text-5xl font-bold">
+
+{identity.name}
 
 </h1>
 
-        {/* DESCRIPTION */}
+<p className="mt-8 text-slate-300 max-w-3xl mx-auto text-lg leading-relaxed">
 
-        <p className="mt-6 text-lg leading-relaxed text-slate-400">
-
-  {profile.summary}
+{identity.summary}
 
 </p>
 
-<BuilderCard className="mt-10">
+</div>
 
-  <div className="mb-4 w-fit rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-xs text-violet-300">
+{/* GRID */}
 
-    EXECUTION INSIGHT
+<div className="grid md:grid-cols-2 gap-8 mt-16">
 
-  </div>
+{/* POWERS */}
 
-  <p className="text-lg leading-relaxed text-slate-300">
+<div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
-    {profile.executionStyle}
+<h2 className="text-2xl font-semibold">
 
-  </p>
+⭐ Powers You Already Have
 
-</BuilderCard>
+</h2>
 
+<div className="mt-6 space-y-4">
 
-        {/* STRENGTHS */}
+{identity.strengths.map((item)=>(
 
-        <BuilderCard className="mt-10">
-
-          <h3 className="text-lg font-semibold text-white">
-
-            Your Natural Strengths
-
-          </h3>
-
-          <div className="mt-5 flex flex-wrap gap-3">
-
-            {profile.strengths.map((item) => (
-
-              <div
-                key={item}
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300"
-              >
-                {item}
-              </div>
-
-            ))}
-
-          </div>
-
-        </BuilderCard>
-
-       
-
-        {/* FIRST MISSION */}
-
-        <BuilderCard className="mt-5">
-
-  <h3 className="text-lg font-semibold text-white">
-
-    Patterns That May Slow You Down
-
-  </h3>
-
-  <div className="mt-5 flex flex-wrap gap-3">
-
-    {profile.risks?.map((item) => (
-
-      <div
-        key={item}
-        className="rounded-full border border-red-400/10 bg-red-500/10 px-4 py-2 text-sm text-red-200"
-      >
-
-        {item}
-
-      </div>
-
-    ))}
-
-  </div>
-
-</BuilderCard>
-
-
-        {/* EARNING PATH */}
-
-       <BuilderCard className="mt-5">
-
-  <h3 className="text-lg font-semibold text-white">
-
-    Possible Builder Paths
-
-  </h3>
-
-  <div className="mt-5 flex flex-wrap gap-3">
-
-    {profile.builderPaths?.map((item) => (
-
-      <div
-        key={item}
-        className="rounded-full border border-blue-400/10 bg-blue-500/10 px-4 py-2 text-sm text-blue-200"
-      >
-
-        {item}
-
-      </div>
-
-    ))}
-
-  </div>
-
-</BuilderCard>
-
-        {/* CTA */}
-<BuilderCard className="mt-5">
-
-  <h3 className="text-lg font-semibold text-white">
-
-    Most Important Next Step
-
-  </h3>
-
-  <p className="mt-4 text-slate-400 leading-relaxed">
-
-    {profile.nextFocus}
-
-  </p>
-
-</BuilderCard>
-
-
-        <div className="mt-8">
-
-         <GlowButton
-  onClick={() => {
-
-    completeOnboarding(
-      profile
-    );
-
-    router.push(
-      "/journey"
-    );
-  }}
+<div
+key={item}
+className="rounded-2xl bg-black/20 p-4"
 >
 
-  Start Building
-
-</GlowButton>
-
-        </div>
-
-<div className="mt-4">
-
-  <button
-    onClick={() =>
-      router.push(
-        "/questions/1"
-      )
-    }
-    className="
-      rounded-2xl
-      border
-      border-white/10
-      bg-white/5
-      px-6
-      py-3
-      text-sm
-      font-semibold
-      text-slate-300
-      transition-all
-      hover:bg-white/10
-    "
-  >
-
-    Retake Builder Analysis
-
-  </button>
+{item}
 
 </div>
-      </div>
 
-    </BuilderShell>
-  );
+))}
+
+</div>
+
+</div>
+
+{/* WATCH OUT */}
+
+<div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
+
+<h2 className="text-2xl font-semibold">
+
+🧩 Things To Watch Out For
+
+</h2>
+
+<div className="mt-6 space-y-4">
+
+{identity.watchOut.map((item)=>(
+
+<div
+key={item}
+className="rounded-2xl bg-black/20 p-4"
+>
+
+{item}
+
+</div>
+
+))}
+
+</div>
+
+</div>
+
+</div>
+
+{/* QUESTS */}
+
+<div className="rounded-[32px] border border-white/10 bg-white/5 p-8 mt-8">
+
+<h2 className="text-2xl font-semibold">
+
+🚀 Quests You May Enjoy
+
+</h2>
+
+<div className="flex flex-wrap gap-3 mt-6">
+
+{identity.quests.map((item)=>(
+
+<div
+key={item}
+className="rounded-full border border-white/10 px-5 py-3 bg-black/20"
+>
+
+{item}
+
+</div>
+
+))}
+
+</div>
+
+</div>
+
+{/* FIRST QUEST */}
+
+<div className="rounded-[32px] border border-yellow-400/20 bg-yellow-400/5 p-8 mt-8">
+
+<p className="text-yellow-400">
+
+🎯 First Quest Unlocked
+
+</p>
+
+<h2 className="mt-4 text-3xl font-semibold">
+
+The Small Beginning
+
+</h2>
+
+<p className="mt-5 text-slate-300 leading-relaxed">
+
+Write one thing you want your future self to thank you for.
+
+Then take one small action today that moves you closer.
+
+</p>
+
+<div className="flex gap-4 mt-6">
+
+<div className="rounded-full bg-black/20 px-5 py-3">
+
+⭐ +25 Builder Points
+
+</div>
+
+<div className="rounded-full bg-black/20 px-5 py-3">
+
+🧠 +10 Wisdom
+
+</div>
+
+</div>
+
+</div>
+
+{/* BUTTON */}
+
+<div className="mt-12 text-center">
+
+<Link
+
+href="/dashboard"
+
+className="
+inline-flex
+rounded-2xl
+px-10
+py-5
+bg-yellow-500
+text-black
+font-bold
+"
+
+>
+
+Begin My Journey ⚡
+
+</Link>
+
+</div>
+
+</div>
+
+</main>
+
+)
+
 }
