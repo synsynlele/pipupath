@@ -1,93 +1,99 @@
 "use client";
 
-import { useEffect }
-from "react";
-
-import { useRouter }
-from "next/navigation";
-
-import { useAuth }
-from "@/context/AuthContext";
-
-import { supabase }
-from "@/lib/supabase";
-
-import useProfileStore
-from "@/stores/profileStore";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
+import useProfileStore from "@/stores/profileStore";
 
 export default function ProtectedRoute({
-  children,
+children,
 }) {
 
-  const router = useRouter();
-
-  const {
-    user,
-    loading,
-  } = useAuth();
+const router=useRouter();
 
 const {
-  hydrateProfile,
-} = useProfileStore();
+user,
+loading
+}=useAuth();
 
-  useEffect(() => {
+const {
+hydrateProfile
+}=useProfileStore();
 
-  async function hydrate() {
+useEffect(()=>{
 
-    if (loading) return;
+async function hydrate(){
 
-    if (!user) {
+if(loading) return;
 
-      router.push("/login");
+if(!user){
 
-      return;
-    }
+router.push("/login");
 
-    const {
-      data: profile,
-      error,
-    } =
-      await supabase
-        .from("profiles")
-        .select("*")
-        .eq(
-          "id",
-          user.id
-        )
-        .single();
+return;
 
-    if (error) {
+}
 
-      console.error(error);
+const {
+data:profile,
+error
+}=await supabase
+.from("profiles")
+.select("*")
+.eq(
+"id",
+user.id
+)
+.maybeSingle();
 
-      return;
-    }
+if(error){
 
-    hydrateProfile(profile);
-  }
+console.error(error);
 
-  hydrate();
+return;
 
-}, [
-  user,
-  loading,
-  router,
+}
+
+/* NEW USER SAFE MODE */
+
+if(profile){
+
+hydrateProfile(profile);
+
+}
+
+}
+
+hydrate();
+
+},[
+user,
+loading,
+router,
+hydrateProfile
 ]);
 
-  if (loading) {
+if(loading){
 
-    return (
+return(
 
-      <main className="flex min-h-screen items-center justify-center bg-[#050816] text-slate-400">
+<main className="flex min-h-screen items-center justify-center bg-[#050816] text-slate-400">
 
-        Preparing your builder environment...
+Preparing your builder journey...
 
-      </main>
+</main>
 
-    );
-  }
+);
 
-  if (!user) return null;
+}
 
-  return children;
+if(!user){
+
+return null;
+
+}
+
+return children;
+
 }

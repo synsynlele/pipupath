@@ -22,6 +22,11 @@ import {
   matchBuilders
 } from "@/lib/matchBuilders";
 
+import Link from "next/link";
+
+import { useAuth }
+from "@/context/AuthContext";
+
 export default function BuilderProfilePage() {
 
   const params =
@@ -37,6 +42,15 @@ const [
 
   const [loading, setLoading] =
     useState(true);
+
+const { user } = useAuth();
+
+const [
+  sendingRequest,
+  setSendingRequest,
+] = useState(false);
+
+
 
 const connectionMessage =
   encodeURIComponent(
@@ -103,7 +117,85 @@ setSuggestedBuilders(
 
   }, [params]);
 
+async function sendConnectionRequest() {
+
+  if (!user) {
+
+    alert(
+      "Please sign in first."
+    );
+
+    return;
+  }
+
+  if (
+    user.id === builder.id
+  ) {
+
+    alert(
+      "You cannot connect with yourself."
+    );
+
+    return;
+  }
+
+  try {
+
+    setSendingRequest(true);
+
+    const { error } =
+      await supabase
+        .from(
+          "connection_requests"
+        )
+        .insert({
+
+          sender_id:
+            user.id,
+
+          receiver_id:
+            builder.id,
+
+          sender_name:
+            user.email,
+
+          receiver_name:
+            builder.identity_summary ||
+
+            "Builder",
+
+          message:
+            "Builder connection request",
+
+          status:
+            "pending",
+
+        });
+
+    if (error)
+      throw error;
+
+    alert(
+      "Connection request sent."
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Failed to send request."
+    );
+
+  } finally {
+
+    setSendingRequest(false);
+  }
+}
+
+
   if (loading) {
+
 
     return (
 
@@ -407,6 +499,37 @@ setSuggestedBuilders(
   </p>
 
   <div className="mt-6 flex flex-col gap-4 sm:flex-row">
+
+<button
+  onClick={
+    sendConnectionRequest
+  }
+  disabled={
+    sendingRequest
+  }
+  className="
+    flex-1
+    rounded-2xl
+    bg-blue-500
+    px-6
+    py-4
+    text-center
+    font-semibold
+    text-white
+    transition-all
+    hover:scale-[1.02]
+    disabled:opacity-50
+  "
+>
+
+  {
+    sendingRequest
+      ? "Sending..."
+      : "Request Connection"
+  }
+
+</button>
+
 
     {/* WHATSAPP */}
 

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import useProfileStore from "@/stores/profileStore";
 
-const builderClasses = [
+const builderClasses=[
 
 {
 name:"🛠 Vision Builder",
-description:"You enjoy creating ideas and turning them into something real."
+description:"You enjoy creating ideas and turning them into reality."
 },
 
 {
@@ -17,37 +18,99 @@ description:"You naturally help people move forward."
 
 {
 name:"🎨 Creator Builder",
-description:"You enjoy expressing ideas and making new things."
+description:"You enjoy making and expressing ideas."
 },
 
 {
 name:"🧩 Problem Solver",
-description:"You enjoy fixing things and finding solutions."
+description:"You enjoy fixing problems."
 }
 
 ];
 
-export default function OnboardingPage() {
+export default function OnboardingPage(){
+
+const router=useRouter();
+
+const {setBuilderProfile}=useProfileStore();
 
 const [future,setFuture]=useState("");
 const [skill,setSkill]=useState("");
 const [challenge,setChallenge]=useState("");
-
 const [selectedClass,setSelectedClass]=useState("");
 
-return (
+function handleContinue(){
+
+if(
+!future.trim() ||
+!skill.trim() ||
+!challenge.trim() ||
+!selectedClass
+){
+
+alert(
+"Please complete all quests before continuing ⚡"
+);
+
+return;
+
+}
+
+setBuilderProfile({
+
+identity:selectedClass,
+
+summary:
+`You want ${future}. You are interested in growing ${skill}.`,
+
+executionStyle:
+"You grow best through small actions repeated consistently.",
+
+strengths:[
+
+skill,
+"Curiosity",
+"Growth mindset"
+
+],
+
+risks:[
+
+challenge
+
+],
+
+builderPaths:[
+
+"Build projects",
+"Create things",
+"Solve problems"
+
+],
+
+nextFocus:
+
+`Take one small action towards improving ${skill}`
+
+});
+
+router.push(
+"/onboarding/identity"
+);
+
+}
+
+return(
 
 <main className="min-h-screen bg-[#050816] text-white px-6 py-10">
 
 <div className="max-w-5xl mx-auto">
 
-{/* TOP */}
-
 <div className="text-center">
 
 <div className="inline-flex rounded-full border border-yellow-400/20 bg-yellow-400/10 px-5 py-2">
 
-<span className="text-sm text-yellow-400">
+<span className="text-yellow-400">
 
 ⚡ Welcome Builder
 
@@ -55,25 +118,21 @@ return (
 
 </div>
 
-<h1 className="mt-8 text-4xl md:text-6xl font-bold">
+<h1 className="mt-8 text-5xl font-bold">
 
-Your journey starts now.
+Your journey starts now
 
 </h1>
 
-<p className="mt-6 text-slate-300 text-lg max-w-2xl mx-auto">
+<p className="mt-6 text-slate-300">
 
-Answer a few quick quests so PipuPath can understand you and unlock your first journey.
+Answer every quest to unlock your identity.
 
 </p>
 
 </div>
 
-{/* QUESTS */}
-
 <div className="mt-16 space-y-8">
-
-{/* QUEST 1 */}
 
 <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
@@ -89,22 +148,14 @@ Imagine your future
 
 </h2>
 
-<p className="mt-3 text-slate-300">
-
-What kind of life would make you excited to wake up every day?
-
-</p>
-
 <textarea
 value={future}
 onChange={(e)=>setFuture(e.target.value)}
-placeholder="Write anything..."
-className="w-full mt-6 rounded-2xl bg-black/20 border border-white/10 p-5 outline-none"
+placeholder="Describe the future you want..."
+className="w-full mt-6 rounded-2xl bg-black/20 border border-white/10 p-5"
 />
 
 </div>
-
-{/* QUEST 2 */}
 
 <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
@@ -124,12 +175,10 @@ What would you love to improve?
 value={skill}
 onChange={(e)=>setSkill(e.target.value)}
 placeholder="Confidence, money, leadership..."
-className="w-full mt-6 rounded-2xl bg-black/20 border border-white/10 p-5 outline-none"
+className="w-full mt-6 rounded-2xl bg-black/20 border border-white/10 p-5"
 />
 
 </div>
-
-{/* QUEST 3 */}
 
 <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
@@ -149,24 +198,16 @@ What feels hardest right now?
 value={challenge}
 onChange={(e)=>setChallenge(e.target.value)}
 placeholder="Write honestly..."
-className="w-full mt-6 rounded-2xl bg-black/20 border border-white/10 p-5 outline-none"
+className="w-full mt-6 rounded-2xl bg-black/20 border border-white/10 p-5"
 />
 
 </div>
 
-{/* CLASS SELECTION */}
-
 <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
-<p className="text-yellow-400">
+<h2 className="text-2xl font-semibold">
 
 ⚔ Choose Your Builder Class
-
-</p>
-
-<h2 className="mt-3 text-2xl font-semibold">
-
-Which feels most like you?
 
 </h2>
 
@@ -181,12 +222,10 @@ key={item.name}
 onClick={()=>setSelectedClass(item.name)}
 
 className={`
-
-text-left
 rounded-3xl
 p-6
+text-left
 border
-transition-all
 
 ${selectedClass===item.name
 
@@ -198,13 +237,13 @@ ${selectedClass===item.name
 
 >
 
-<h3 className="font-semibold text-lg">
+<h3 className="font-semibold">
 
 {item.name}
 
 </h3>
 
-<p className="mt-3 text-sm text-slate-300">
+<p className="mt-3 text-slate-300 text-sm">
 
 {item.description}
 
@@ -220,34 +259,25 @@ ${selectedClass===item.name
 
 </div>
 
-{/* BUTTON */}
+<button
 
-<div className="mt-12 text-center">
-
-<Link
-
-href="/onboarding/identity"
+onClick={handleContinue}
 
 className="
-
-inline-flex
+mt-10
 rounded-2xl
+bg-yellow-500
 px-10
 py-5
-bg-yellow-500
-text-black
 font-bold
-shadow-[0_10px_40px_rgba(234,179,8,.30)]
-
+text-black
 "
 
 >
 
 Unlock My Path ⚡
 
-</Link>
-
-</div>
+</button>
 
 </div>
 

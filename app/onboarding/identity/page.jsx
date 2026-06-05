@@ -1,51 +1,39 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import useProfileStore from "@/stores/profileStore";
 
 export default function IdentityPage() {
 
-const identity={
+const router=useRouter();
 
-name:"🛠 Vision Builder",
+const {
+builderProfile,
+completeOnboarding
+}=useProfileStore();
 
-summary:
-"You enjoy creating ideas and imagining things that could become real. You care about building something meaningful and making a difference.",
+const identity=
+builderProfile;
 
-strengths:[
+if(!identity){
 
-"Creative thinking",
+router.push("/onboarding");
 
-"Big ideas",
+return null;
 
-"Curiosity",
+}
 
-"Leadership potential"
+function beginJourney(){
 
-],
+completeOnboarding(
+identity
+);
 
-watchOut:[
+router.push(
+"/journey"
+);
 
-"Too many ideas at once",
-
-"Overthinking",
-
-"Difficulty starting"
-
-],
-
-quests:[
-
-"Build projects",
-
-"Create content",
-
-"Solve problems",
-
-"Lead people"
-
-]
-
-};
+}
 
 return(
 
@@ -69,7 +57,7 @@ return(
 
 <h1 className="mt-8 text-5xl font-bold">
 
-{identity.name}
+{identity.identity}
 
 </h1>
 
@@ -81,11 +69,8 @@ return(
 
 </div>
 
-{/* GRID */}
 
 <div className="grid md:grid-cols-2 gap-8 mt-16">
-
-{/* POWERS */}
 
 <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
@@ -97,7 +82,7 @@ return(
 
 <div className="mt-6 space-y-4">
 
-{identity.strengths.map((item)=>(
+{identity.strengths?.map((item)=>(
 
 <div
 key={item}
@@ -114,7 +99,6 @@ className="rounded-2xl bg-black/20 p-4"
 
 </div>
 
-{/* WATCH OUT */}
 
 <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
 
@@ -126,7 +110,7 @@ className="rounded-2xl bg-black/20 p-4"
 
 <div className="mt-6 space-y-4">
 
-{identity.watchOut.map((item)=>(
+{identity.risks?.map((item)=>(
 
 <div
 key={item}
@@ -145,7 +129,6 @@ className="rounded-2xl bg-black/20 p-4"
 
 </div>
 
-{/* QUESTS */}
 
 <div className="rounded-[32px] border border-white/10 bg-white/5 p-8 mt-8">
 
@@ -157,7 +140,7 @@ className="rounded-2xl bg-black/20 p-4"
 
 <div className="flex flex-wrap gap-3 mt-6">
 
-{identity.quests.map((item)=>(
+{identity.builderPaths?.map((item)=>(
 
 <div
 key={item}
@@ -174,55 +157,12 @@ className="rounded-full border border-white/10 px-5 py-3 bg-black/20"
 
 </div>
 
-{/* FIRST QUEST */}
-
-<div className="rounded-[32px] border border-yellow-400/20 bg-yellow-400/5 p-8 mt-8">
-
-<p className="text-yellow-400">
-
-🎯 First Quest Unlocked
-
-</p>
-
-<h2 className="mt-4 text-3xl font-semibold">
-
-The Small Beginning
-
-</h2>
-
-<p className="mt-5 text-slate-300 leading-relaxed">
-
-Write one thing you want your future self to thank you for.
-
-Then take one small action today that moves you closer.
-
-</p>
-
-<div className="flex gap-4 mt-6">
-
-<div className="rounded-full bg-black/20 px-5 py-3">
-
-⭐ +25 Builder Points
-
-</div>
-
-<div className="rounded-full bg-black/20 px-5 py-3">
-
-🧠 +10 Wisdom
-
-</div>
-
-</div>
-
-</div>
-
-{/* BUTTON */}
 
 <div className="mt-12 text-center">
 
-<Link
+<button
 
-href="/dashboard"
+onClick={beginJourney}
 
 className="
 inline-flex
@@ -238,7 +178,7 @@ font-bold
 
 Begin My Journey ⚡
 
-</Link>
+</button>
 
 </div>
 

@@ -20,11 +20,16 @@ export default function ProfilePage() {
 
   builderLevel,
 
+  builderXP,
+
+  evolutionStage,
+
   streak,
 
   momentumState,
 
 } = useProfileStore();
+
 
   const {
     missions,
@@ -47,7 +52,7 @@ export default function ProfilePage() {
 
         {/* HERO */}
 
-        <div className="flex flex-col items-start">
+        <div className="flex items-start justify-between">
 
           <div className="mb-4 w-fit rounded-full border border-blue-400/20 bg-blue-500/10 px-4 py-2 text-sm text-blue-300">
 
@@ -55,14 +60,27 @@ export default function ProfilePage() {
 
           </div>
 
-          <h1 className="text-5xl font-bold leading-tight tracking-tight text-white">
+          <div>
 
-            {
-              builderProfile?.identity
-              || "Builder"
-            }
+  <h1 className="text-5xl font-bold leading-tight tracking-tight text-white">
 
-          </h1>
+    {
+      builderProfile?.displayName
+      || "Anonymous Builder"
+    }
+
+  </h1>
+
+  <p className="mt-3 text-lg text-blue-300">
+
+    {
+      builderProfile?.identity
+      || "Builder"
+    }
+
+  </p>
+
+</div>
 
           <p className="mt-5 text-lg leading-relaxed text-slate-400">
 
@@ -72,45 +90,108 @@ export default function ProfilePage() {
 
           </p>
 
-        </div>
+<div>
 
-{/* BUILDER STATUS */}
+  <button
 
-<div className="mt-10 grid grid-cols-2 gap-4">
+    onClick={() =>
+      window.location.href =
+      "/settings"
+    }
 
-  <BuilderCard>
+    className="
+      rounded-2xl
+      border
+      border-white/10
+      bg-white/5
+      px-5
+      py-3
+      text-sm
+      text-slate-300
+      transition-all
+      hover:bg-white/10
+    "
 
-    <p className="text-sm text-slate-400">
+  >
 
-      Momentum State
+    ⚙ Edit Profile
 
-    </p>
-
-    <h2 className="mt-2 text-2xl font-bold text-white">
-
-      {momentumState}
-
-    </h2>
-
-  </BuilderCard>
-
-  <BuilderCard>
-
-    <p className="text-sm text-slate-400">
-
-      Builder Streak
-
-    </p>
-
-    <h2 className="mt-2 text-2xl font-bold text-white">
-
-      {streak} days
-
-    </h2>
-
-  </BuilderCard>
+  </button>
 
 </div>
+
+        </div>
+
+
+
+{/* EVOLUTION */}
+
+<BuilderCard className="mt-10">
+
+  <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+
+    <div>
+
+      <div className="mb-3 inline-flex rounded-full border border-violet-400/20 bg-violet-500/10 px-4 py-2 text-xs text-violet-300">
+
+        EVOLUTION STAGE
+
+      </div>
+
+      <h2 className="text-4xl font-bold text-white">
+
+        {evolutionStage}
+
+      </h2>
+
+      <p className="mt-4 text-slate-400">
+
+        Your identity is evolving through action and consistency.
+
+      </p>
+
+    </div>
+
+    <div className="w-full max-w-md">
+
+      <div className="flex justify-between text-sm">
+
+        <span className="text-slate-400">
+
+          Builder XP
+
+        </span>
+
+        <span className="text-slate-300">
+
+          {builderXP} XP
+
+        </span>
+
+      </div>
+
+      <div className="mt-3 h-4 overflow-hidden rounded-full bg-white/5">
+
+        <div
+
+          className="h-full rounded-full bg-gradient-to-r from-yellow-400 via-blue-400 to-violet-500"
+
+          style={{
+
+            width:
+            `${Math.min(builderXP % 100,100)}%`
+
+          }}
+
+        />
+
+      </div>
+
+    </div>
+
+  </div>
+
+</BuilderCard>
 
 
         {/* STATS */}
@@ -168,6 +249,49 @@ export default function ProfilePage() {
 </BuilderCard>
 
         </div>
+
+{/* BUILDER MISSION */}
+
+<BuilderCard className="mt-5">
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Builder Mission
+
+  </h2>
+
+  <p className="mt-5 text-slate-400 leading-relaxed">
+
+    {
+      builderProfile?.mission ||
+      "Mission not defined yet."
+    }
+
+  </p>
+
+</BuilderCard>
+
+{/* BUILDER STORY */}
+
+<BuilderCard className="mt-5">
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Why I Build
+
+  </h2>
+
+  <p className="mt-5 text-slate-400 leading-relaxed">
+
+  {
+    builderProfile?.whyBuild ||
+    "Add your reason for building."
+  }
+
+</p>
+
+</BuilderCard>
+
 
         {/* STRENGTHS */}
 
@@ -235,20 +359,136 @@ export default function ProfilePage() {
 
         </BuilderCard>
 
+{/* CAN HELP WITH */}
+
+<BuilderCard className="mt-5">
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Can Help With
+
+  </h2>
+
+  <div className="mt-5 flex flex-wrap gap-3">
+
+    {
+      builderProfile?.canHelpWith?.map(
+        (item) => (
+
+          <div
+            key={item}
+            className="
+              rounded-full
+              border
+              border-green-400/20
+              bg-green-500/10
+              px-4
+              py-2
+              text-sm
+              text-green-200
+            "
+          >
+
+            {item}
+
+          </div>
+
+        )
+      )
+    }
+
+  </div>
+
+</BuilderCard>
+
+
+{/* NEED HELP WITH */}
+
+<BuilderCard className="mt-5">
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Need Help With
+
+  </h2>
+
+  <div className="mt-5 flex flex-wrap gap-3">
+
+    {
+      builderProfile?.needHelpWith?.map(
+        (item) => (
+
+          <div
+            key={item}
+            className="
+              rounded-full
+              border
+              border-yellow-400/20
+              bg-yellow-500/10
+              px-4
+              py-2
+              text-sm
+              text-yellow-200
+            "
+          >
+
+            {item}
+
+          </div>
+
+        )
+      )
+    }
+
+  </div>
+
+</BuilderCard>
+
+
+{/* CURRENT CAMPAIGN */}
+
+<BuilderCard className="mt-5">
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Current Quest
+
+  </h2>
+
+  <p className="mt-4 text-slate-400">
+
+    {
+
+      missions.find(
+        (mission)=>
+        !mission.completed
+      )?.title
+
+      ||
+
+      "No active campaign."
+
+    }
+
+  </p>
+
+</BuilderCard>
+
+
         {/* DIRECTION */}
 
         <BuilderCard className="mt-5">
 
           <h2 className="text-2xl font-semibold text-white">
 
-            Current Direction
+            Builder Vision
 
           </h2>
 
           <p className="mt-4 text-slate-400">
 
             {
-              builderProfile?.earningPath
+              builderProfile?.vision
               || "Your direction will evolve as you continue building."
             }
 

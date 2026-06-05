@@ -41,10 +41,17 @@ const [loading, setLoading] =
 } = useMissionStore();
 
 const {
-  builderProfile,
-  builderLevel,
-  streak,
-  completedCount,
+
+builderProfile,
+builderLevel,
+builderXP,
+evolutionStage,
+clarityHistory,
+behaviorSignals,
+momentumState,
+streak,
+completedCount,
+
 } = useProfileStore();
 
   async function handleGenerate() {
@@ -76,20 +83,31 @@ setLoading(true);
 
           body: JSON.stringify({
 
-  input,
+input,
 
-  profile:
-    builderProfile,
+profile:
+builderProfile,
 
-  level:
-    builderLevel,
+level:
+builderLevel,
 
-  streak,
+builderXP,
 
-  completedCount,
+streak,
 
-  missionHistory:
-    missions.slice(0, 5),
+completedCount,
+
+momentumState,
+
+evolutionStage,
+
+clarityHistory,
+
+behaviorSignals,
+
+missionHistory:
+missions.slice(0, 5),
+
 }),
         }
       );
@@ -566,6 +584,21 @@ setLoading(true);
       status:
         "active",
 
+quest_chain:
+mission.questChain || null,
+
+chain_name:
+mission.questChain?.name || null,
+
+chain_step:
+mission.questChain?.currentStep || 1,
+
+chain_total_steps:
+mission.questChain?.totalSteps || 1,
+
+future_steps:
+mission.questChain?.futureSteps || [],
+
       steps:
   mission.execution_steps,
 
@@ -585,7 +618,10 @@ setLoading(true);
 
     if (error) {
 
-      console.error(error);
+      console.error(
+  "MISSION SAVE ERROR:",
+  JSON.stringify(error, null, 2)
+);
 
       alert(
         "Failed to save mission."

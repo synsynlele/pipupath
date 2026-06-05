@@ -34,11 +34,29 @@ export default function SettingsPage() {
   const [bio, setBio] =
     useState("");
 
+const [displayName, setDisplayName] =
+  useState("");
+
   const [focus, setFocus] =
     useState("");
 
   const [skills, setSkills] =
     useState("");
+
+const [mission, setMission] =
+  useState("");
+
+const [whyBuild, setWhyBuild] =
+  useState("");
+
+const [vision, setVision] =
+  useState("");
+
+const [canHelpWith, setCanHelpWith] =
+  useState("");
+
+const [needHelpWith, setNeedHelpWith] =
+  useState("");
 
 const [
   whatsapp,
@@ -95,6 +113,10 @@ const [
 
         setProfileId(data.id);
 
+setDisplayName(
+  data.display_name || ""
+);
+
 setWhatsapp(
   data.whatsapp_number || ""
 );
@@ -115,6 +137,28 @@ setContactEmail(
           data.skills?.join(", ")
           || ""
         );
+
+setMission(
+  data.mission || ""
+);
+
+setWhyBuild(
+  data.why_build || ""
+);
+
+setVision(
+  data.vision || ""
+);
+
+setCanHelpWith(
+  data.can_help_with?.join(", ")
+  || ""
+);
+
+setNeedHelpWith(
+  data.need_help_with?.join(", ")
+  || ""
+);
 
         setCollaboration(
           data.collaboration_interest
@@ -147,6 +191,9 @@ setContactEmail(
           .from("profiles")
           .update({
 
+display_name:
+  displayName,
+
             bio,
 
             current_focus:
@@ -158,6 +205,27 @@ setContactEmail(
                 .map((s) =>
                   s.trim()
                 ),
+
+mission,
+
+why_build:
+  whyBuild,
+
+vision,
+
+can_help_with:
+  canHelpWith
+    .split(",")
+    .map((item) =>
+      item.trim()
+    ),
+
+need_help_with:
+  needHelpWith
+    .split(",")
+    .map((item) =>
+      item.trim()
+    ),
 
             collaboration_interest:
               collaboration,
@@ -235,6 +303,31 @@ contact_email:
 
       <div className="flex flex-col gap-5">
 
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Display Name
+
+  </h2>
+
+  <div className="mt-5">
+
+    <FloatingInput
+      value={displayName}
+      onChange={(e) =>
+        setDisplayName(
+          e.target.value
+        )
+      }
+      placeholder="What should builders call you?"
+    />
+
+  </div>
+
+</BuilderCard>
+
+
         {/* BIO */}
 
         <BuilderCard>
@@ -258,6 +351,59 @@ contact_email:
           </div>
 
         </BuilderCard>
+
+{/* MISSION */}
+
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Builder Mission
+
+  </h2>
+
+  <div className="mt-5">
+
+    <FloatingInput
+      value={mission}
+      onChange={(e)=>
+        setMission(
+          e.target.value
+        )
+      }
+      placeholder="What future do you want to help create?"
+    />
+
+  </div>
+
+</BuilderCard>
+
+
+{/* WHY I BUILD */}
+
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Why I Build
+
+  </h2>
+
+  <div className="mt-5">
+
+    <FloatingInput
+      value={whyBuild}
+      onChange={(e)=>
+        setWhyBuild(
+          e.target.value
+        )
+      }
+      placeholder="What personal experience drives you?"
+    />
+
+  </div>
+
+</BuilderCard>
 
         {/* FOCUS */}
 
@@ -283,6 +429,33 @@ contact_email:
 
         </BuilderCard>
 
+{/* CURRENT FOCUS */}
+
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Builder Vision
+
+  </h2>
+
+  <div className="mt-5">
+
+    <FloatingInput
+      value={vision}
+      onChange={(e)=>
+        setVision(
+          e.target.value
+        )
+      }
+      placeholder="What are you working toward long term?"
+    />
+
+  </div>
+
+</BuilderCard>
+
+
         {/* SKILLS */}
 
         <BuilderCard>
@@ -306,6 +479,58 @@ contact_email:
           </div>
 
         </BuilderCard>
+
+ {/* CAN HELP */}
+
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Can Help With
+
+  </h2>
+
+  <div className="mt-5">
+
+    <FloatingInput
+      value={canHelpWith}
+      onChange={(e)=>
+        setCanHelpWith(
+          e.target.value
+        )
+      }
+      placeholder="Teaching, Writing, Design..."
+    />
+
+  </div>
+
+</BuilderCard>
+
+{/* NEED HELP */}
+
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Need Help With
+
+  </h2>
+
+  <div className="mt-5">
+
+    <FloatingInput
+      value={needHelpWith}
+      onChange={(e)=>
+        setNeedHelpWith(
+          e.target.value
+        )
+      }
+      placeholder="Marketing, Funding, Public Speaking..."
+    />
+
+  </div>
+
+</BuilderCard>
 
         {/* COLLAB */}
 

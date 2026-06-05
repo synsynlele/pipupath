@@ -86,18 +86,37 @@ export function AuthProvider({
 
             completeOnboarding({
 
-              identity:
-                profile.builder_identity,
+  identity:
+    profile.builder_identity,
 
-              strengths:
-                profile.strengths,
+displayName:
+  profile.display_name || "",
 
-              skills:
-                profile.skills,
+  strengths:
+    profile.strengths || [],
 
-              earningPath:
-                profile.earning_path,
-            });
+  skills:
+    profile.skills || [],
+
+  earningPath:
+    profile.earning_path,
+
+  mission:
+    profile.mission || "",
+
+  whyBuild:
+    profile.why_build || "",
+
+  vision:
+    profile.vision || "",
+
+  canHelpWith:
+    profile.can_help_with || [],
+
+  needHelpWith:
+    profile.need_help_with || [],
+
+});
           }
 
           // RESTORE MISSIONS

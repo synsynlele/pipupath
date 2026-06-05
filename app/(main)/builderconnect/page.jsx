@@ -20,7 +20,12 @@ from "@/lib/supabase";
 import Link
 from "next/link";
 
+import { useAuth }
+from "@/context/AuthContext";
+
 export default function BuilderConnectPage() {
+
+const { user } = useAuth();
 
   const [builders, setBuilders] =
     useState([]);
@@ -30,6 +35,26 @@ export default function BuilderConnectPage() {
 
   const [loading, setLoading] =
     useState(true);
+
+const [
+  activeTab,
+  setActiveTab,
+] = useState("discover");
+
+const [
+  incomingRequests,
+  setIncomingRequests,
+] = useState([]);
+
+const [
+  outgoingRequests,
+  setOutgoingRequests,
+] = useState([]);
+
+const [
+  connectedBuilders,
+  setConnectedBuilders,
+] = useState([]);
 
   useEffect(() => {
 
@@ -53,7 +78,12 @@ export default function BuilderConnectPage() {
 
       } else {
 
-        setBuilders(data);
+        setBuilders(
+  data.filter(
+    builder =>
+      builder.id !== user?.id
+  )
+);
       }
 
       setLoading(false);
@@ -71,24 +101,93 @@ export default function BuilderConnectPage() {
 
       return (
 
-        builder?.identity_summary
-          ?.toLowerCase()
-          ?.includes(searchText)
+  builder?.builder_identity
+    ?.toLowerCase()
+    ?.includes(searchText)
 
-        ||
+  ||
 
-        builder?.current_focus
-          ?.toLowerCase()
-          ?.includes(searchText)
+  builder?.mission
+    ?.toLowerCase()
+    ?.includes(searchText)
 
-        ||
+  ||
 
-        builder?.skills
-          ?.join(" ")
-          ?.toLowerCase()
-          ?.includes(searchText)
-      );
+  builder?.can_help_with
+    ?.join(" ")
+    ?.toLowerCase()
+    ?.includes(searchText)
+
+  ||
+
+  builder?.need_help_with
+    ?.join(" ")
+    ?.toLowerCase()
+    ?.includes(searchText)
+
+);
     });
+
+useEffect(() => {
+
+  async function loadNetwork() {
+
+    if (!user) return;
+
+    const {
+      data: incoming,
+    } =
+      await supabase
+        .from(
+          "connection_requests"
+        )
+        .select("*")
+        .eq(
+          "receiver_id",
+          user.id
+        );
+
+    const {
+      data: outgoing,
+    } =
+      await supabase
+        .from(
+          "connection_requests"
+        )
+        .select("*")
+        .eq(
+          "sender_id",
+          user.id
+        );
+
+    setIncomingRequests(
+      incoming || []
+    );
+
+    setOutgoingRequests(
+      outgoing || []
+    );
+
+    const accepted = [
+
+      ...(incoming || []),
+
+      ...(outgoing || [])
+
+    ].filter(
+      request =>
+        request.status ===
+        "accepted"
+    );
+
+    setConnectedBuilders(
+      accepted
+    );
+  }
+
+  loadNetwork();
+
+}, [user]);
 
   return (
 
@@ -117,6 +216,68 @@ export default function BuilderConnectPage() {
           growing through PipuPath.
 
         </p>
+
+<div className="mt-10 flex gap-3">
+
+  <button
+    onClick={() =>
+      setActiveTab(
+        "discover"
+      )
+    }
+    className={`
+      rounded-xl
+      px-5
+      py-3
+      font-medium
+
+      ${
+        activeTab ===
+        "discover"
+
+          ? "bg-blue-500 text-white"
+
+          : "bg-white/5 text-slate-400"
+      }
+    `}
+  >
+
+    Discover
+
+  </button>
+
+  <button
+    onClick={() =>
+      setActiveTab(
+        "network"
+      )
+    }
+    className={`
+      rounded-xl
+      px-5
+      py-3
+      font-medium
+
+      ${
+        activeTab ===
+        "network"
+
+          ? "bg-blue-500 text-white"
+
+          : "bg-white/5 text-slate-400"
+      }
+    `}
+  >
+
+    My Network
+
+  </button>
+
+</div>
+
+{activeTab === "discover" && (
+
+  <>
 
         {/* SEARCH */}
 
@@ -165,13 +326,9 @@ export default function BuilderConnectPage() {
             filteredBuilders.map(
               (builder) => (
 
-                <Link
-  href={`/builder/${builder.id}`}
->
+               <div key={builder.id}>
 
-  <BuilderCard
-    key={builder.id}
-  >
+  <BuilderCard>
 
                   <div className="flex flex-col">
 
@@ -185,105 +342,203 @@ export default function BuilderConnectPage() {
 
                     {/* IDENTITY */}
 
-                    <h2 className="text-2xl font-semibold text-white">
+                    <div>
 
-                      {
-                        builder.identity_summary ||
-                        "Emerging Builder"
-                      }
+  <h2 className="text-2xl font-semibold text-white">
 
-                    </h2>
+    {
+      builder.display_name ||
+      "Anonymous Builder"
+    }
 
-                    {/* FOCUS */}
+  </h2>
 
-                    <p className="mt-4 text-slate-400 leading-relaxed">
+  <p className="mt-1 text-sm text-blue-300">
 
-                      {
-                        builder.current_focus ||
-                        "Exploring opportunities and building momentum."
-                      }
+    {
+      builder.builder_identity ||
+      "Builder"
+    }
 
-                    </p>
+  </p>
 
-                    {/* SKILLS */}
+</div>
 
-                    <div className="mt-5 flex flex-wrap gap-2">
+                    {/* MISSION */}
 
-                      {builder.skills?.map(
-                        (
-                          skill,
-                          index
-                        ) => (
+<div className="mt-4">
 
-                          <div
-                            key={index}
-                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300"
-                          >
+  <p className="text-xs uppercase tracking-wide text-slate-500">
 
-                            {skill}
+    Mission
 
-                          </div>
+  </p>
 
-                        )
-                      )}
+  <p className="mt-2 text-slate-300 leading-relaxed">
 
-                    </div>
+    {
+      builder.mission ||
+      "Mission not defined yet."
+    }
 
-                    {/* COLLAB */}
+  </p>
 
-                    <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
+</div>
 
-                      <p className="text-xs uppercase tracking-wide text-slate-500">
+                    {/* CAN HELP WITH */}
 
-                        Collaboration Interest
+<div className="mt-5">
 
-                      </p>
+  <p className="text-xs uppercase tracking-wide text-slate-500">
 
-                      <p className="mt-2 text-slate-300">
+    Can Help With
 
-                        {
-                          builder.collaboration_interest ||
-                          "Open to meaningful collaboration."
-                        }
+  </p>
 
-                      </p>
+  <div className="mt-3 flex flex-wrap gap-2">
 
-                    </div>
+    {builder.can_help_with?.map(
+      (item,index)=>(
+
+        <div
+          key={index}
+          className="
+            rounded-full
+            border
+            border-green-400/20
+            bg-green-500/10
+            px-3
+            py-1
+            text-xs
+            text-green-200
+          "
+        >
+
+          {item}
+
+        </div>
+
+      )
+    )}
+
+  </div>
+
+</div>
+
+                   {/* NEED HELP WITH */}
+
+<div className="mt-6 rounded-2xl border border-yellow-400/10 bg-yellow-500/5 p-4">
+
+  <p className="text-xs uppercase tracking-wide text-yellow-300">
+
+    Need Help With
+
+  </p>
+
+  <div className="mt-3 flex flex-wrap gap-2">
+
+    {builder.need_help_with?.map(
+      (item,index)=>(
+
+        <div
+          key={index}
+          className="
+            rounded-full
+            border
+            border-yellow-400/20
+            bg-yellow-500/10
+            px-3
+            py-1
+            text-xs
+            text-yellow-200
+          "
+        >
+
+          {item}
+
+        </div>
+
+      )
+    )}
+
+  </div>
+
+</div>
 
                     {/* CTA */}
 
-                    <a
-                      href="mailto:pipupath@gmail.com"
-                      className="
-                        mt-6
-                        rounded-2xl
-                        bg-blue-500
-                        px-5
-                        py-4
-                        text-center
-                        font-semibold
-                        text-white
-                        transition-all
-                        hover:scale-[1.02]
-                      "
-                    >
+                   <Link
+  href={`/builder/${builder.id}`}
+  className="
+    mt-6
+    rounded-2xl
+    bg-blue-500
+    px-5
+    py-4
+    text-center
+    font-semibold
+    text-white
+    transition-all
+    hover:scale-[1.02]
+  "
+>
 
-                      Request Connection
+  View Builder
 
-                    </a>
+</Link>
 
                   </div>
 
                 </BuilderCard>
 
-</Link>
+
+</div>
 
               )
             )
 
           )}
 
-        </div>
+               </div>
+
+  </>
+
+)}
+
+{activeTab === "network" && (
+
+  <BuilderCard>
+
+    <h2 className="text-2xl font-semibold text-white">
+
+      My Network
+
+    </h2>
+
+    <p className="mt-4 text-slate-400">
+
+      Incoming Requests:
+      {incomingRequests.length}
+
+    </p>
+
+    <p className="mt-2 text-slate-400">
+
+      Sent Requests:
+      {outgoingRequests.length}
+
+    </p>
+
+    <p className="mt-2 text-slate-400">
+
+      Connected Builders:
+      {connectedBuilders.length}
+
+    </p>
+
+  </BuilderCard>
+
+)}
 
       </div>
 
