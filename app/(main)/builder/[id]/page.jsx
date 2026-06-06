@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import {
@@ -27,6 +29,9 @@ import Link from "next/link";
 import { useAuth }
 from "@/context/AuthContext";
 
+import useProfileStore
+from "@/stores/profileStore";
+
 export default function BuilderProfilePage() {
 
   const params =
@@ -44,6 +49,10 @@ const [
     useState(true);
 
 const { user } = useAuth();
+
+const {
+  builderProfile:userProfile,
+} = useProfileStore();
 
 const [
   sendingRequest,
@@ -100,7 +109,10 @@ const {
 const matches =
   matchBuilders(
     data,
-    allBuilders || []
+    (allBuilders || []).filter(
+      item =>
+        item.id !== data.id
+    )
   );
 
 setSuggestedBuilders(
@@ -157,12 +169,12 @@ async function sendConnectionRequest() {
             builder.id,
 
           sender_name:
-            user.email,
+  userProfile?.displayName ||
+  user.email,
 
-          receiver_name:
-            builder.identity_summary ||
-
-            "Builder",
+receiver_name:
+  builder.display_name ||
+  "Builder",
 
           message:
             "Builder connection request",
@@ -264,14 +276,27 @@ async function sendConnectionRequest() {
 
               </div>
 
-              <h1 className="text-4xl font-bold text-white">
+              <div>
 
-                {
-                  builder.identity_summary ||
-                  "Emerging Builder"
-                }
+  <h1 className="text-4xl font-bold text-white">
 
-              </h1>
+    {
+      builder.display_name ||
+      "Anonymous Builder"
+    }
+
+  </h1>
+
+  <p className="mt-2 text-blue-300">
+
+    {
+      builder.builder_identity ||
+      "Builder"
+    }
+
+  </p>
+
+</div>
 
               <p className="mt-4 max-w-2xl text-slate-400 leading-relaxed">
 
@@ -328,26 +353,49 @@ async function sendConnectionRequest() {
 
         </BuilderCard>
 
-        {/* CURRENT FOCUS */}
 
-        <BuilderCard>
+        {/* BUILDER MISSION */}
 
-          <h2 className="text-2xl font-semibold text-white">
+<BuilderCard>
 
-            Current Focus
+  <h2 className="text-2xl font-semibold text-white">
 
-          </h2>
+    Builder Mission
 
-          <p className="mt-4 text-slate-300 leading-relaxed">
+  </h2>
 
-            {
-              builder.current_focus ||
-              "Exploring opportunities and building consistency."
-            }
+  <p className="mt-4 text-slate-300 leading-relaxed">
 
-          </p>
+    {
+      builder.mission ||
+      "Mission not defined yet."
+    }
 
-        </BuilderCard>
+  </p>
+
+</BuilderCard>
+
+
+ {/* WHY I BUILD */}
+
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Why I Build
+
+  </h2>
+
+  <p className="mt-4 text-slate-300 leading-relaxed">
+
+    {
+      builder.why_build ||
+      "No builder story yet."
+    }
+
+  </p>
+
+</BuilderCard>
 
         {/* SKILLS */}
 
@@ -383,47 +431,108 @@ async function sendConnectionRequest() {
 
         </BuilderCard>
 
-        {/* MOMENTUM */}
+      {/* BUILDER VISION */}
+
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Builder Vision
+
+  </h2>
+
+  <p className="mt-4 text-slate-300">
+
+    {
+      builder.vision ||
+      "Vision still evolving."
+    }
+
+  </p>
+
+</BuilderCard>
+
+        {/* CAN HELP */}
 
         <BuilderCard>
 
-          <h2 className="text-2xl font-semibold text-white">
+  <h2 className="text-2xl font-semibold text-white">
 
-            Momentum State
+    Can Help With
 
-          </h2>
+  </h2>
 
-          <p className="mt-4 text-slate-300">
+  <div className="mt-5 flex flex-wrap gap-3">
 
-            {
-              builder.momentum_state ||
-              "Rebuilding"
-            }
+    {builder.can_help_with?.map(
+      (item,index)=>(
 
-          </p>
+        <div
+          key={index}
+          className="
+            rounded-full
+            border
+            border-green-400/20
+            bg-green-500/10
+            px-4
+            py-2
+            text-sm
+            text-green-200
+          "
+        >
 
-        </BuilderCard>
+          {item}
 
-        {/* COLLAB */}
+        </div>
 
-        <BuilderCard>
+      )
+    )}
 
-          <h2 className="text-2xl font-semibold text-white">
+  </div>
 
-            Collaboration Interest
+</BuilderCard>
 
-          </h2>
+ {/* NEED HELP */}
 
-          <p className="mt-4 text-slate-300 leading-relaxed">
+<BuilderCard>
 
-            {
-              builder.collaboration_interest ||
-              "Open to collaborating with other builders."
-            }
+  <h2 className="text-2xl font-semibold text-white">
 
-          </p>
+    Need Help With
 
-        </BuilderCard>
+  </h2>
+
+  <div className="mt-5 flex flex-wrap gap-3">
+
+    {builder.need_help_with?.map(
+      (item,index)=>(
+
+        <div
+          key={index}
+          className="
+            rounded-full
+            border
+            border-yellow-400/20
+            bg-yellow-500/10
+            px-4
+            py-2
+            text-sm
+            text-yellow-200
+          "
+        >
+
+          {item}
+
+        </div>
+
+      )
+    )}
+
+  </div>
+
+</BuilderCard>
+
+
 
 <BuilderCard>
 
@@ -454,19 +563,28 @@ async function sendConnectionRequest() {
           <h3 className="text-xl font-semibold text-white">
 
             {
-              match.identity_summary ||
-              "Builder"
-            }
+  match.display_name ||
+  "Builder"
+}
 
           </h3>
+
+<p className="mt-1 text-sm text-blue-300">
+
+  {
+    match.builder_identity ||
+    "Builder"
+  }
+
+</p>
+
 
           <p className="mt-3 text-slate-400">
 
             {
-              match.current_focus ||
-              "Building momentum."
-            }
-
+  match.mission ||
+  "Mission not defined yet."
+}
           </p>
 
         </div>

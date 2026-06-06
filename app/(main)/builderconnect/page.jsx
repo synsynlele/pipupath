@@ -99,6 +99,7 @@ const [
       const searchText =
         search.toLowerCase();
 
+
       return (
 
   builder?.builder_identity
@@ -170,24 +171,93 @@ useEffect(() => {
 
     const accepted = [
 
-      ...(incoming || []),
+  ...(incoming || []),
 
-      ...(outgoing || [])
+  ...(outgoing || [])
 
-    ].filter(
-      request =>
-        request.status ===
-        "accepted"
+].filter(
+  request =>
+    request.status ===
+    "accepted"
+);
+
+const connectedIds =
+  accepted.map(
+    (request) =>
+
+      request.sender_id ===
+      user.id
+
+        ? request.receiver_id
+
+        : request.sender_id
+  );
+
+const {
+  data: profiles
+} =
+  await supabase
+    .from("profiles")
+    .select("*")
+    .in(
+      "id",
+      connectedIds
     );
 
-    setConnectedBuilders(
-      accepted
-    );
+setConnectedBuilders(
+  profiles || []
+);
+
+console.log(
+  "CONNECTED IDS:",
+  connectedIds
+);
+
+console.log(
+  "CONNECTED PROFILES:",
+  profiles
+);
   }
 
   loadNetwork();
 
 }, [user]);
+
+
+async function acceptRequest(
+  requestId
+) {
+
+  const { error } =
+    await supabase
+      .from(
+        "connection_requests"
+      )
+      .update({
+
+        status:
+          "accepted",
+
+      })
+      .eq(
+        "id",
+        requestId
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    alert(
+      "Failed to accept request."
+    );
+
+    return;
+  }
+
+  window.location.reload();
+}
+
 
   return (
 
@@ -507,40 +577,226 @@ useEffect(() => {
 
 {activeTab === "network" && (
 
-  <BuilderCard>
+  <div className="mt-10 flex flex-col gap-6">
 
-    <h2 className="text-2xl font-semibold text-white">
+    {/* INCOMING */}
 
-      My Network
+    <BuilderCard>
 
-    </h2>
+      <h2 className="text-2xl font-semibold text-white">
 
-    <p className="mt-4 text-slate-400">
+        Incoming Requests
 
-      Incoming Requests:
-      {incomingRequests.length}
+      </h2>
 
-    </p>
+      <div className="mt-5 space-y-4">
 
-    <p className="mt-2 text-slate-400">
+        {incomingRequests.length === 0 ? (
 
-      Sent Requests:
-      {outgoingRequests.length}
+          <p className="text-slate-400">
 
-    </p>
+            No incoming requests.
 
-    <p className="mt-2 text-slate-400">
+          </p>
 
-      Connected Builders:
-      {connectedBuilders.length}
+        ) : (
 
-    </p>
+          incomingRequests.map(
+            (request) => (
 
-  </BuilderCard>
+              <div
+                key={request.id}
+                className="
+                  rounded-2xl
+                  border
+                  border-white/10
+                  bg-white/5
+                  p-4
+                "
+              >
+
+                <h3 className="text-white font-semibold">
+
+                  {request.sender_name}
+
+                </h3>
+
+                <p className="mt-2 text-slate-400">
+
+                  {request.status}
+
+                </p>
+
+                {request.status ===
+                  "pending" && (
+
+                  <button
+
+                    onClick={() =>
+                      acceptRequest(
+                        request.id
+                      )
+                    }
+
+                    className="
+                      mt-4
+                      rounded-xl
+                      bg-green-500
+                      px-4
+                      py-2
+                      text-white
+                    "
+                  >
+
+                    Accept
+
+                  </button>
+
+                )}
+
+              </div>
+
+            )
+          )
+
+        )}
+
+      </div>
+
+    </BuilderCard>
+
+
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Sent Requests
+
+  </h2>
+
+  <div className="mt-5 space-y-4">
+
+    {outgoingRequests.map(
+      (request) => (
+
+        <div
+          key={request.id}
+          className="
+            rounded-2xl
+            border
+            border-white/10
+            bg-white/5
+            p-4
+          "
+        >
+
+          <h3 className="text-white font-semibold">
+
+            {request.receiver_name}
+
+          </h3>
+
+          <p className="mt-2 text-slate-400">
+
+            {request.status}
+
+          </p>
+
+        </div>
+
+      )
+    )}
+
+  </div>
+
+</BuilderCard>
+
+
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Connected Builders
+
+  </h2>
+
+  <div className="mt-5 space-y-4">
+
+    {connectedBuilders.map(
+  (builder) => (
+
+        <div
+         key={builder.id}
+          className="
+            rounded-2xl
+            border
+            border-green-400/20
+            bg-green-500/5
+            p-4
+          "
+        >
+
+          <h3 className="text-white font-semibold">
+
+  {
+    builder.display_name ||
+    "Builder"
+  }
+
+</h3>
+
+<p className="mt-1 text-blue-300 text-sm">
+
+  {
+    builder.builder_identity ||
+    "Builder"
+  }
+
+</p>
+
+<p className="mt-3 text-slate-400">
+
+  {
+    builder.mission ||
+    "Mission not defined yet."
+  }
+
+</p>
+
+<Link
+  href={`/builder/${builder.id}`}
+  className="
+    mt-4
+    inline-block
+    rounded-xl
+    bg-blue-500
+    px-4
+    py-2
+    text-sm
+    font-medium
+    text-white
+  "
+>
+
+  View Builder
+
+</Link>
+
+        </div>
+
+      )
+    )}
+
+  </div>
+
+</BuilderCard>
+
+  </div>
 
 )}
 
       </div>
+
 
     </BuilderShell>
   );
