@@ -84,11 +84,9 @@ console.log("PROFILE", builderProfile);
 
 </div>
 
-          <p className="mt-5 text-lg leading-relaxed text-slate-400">
+          <p className="mt-5 text-lg leading-relaxed text-slate-40">
 
-            Your builder profile evolves
-            as you complete missions,
-            gain skills, and create value.
+            
 
           </p>
 
