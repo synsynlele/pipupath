@@ -116,7 +116,7 @@ console.log("PROFILE", builderProfile);
 
   >
 
-    ⚙ Edit Profile
+    ⚙ Settings
 
   </button>
 
