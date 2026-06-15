@@ -41,6 +41,8 @@ export default function ProfilePage() {
         mission.completed
     );
 
+console.log("PROFILE", builderProfile);
+
   return (
 
     <BuilderShell
@@ -65,7 +67,7 @@ export default function ProfilePage() {
   <h1 className="text-5xl font-bold leading-tight tracking-tight text-white">
 
     {
-      builderProfile?.displayName
+      builderProfile?.display_name
       || "Anonymous Builder"
     }
 
@@ -74,7 +76,7 @@ export default function ProfilePage() {
   <p className="mt-3 text-lg text-blue-300">
 
     {
-      builderProfile?.identity
+      builderProfile?.builder_identity
       || "Builder"
     }
 
@@ -284,47 +286,14 @@ export default function ProfilePage() {
   <p className="mt-5 text-slate-400 leading-relaxed">
 
   {
-    builderProfile?.whyBuild ||
+    builderProfile?.why_build ||
     "Add your reason for building."
   }
 
 </p>
 
 </BuilderCard>
-
-
-        {/* STRENGTHS */}
-
-        <BuilderCard className="mt-5">
-
-          <h2 className="text-2xl font-semibold text-white">
-
-            Natural Strengths
-
-          </h2>
-
-          <div className="mt-5 flex flex-wrap gap-3">
-
-            {
-              builderProfile?.strengths?.map(
-                (strength) => (
-
-                  <div
-                    key={strength}
-                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300"
-                  >
-
-                    {strength}
-
-                  </div>
-
-                )
-              )
-            }
-
-          </div>
-
-        </BuilderCard>
+      
 
         {/* SKILLS */}
 
@@ -372,7 +341,7 @@ export default function ProfilePage() {
   <div className="mt-5 flex flex-wrap gap-3">
 
     {
-      builderProfile?.canHelpWith?.map(
+      builderProfile?.can_help_with?.map(
         (item) => (
 
           <div
@@ -415,7 +384,7 @@ export default function ProfilePage() {
   <div className="mt-5 flex flex-wrap gap-3">
 
     {
-      builderProfile?.needHelpWith?.map(
+      builderProfile?.need_help_with?.map(
         (item) => (
 
           <div
@@ -444,35 +413,6 @@ export default function ProfilePage() {
 
 </BuilderCard>
 
-
-{/* CURRENT CAMPAIGN */}
-
-<BuilderCard className="mt-5">
-
-  <h2 className="text-2xl font-semibold text-white">
-
-    Current Quest
-
-  </h2>
-
-  <p className="mt-4 text-slate-400">
-
-    {
-
-      missions.find(
-        (mission)=>
-        !mission.completed
-      )?.title
-
-      ||
-
-      "No active campaign."
-
-    }
-
-  </p>
-
-</BuilderCard>
 
 
         {/* DIRECTION */}

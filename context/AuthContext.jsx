@@ -84,40 +84,9 @@ export function AuthProvider({
 
           if (profile) {
 
-            completeOnboarding({
+  completeOnboarding(profile);
 
-  identity:
-    profile.builder_identity,
-
-displayName:
-  profile.display_name || "",
-
-  strengths:
-    profile.strengths || [],
-
-  skills:
-    profile.skills || [],
-
-  earningPath:
-    profile.earning_path,
-
-  mission:
-    profile.mission || "",
-
-  whyBuild:
-    profile.why_build || "",
-
-  vision:
-    profile.vision || "",
-
-  canHelpWith:
-    profile.can_help_with || [],
-
-  needHelpWith:
-    profile.need_help_with || [],
-
-});
-          }
+}
 
           // RESTORE MISSIONS
 

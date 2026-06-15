@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -13,6 +14,9 @@ import useProfileStore from "@/stores/profileStore";
 import { interpretMagicWriting }
 from "@/lib/ai";
 
+import { supabase }
+from "@/lib/supabase";
+
 export default function JourneyPage() {
 
 const router=useRouter();
@@ -22,9 +26,10 @@ const [selectedMission,setSelectedMission]=useState(null);
 const [reflection,setReflection]=useState("");
 
 const {
-missions,
-addMission,
-completeMission
+  missions,
+  addMission,
+  completeMission,
+  setMissions
 }=useMissionStore();
 
 const {
@@ -37,55 +42,85 @@ clarityHistory,
 streak,
 momentumState,
 dailyCheckIn,
-lastCheckIn
+lastCheckIn,
+
+completeMission:
+completeProfileMission,
 
 }=useProfileStore();
 
 
-useEffect(()=>{
+useEffect(() => {
 
-const today=
-new Date()
-.toDateString();
+  const today =
+    new Date()
+      .toDateString();
 
-if(
-lastCheckIn !==
-today
-){
+  if (
+    lastCheckIn !== today
+  ) {
 
-dailyCheckIn();
+    dailyCheckIn();
 
-}
+  }
+
+}, []);
+
+useEffect(() => {
+
+  async function loadMissions() {
+
+    const {
+      data: authData,
+    } =
+      await supabase.auth.getUser();
+
+    const user =
+      authData?.user;
+
+    if (!user) return;
+
+    const {
+      data,
+      error,
+    } =
+      await supabase
+        .from("user_missions")
+        .select("*")
+        .eq(
+          "user_id",
+          user.id
+        )
+        .eq(
+          "status",
+          "active"
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false,
+          }
+        );
+
+    if (error) {
+
+      console.error(error);
+
+      return;
+    }
+
+    setMissions(data || []);
+
+  }
+
+  loadMissions();
+
+}, []);
+
+
+
 
 /* AUTO DAILY QUEST */
-
-if(
-missions.length===0 &&
-builderProfile
-){
-
-addMission({
-
-title:
-"Your First Builder Step",
-
-description:
-`Take one small action toward improving ${builderProfile.strengths?.[0] || "your future"} today.`,
-
-questType:
-"Daily Quest",
-
-difficulty:
-"easy",
-
-xpReward:
-25,
-
-});
-
-}
-
-},[]);
 
 return(
 
@@ -364,78 +399,6 @@ As your identity evolves, new systems, missions and opportunities unlock automat
 </div>
 
 
-{/* CLARITY */}
-
-<div className="mt-10">
-
-<BuilderCard>
-
-<div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-
-<div>
-
-<div className="mb-3 inline-flex rounded-full border border-cyan-400/20 bg-cyan-500/10 px-4 py-2 text-xs text-cyan-300">
-
-🧠 MENTAL CLARITY
-
-</div>
-
-<h2 className="text-3xl font-bold text-white">
-
-{
-
-clarityHistory.length > 0
-
-?
-
-`${Math.round(
-
-clarityHistory.reduce(
-(a,b)=>a+b,
-0
-)
-/ clarityHistory.length
-
-)}/10`
-
-:
-
-"Not Enough Data"
-
-}
-
-</h2>
-
-<p className="mt-4 max-w-xl text-slate-400 leading-relaxed">
-
-Your reflections help PipuPath understand your growth patterns and momentum over time.
-
-</p>
-
-</div>
-
-<div className="flex gap-3 flex-wrap">
-
-<div className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-slate-300">
-
-⚡ Reflection Intelligence Active
-
-</div>
-
-<div className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-slate-300">
-
-📈 Behavioral Tracking Enabled
-
-</div>
-
-</div>
-
-</div>
-
-</BuilderCard>
-
-</div>
-
 
 
 
@@ -554,12 +517,139 @@ Unlock future collaboration missions and team-based campaigns.
 </div>
 
 
-<GlowButton>
+<GlowButton
+
+onClick={async()=>{
+
+const {
+data:authData
+}=await supabase
+.auth
+.getUser();
+
+const user=
+authData?.user;
+
+if(!user) return;
+
+
+/* CHECK IF ALREADY JOINED */
+
+const {
+data:existing
+}=await supabase
+.from("user_missions")
+.select("id")
+.eq(
+"user_id",
+user.id
+)
+.eq(
+"category",
+"weekly_challenge")
+.eq(
+"status",
+"active")
+.limit(1);
+
+
+if(
+existing &&
+existing.length > 0
+){
+
+alert(
+"You already joined this week's challenge."
+);
+
+return;
+
+}
+
+
+/* CREATE CHALLENGE MISSION */
+
+const {
+error
+}=await supabase
+.from("user_missions")
+.insert({
+
+user_id:
+user.id,
+
+title:
+"Build Something That Helps Someone",
+
+description:
+"Create something useful that genuinely helps another person this week.",
+
+category:
+"weekly_challenge",
+
+xp_reward:
+150,
+
+status:
+"active",
+
+archetype:
+"Builder",
+
+steps:[
+"Choose someone to help",
+"Create something useful",
+"Deliver it",
+"Reflect on impact"
+],
+
+});
+
+
+if(error){
+
+console.error(error);
+
+alert(
+"Failed to join challenge."
+);
+
+return;
+
+}
+
+
+/* RELOAD ACTIVE MISSIONS */
+
+const {
+data:missionsData
+}=await supabase
+.from("user_missions")
+.select("*")
+.eq(
+"user_id",
+user.id
+)
+.eq(
+"status",
+"active"
+);
+
+setMissions(
+missionsData || []
+);
+
+alert(
+"Challenge joined successfully!"
+);
+
+}}
+
+>
 
 Join Challenge
 
 </GlowButton>
-
 </div>
 
 </div>
@@ -649,22 +739,43 @@ Active Missions
 
 <BuilderCard>
 
-<p className="text-slate-400">
+<h3>
+No Active Missions
+</h3>
 
-No missions yet.
+<p>
 
-Use MagicPen to generate missions.
+Generate a new mission
+with MagicPen to continue
+your builder journey.
 
 </p>
+
+<Link href="/magicpen">
+
+<GlowButton>
+
+Open MagicPen
+
+</GlowButton>
+
+</Link>
 
 </BuilderCard>
 
 ) : (
 
-missions.map((mission) => (
+missions
+  .filter(
+    mission =>
+      mission.status ===
+      "active"
+  )
+  .slice(0, 3)
+  .map((mission) => (
 
 <BuilderCard
-key={mission.id}
+  key={mission.id}
 >
 
 <div className="flex flex-col gap-6">
@@ -832,7 +943,7 @@ text-slate-300
 
 {/* COMPLETE */}
 
-{!mission.completed && (
+{mission.status !== "completed" && (
 
 <div className="pt-4">
 
@@ -1011,27 +1122,180 @@ min-h-[140px]
 onClick={async ()=>{
 
 const analysis =
-await interpretMagicWriting(
-reflection
+  await interpretMagicWriting(
+    reflection
+  );
+
+console.log(
+  selectedMission
 );
 
-completeMission(
-selectedMission.id,
-{
+/* MARK CURRENT STEP COMPLETE */
 
-reflection,
+await supabase
+  .from("user_missions")
+  .update({
 
-reflectionInsight:
-analysis.insight,
+    status:
+      "completed",
 
-mentalState:
-analysis.state,
+    completed_at:
+      new Date()
+        .toISOString(),
 
-clarityScore:
-analysis.clarity,
+  })
+  .eq(
+    "id",
+    selectedMission.id
+  );
+
+/* ADD XP TO PROFILE */
+
+const earnedXP =
+  selectedMission.xp_reward || 25;
+
+const newXP =
+  (builderXP || 0) +
+  earnedXP;
+
+let newLevel = 1;
+let newStage = "Explorer";
+
+if (newXP >= 1500) {
+
+  newLevel = 5;
+  newStage = "Architect";
+
+} else if (newXP >= 700) {
+
+  newLevel = 4;
+  newStage = "Leader";
+
+} else if (newXP >= 300) {
+
+  newLevel = 3;
+  newStage = "Creator";
+
+} else if (newXP >= 100) {
+
+  newLevel = 2;
+  newStage = "Builder";
 
 }
+
+await supabase
+  .from("profiles")
+  .update({
+
+    xp: newXP,
+
+    level:
+      newLevel,
+
+    current_stage:
+      newStage,
+
+    completed_count:
+      (
+        builderProfile?.completed_count ||
+        0
+      ) + 1,
+
+  })
+  .eq(
+    "id",
+    selectedMission.user_id
+  );
+
+
+if (
+
+  selectedMission.future_steps &&
+  selectedMission.future_steps.length > 0
+
+) {
+
+  const nextStep =
+    selectedMission.future_steps[0];
+
+  const remainingSteps =
+    selectedMission.future_steps.slice(1);
+
+  await supabase
+    .from("user_missions")
+    .insert({
+
+      user_id:
+        selectedMission.user_id,
+
+      title:
+        nextStep,
+
+      description:
+        `Continue your ${selectedMission.chain_name} journey.`,
+
+      archetype:
+        selectedMission.archetype,
+
+      category:
+        selectedMission.category,
+
+      xp_reward:
+        selectedMission.xp_reward,
+
+      status:
+        "active",
+
+      chain_name:
+        selectedMission.chain_name,
+
+      chain_step:
+        (selectedMission.chain_step || 1) + 1,
+
+      chain_total_steps:
+        selectedMission.chain_total_steps,
+
+      future_steps:
+        remainingSteps,
+
+    });
+
+}
+
+/* LOCAL UPDATE */
+
+completeMission(
+  selectedMission.id,
+  {
+
+    reflection,
+
+    reflectionInsight:
+      analysis.insight,
+
+    mentalState:
+      analysis.state,
+
+    clarityScore:
+      analysis.clarity,
+
+  }
 );
+
+
+await completeProfileMission({
+
+  xp:
+    selectedMission.xp_reward || 25,
+
+  clarityScore:
+    analysis.clarity,
+
+  mentalState:
+    analysis.state,
+
+});
+
 
 setSelectedMission(null);
 

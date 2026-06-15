@@ -687,6 +687,40 @@ contact_email:
 
       </div>
 
+<BuilderCard>
+
+  <h2 className="text-2xl font-semibold text-white">
+
+    Account
+
+  </h2>
+
+  <div className="mt-5">
+
+    <GlowButton
+
+      onClick={async()=>{
+
+        await supabase
+          .auth
+          .signOut();
+
+        window.location.href =
+          "/login";
+
+      }}
+
+    >
+
+      Logout
+
+    </GlowButton>
+
+  </div>
+
+</BuilderCard>
+
+
     </BuilderShell>
   );
 }

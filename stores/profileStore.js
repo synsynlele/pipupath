@@ -55,7 +55,7 @@ set({
 
 onboardingCompleted:true,
 
-builderProfile:profile,
+builderProfile:profile || null,
 
 }),
 
@@ -256,16 +256,16 @@ nextCompleted,
 streak:
 nextStreak,
 
-builder_level:
+level:
 nextLevel,
 
-builder_xp:
+xp:
 nextXP,
 
-momentum_state:
+momentum:
 nextMomentum,
 
-evolution_stage:
+current_stage:
 nextEvolution,
 
 })
@@ -322,13 +322,13 @@ onboardingCompleted:
 profile?.onboarding_completed || false,
 
 builderProfile:
-profile?.identity_summary || null,
+profile || null,
 
 builderLevel:
-profile?.builder_level || 1,
+profile?.level || 1,
 
 builderXP:
-profile?.builder_xp || 0,
+profile?.xp || 0,
 
 completedCount:
 profile?.completed_count || 0,
@@ -337,10 +337,10 @@ streak:
 profile?.streak || 0,
 
 momentumState:
-profile?.momentum_state || "Rebuilding",
+profile?.momentum || "Rebuilding",
 
 evolutionStage:
-profile?.evolution_stage || "Explorer",
+profile?.current_stage || "Explorer",
 
 }),
 
